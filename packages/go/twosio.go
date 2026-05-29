@@ -224,7 +224,7 @@ func (c *Client) parse(res *http.Response, endpoint, u string, out interface{}) 
 		return nil, err
 	}
 
-	if !res.StatusCode == 200 && res.StatusCode >= 400 {
+	if res.StatusCode >= 400 {
 		var apiErr struct {
 			Error struct {
 				Code, Message string
