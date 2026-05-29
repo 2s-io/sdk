@@ -1,0 +1,24 @@
+[package]
+name = "twosio"
+version = "0.1.0"
+edition = "2021"
+authors = ["Josh Alley <josh@alley.io>"]
+license = "MIT"
+description = "Rust client for 2s.io — pay-per-call AI agent APIs on Base via x402."
+homepage = "https://2s.io"
+repository = "https://github.com/2s-io/sdk"
+documentation = "https://docs.rs/twosio"
+readme = "README.md"
+keywords = ["x402", "ai-agents", "usdc", "base", "stablecoin"]
+categories = ["web-programming::http-client", "api-bindings"]
+
+[dependencies]
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tokio = { version = "1", features = ["full"], optional = true }
+
+[features]
+default = ["tokio"]
+tokio = ["dep:tokio"]
