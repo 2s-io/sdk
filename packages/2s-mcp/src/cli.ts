@@ -60,7 +60,8 @@ async function main() {
   const signerHex = flags.signer ?? process.env.EVM_PRIVATE_KEY
   const apiKey = process.env.TWOSIO_API_KEY
 
-  if (flags.bearer || (!signerHex && apiKey)) {
+  // Bearer mode
+  if (flags.bearer || (apiKey && !signerHex)) {
     if (!apiKey) {
       console.error('error: bearer mode requested but TWOSIO_API_KEY is not set')
       process.exit(2)
@@ -73,21 +74,41 @@ async function main() {
     return
   }
 
-  if (!signerHex || !/^0x[0-9a-fA-F]{64}$/.test(signerHex)) {
-    console.error(
-      'error: missing or malformed signer key.\n' +
-        '  Pass --signer 0x<64hex> or set EVM_PRIVATE_KEY.\n' +
-        '  Or use --bearer with TWOSIO_API_KEY for pre-funded billing.',
-    )
-    process.exit(2)
+  // x402 mode
+  if (signerHex && /^0x[0-9a-fA-F]{64}$/.test(signerHex)) {
+    const server = createTwoSioMcpServer({
+      // Cast: when the MCP package and the SDK package each pull in their
+      // own copy of viem (e.g. during local file: linking), TypeScript treats
+      // the two LocalAccount types as distinct even though they're identical.
+      // The cast is harmless at runtime.
+      signer: privateKeyToAccount(signerHex as Hex) as never,
+      maxPriceUsd: flags.maxPriceUsd,
+    })
+    await server.connect(new StdioServerTransport())
+    return
   }
 
+  // Introspection mode — no credentials supplied. The server still starts
+  // and responds to list_tools so MCP hosts (Glama, Claude Desktop, etc.)
+  // can discover its tool catalog. Calls to tools will error until either
+  // EVM_PRIVATE_KEY or TWOSIO_API_KEY is provided. This is what makes the
+  // server pass listing checks on directories like glama.ai.
+  console.error(
+    '[2sio-mcp] starting in introspection mode — no credentials configured.\n' +
+      '  Set EVM_PRIVATE_KEY for x402 payments, or TWOSIO_API_KEY for bearer\n' +
+      '  billing, to enable tool calls. Tool discovery works regardless.',
+  )
+  // Use a no-op signer that lets the SDK construct cleanly but throws on use.
+  const noopSigner = {
+    address: '0x0000000000000000000000000000000000000000' as Hex,
+    signTypedData: async () => {
+      throw new Error(
+        '@2sio/mcp: server started in introspection mode. Set EVM_PRIVATE_KEY or TWOSIO_API_KEY to make paid calls.',
+      )
+    },
+  } as never
   const server = createTwoSioMcpServer({
-    // Cast: when the MCP package and the SDK package each pull in their
-    // own copy of viem (e.g. during local file: linking), TypeScript treats
-    // the two LocalAccount types as distinct even though they're identical.
-    // The cast is harmless at runtime.
-    signer: privateKeyToAccount(signerHex as Hex) as never,
+    signer: noopSigner,
     maxPriceUsd: flags.maxPriceUsd,
   })
   await server.connect(new StdioServerTransport())

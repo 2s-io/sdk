@@ -1,6 +1,6 @@
 {
   "name": "@2sio/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server exposing 2s.io's pay-per-call AI agent APIs as Model Context Protocol tools.",
   "license": "MIT",
   "homepage": "https://2s.io",
