@@ -1,0 +1,43 @@
+name: Publish npm
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Which package to publish'
+        required: true
+        type: choice
+        options:
+          - sdk
+          - mcp
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # for npm provenance
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+      - name: Determine package
+        id: pkg
+        run: |
+          if [ "${{ github.event.inputs.package }}" = "mcp" ]; then
+            echo "dir=packages/2s-mcp" >> $GITHUB_OUTPUT
+          else
+            echo "dir=packages/2s-sdk" >> $GITHUB_OUTPUT
+          fi
+      - run: npm install --no-package-lock
+        working-directory: ${{ steps.pkg.outputs.dir }}
+      - run: npm run build
+        working-directory: ${{ steps.pkg.outputs.dir }}
+      - run: npm publish --access public --provenance
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

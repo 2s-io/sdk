@@ -1,0 +1,84 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ts-sdk:
+    name: '@2sio/sdk (typecheck + build)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/2s-sdk
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/2s-sdk/package.json
+      - run: npm install --no-package-lock
+      - run: npm run typecheck
+      - run: npm run build
+
+  ts-mcp:
+    name: '@2sio/mcp (typecheck + build)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/2s-mcp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: packages/2s-mcp/package.json
+      - run: npm install --no-package-lock
+      - run: npm run typecheck
+      - run: npm run build
+
+  python:
+    name: '2sio (Python build + import)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/python
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install build hatchling
+      - run: python -m build
+      - run: pip install dist/*.whl
+      - run: python -c "from twosio import TwoS; print(TwoS.__name__)"
+
+  go:
+    name: 'go (build)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/go
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go mod tidy
+      - run: go build ./...
+
+  rust:
+    name: 'twosio (Rust build)'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/rust
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo build --release
+      - run: cargo doc --no-deps

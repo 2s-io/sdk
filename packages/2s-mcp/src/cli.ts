@@ -83,7 +83,11 @@ async function main() {
   }
 
   const server = createTwoSioMcpServer({
-    signer: privateKeyToAccount(signerHex as Hex),
+    // Cast: when the MCP package and the SDK package each pull in their
+    // own copy of viem (e.g. during local file: linking), TypeScript treats
+    // the two LocalAccount types as distinct even though they're identical.
+    // The cast is harmless at runtime.
+    signer: privateKeyToAccount(signerHex as Hex) as never,
     maxPriceUsd: flags.maxPriceUsd,
   })
   await server.connect(new StdioServerTransport())
