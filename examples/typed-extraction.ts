@@ -11,12 +11,12 @@
  * billing to manage.
  *
  * Run:
- *   WALLET_KEY=0x... npx tsx typed-extraction.ts
+ *   EVM_PRIVATE_KEY=0x... npx tsx typed-extraction.ts
  */
 
 import { TwoS } from '@2sio/sdk'
 
-const client = new TwoS({ privateKey: process.env.WALLET_KEY as `0x${string}` })
+const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
 
 // Pull structured event data from a press release / blog post.
 const sourceUrl = 'https://www.anthropic.com/news/introducing-claude-2-5-sonnet'

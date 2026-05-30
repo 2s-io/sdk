@@ -11,14 +11,14 @@
  * 512KB cap on the source HTML.
  *
  * Run:
- *   WALLET_KEY=0x... npx tsx url-to-clean-markdown.ts <url>
+ *   EVM_PRIVATE_KEY=0x... npx tsx url-to-clean-markdown.ts <url>
  */
 
 import { TwoS } from '@2sio/sdk'
 
 const url = process.argv[2] ?? 'https://www.uspto.gov/patents/basics'
 
-const client = new TwoS({ privateKey: process.env.WALLET_KEY as `0x${string}` })
+const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
 
 async function run() {
   const res = await client.url.clean({ url })

@@ -9,13 +9,13 @@ Use this pattern in any KYC/AML onboarding workflow where you'd otherwise
 roll your own OFAC parser. Each call costs $0.0048.
 
 Run:
-    WALLET_KEY=0x... python sanctions-batch-screen.py
+    EVM_PRIVATE_KEY=0x... python sanctions-batch-screen.py
 """
 
 import os
 from twosio import TwoS
 
-client = TwoS(private_key=os.environ['WALLET_KEY'])
+client = TwoS(private_key=os.environ['EVM_PRIVATE_KEY'])
 
 # In real code this would be a CSV / database query / API response.
 # Mix of clearly-safe names + a deliberate OFAC hit so the example shows

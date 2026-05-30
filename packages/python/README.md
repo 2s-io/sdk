@@ -6,7 +6,7 @@
 pip install "2sio[x402]"
 ```
 
-## Quick start (x402, no signup)
+## Quick start
 
 ```python
 import os
@@ -22,13 +22,6 @@ print("paid:", r.cost_usd, "USDC, tx:", r.settlement["tx_hash"])
 ```
 
 Settles on Base mainnet in ~2 seconds. Prices start at $0.001/call.
-
-## Quick start (bearer)
-
-```python
-client = TwoS(api_key=os.environ["TWOSIO_API_KEY"])
-r = client.patents.search(q="neural network")
-```
 
 ## What's included
 

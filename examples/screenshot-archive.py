@@ -10,7 +10,7 @@ Each call costs $0.0075. Bytes come back inline; save them to disk +
 metadata file for downstream search.
 
 Run:
-    WALLET_KEY=0x... python screenshot-archive.py
+    EVM_PRIVATE_KEY=0x... python screenshot-archive.py
 """
 
 import json
@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 
 from twosio import TwoS
 
-client = TwoS(private_key=os.environ['WALLET_KEY'])
+client = TwoS(private_key=os.environ['EVM_PRIVATE_KEY'])
 
 urls = [
     'https://www.uspto.gov/patent/laws-and-regulations',

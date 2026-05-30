@@ -13,7 +13,7 @@ Calls three endpoints in parallel:
 Total cost: $0.003 / ZIP (3 × $0.001).
 
 Run:
-    WALLET_KEY=0x... python zip-context-bundle.py 94043
+    EVM_PRIVATE_KEY=0x... python zip-context-bundle.py 94043
 """
 
 import asyncio
@@ -23,7 +23,7 @@ from twosio import TwoS
 
 zip_code = sys.argv[1] if len(sys.argv) > 1 else '94043'
 
-client = TwoS(private_key=os.environ['WALLET_KEY'])
+client = TwoS(private_key=os.environ['EVM_PRIVATE_KEY'])
 
 
 async def bundle():

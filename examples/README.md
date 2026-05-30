@@ -2,7 +2,7 @@
 
 Each script is a self-contained agent workflow that uses `@2sio/sdk` (TypeScript) or `2sio` (Python) to call 2s.io's pay-per-call API. They're meant to be readable, copy-pasteable starting points — not production code.
 
-All examples require a USDC-funded EVM wallet on Base mainnet. Set `WALLET_KEY=0x...` in the environment before running.
+All examples require a USDC-funded EVM wallet on Base mainnet. Set `EVM_PRIVATE_KEY=0x...` in the environment before running.
 
 ## TypeScript
 

@@ -50,14 +50,6 @@ await server.connect(new StdioServerTransport())
 - All payments use EIP-3009 single-use authorizations with a 60-second deadline. No spending allowances are issued; even if the key is compromised at rest, the attacker can only spend what's in the wallet at the moment of signing — and only at advertised prices.
 - The key is read from env / argv into memory only; it never appears in any outgoing 2s.io request.
 
-## Bearer mode (pre-funded account)
-
-If you've pre-funded an account at 2s.io and prefer balance-based billing over per-call settlement:
-
-```bash
-TWOSIO_API_KEY=2s_... npx @2sio/mcp --bearer
-```
-
 ## Tools exposed
 
 Same set as `@2sio/sdk`. See <https://2s.io/api/directory> for the live catalog and <https://2s.io/.well-known/x402> for the machine-readable manifest.

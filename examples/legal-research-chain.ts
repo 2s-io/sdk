@@ -9,12 +9,12 @@
  * N × $0.0048 (opinion). Budget accordingly.
  *
  * Run:
- *   WALLET_KEY=0x... npx tsx legal-research-chain.ts
+ *   EVM_PRIVATE_KEY=0x... npx tsx legal-research-chain.ts
  */
 
 import { TwoS } from '@2sio/sdk'
 
-const client = new TwoS({ privateKey: process.env.WALLET_KEY as `0x${string}` })
+const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
 
 const topic = 'qualified immunity for police officers'
 

@@ -8,7 +8,7 @@
  * type the search terms themselves.
  *
  * Run:
- *   WALLET_KEY=0x... npx tsx patents-prior-art.ts
+ *   EVM_PRIVATE_KEY=0x... npx tsx patents-prior-art.ts
  *
  * Wallet must hold a small USDC balance on Base. Each call costs $0.0018.
  */
@@ -18,7 +18,7 @@ import { TwoS } from '@2sio/sdk'
 const disclosure =
   'A method for neural-network-based beamforming in 5G millimeter-wave cellular base stations.'
 
-const client = new TwoS({ privateKey: process.env.WALLET_KEY as `0x${string}` })
+const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
 
 async function priorArt() {
   // Extract the search terms — in real code you'd ask the LLM for these;

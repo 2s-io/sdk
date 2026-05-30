@@ -8,7 +8,7 @@ No signup, no API keys, no credit card on file. Sign an EIP-3009 USDC authorizat
 npm install @2sio/sdk viem
 ```
 
-## Quick start (x402, no signup)
+## Quick start
 
 ```ts
 import { TwoS } from '@2sio/sdk'
@@ -24,15 +24,6 @@ console.log(data.hits[0].title)
 
 The SDK auto-detects 402 responses, signs the payment, retries, and returns typed data. Your private key never leaves your process.
 
-## Quick start (bearer)
-
-If you've pre-funded an account on 2s.io and have an API key, skip the payment flow:
-
-```ts
-const client = new TwoS({ apiKey: process.env.TWOSIO_API_KEY })
-const { data } = await client.patents.search({ q: 'neural network' })
-```
-
 ## What's included
 
 39 endpoints across:
@@ -47,7 +38,7 @@ const { data } = await client.patents.search({ q: 'neural network' })
 - **Wikipedia / papers** — `summary`, `search` (arXiv + PubMed + Semantic Scholar)
 - **Internet** — `dns.lookup`, `domain.whois`, `url.unfurl`, `url.clean`, `geo.ip`, `ipinfo.bulk`
 - **Utilities** — `hash.compute`, `image.compress`, `barcode.generate`, `countdown.gif`
-- **Census / accounts** — `census.zipcode`, `account.balance`
+- **Census** — `census.zipcode`
 
 Full endpoint catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/openapi>. Discovery manifest for machines: <https://2s.io/.well-known/x402>.
 
@@ -69,7 +60,7 @@ const client = new TwoS({
 
 ## Result shape
 
-Every call returns `{ data, settlement?, balanceUsd?, costUsd, endpoint }`. `settlement` is set on x402 calls; `balanceUsd` is set on bearer calls; `data` is the typed response body.
+Every call returns `{ data, settlement?, costUsd, endpoint }`. `settlement` carries the x402 receipt; `data` is the typed response body.
 
 ```ts
 const result = await client.law.sanctionsCheck({ name: 'John Doe' })

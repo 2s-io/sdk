@@ -6,11 +6,11 @@ This repo ships SDKs for every major agent-development language plus an MCP serv
 
 | Language | Package | Install | Status |
 |---|---|---|---|
-| **TypeScript / Node** | [`@2sio/sdk`](./packages/2s-sdk) | `npm install @2sio/sdk viem` | ✅ x402 + bearer |
-| **TypeScript / Node** | [`@2sio/mcp`](./packages/2s-mcp) | `npx @2sio/mcp` | ✅ MCP server, x402 + bearer |
-| **Python** | [`2sio`](./packages/python) | `pip install "2sio[x402]"` | ✅ x402 + bearer |
-| **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 bearer ready, x402 pending |
-| **Rust** | [`twosio`](./packages/rust) | `cargo add twosio` | 🚧 bearer ready, x402 pending |
+| **TypeScript / Node** | [`@2sio/sdk`](./packages/2s-sdk) | `npm install @2sio/sdk viem` | ✅ x402 |
+| **TypeScript / Node** | [`@2sio/mcp`](./packages/2s-mcp) | `npx @2sio/mcp` | ✅ MCP server, x402 |
+| **Python** | [`2sio`](./packages/python) | `pip install "2sio[x402]"` | ✅ x402 |
+| **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 x402 wire-up pending |
+| **Rust** | [`twosio`](./packages/rust) | `cargo add twosio` | 🚧 x402 wire-up pending |
 
 No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization on-the-fly, the [Coinbase CDP facilitator](https://docs.cdp.coinbase.com/x402/welcome) verifies + settles in ~2 seconds on Base mainnet, and the API returns typed data. Prices start at $0.001/call.
 
@@ -69,7 +69,6 @@ Restart Claude. The model can now call patents.search, law.sanctions-check, ai.s
 - **Airports:** lookup by IATA/ICAO, nearest-airport-to-coord (OurAirports CC0, ~85k airports)
 - **Utilities:** hash computation, image compression, barcode/QR generation, countdown GIFs
 - **Census:** US Census ACS 5-year demographics by ZCTA
-- **Account:** balance + create (bearer mode)
 
 Live catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/openapi>. Machine-discovery manifest: <https://2s.io/.well-known/x402>.
 
