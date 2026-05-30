@@ -25,29 +25,19 @@ const lon = 139.6917
 
 async function situation() {
   const snapshot = await client.earth.now({ lat, lon })
-  const d = snapshot.data
+  const d = snapshot.data as Record<string, any>
 
-  console.log(`Situation at ${lat}, ${lon}  (${snapshot.meta.endpoint})\n`)
+  console.log(`Situation at ${lat}, ${lon}  (endpoint: ${snapshot.endpoint})\n`)
 
-  if (d.weather) {
-    console.log(`Weather: ${d.weather.summary}, ${d.weather.temperatureC}°C, wind ${d.weather.windKph} kph`)
-  }
-  if (d.quakes?.length) {
-    console.log(`\nRecent quakes within ${d.quakes[0].radiusKm ?? '?'} km:`)
-    for (const q of d.quakes.slice(0, 3)) {
-      console.log(`  M${q.magnitude.toFixed(1)}  ${q.time}  depth=${q.depthKm}km  ${q.distanceKm.toFixed(1)}km away`)
+  // The shape of /api/earth/now's composite payload may evolve; we print
+  // each known top-level slice when present, fall back to JSON when not.
+  for (const key of ['weather', 'quakes', 'sun', 'tide']) {
+    if (d[key] !== undefined) {
+      console.log(`${key}:\n${JSON.stringify(d[key], null, 2)}\n`)
     }
-  } else {
-    console.log('\nNo recent earthquakes.')
-  }
-  if (d.sun) {
-    console.log(`\nSun: rises ${d.sun.sunrise}, sets ${d.sun.sunset}`)
-  }
-  if (d.tide) {
-    console.log(`\nTide: ${d.tide.state}, next ${d.tide.nextEvent.type} at ${d.tide.nextEvent.time}`)
   }
 
-  console.log(`\nPaid: $${snapshot.meta.cost.usd} USDC — tx ${snapshot.meta.settlement.txHash}`)
+  console.log(`Paid: $${snapshot.costUsd} USDC — tx ${snapshot.settlement?.txHash}`)
 }
 
 situation().catch((e) => {

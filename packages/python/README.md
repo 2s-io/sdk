@@ -3,7 +3,7 @@
 **Python client for [2s.io](https://2s.io) — pay-per-call AI agent APIs on Base via x402.**
 
 ```bash
-pip install "2sio[x402]"
+pip install 2sio
 ```
 
 ## Quick start

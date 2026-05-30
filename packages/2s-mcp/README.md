@@ -35,10 +35,9 @@ Restart Claude Desktop. The agent now has 39+ new tools — patents search, sanc
 ```ts
 import { createTwoSioMcpServer } from '@2sio/mcp'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
-import { privateKeyToAccount } from 'viem/accounts'
 
 const server = createTwoSioMcpServer({
-  signer: privateKeyToAccount(process.env.EVM_PRIVATE_KEY),
+  privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}`,
   maxPriceUsd: 0.05,
 })
 await server.connect(new StdioServerTransport())

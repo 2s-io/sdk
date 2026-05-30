@@ -5,21 +5,27 @@
 No signup, no API keys, no credit card on file. Sign an EIP-3009 USDC authorization, hit any endpoint, get back typed JSON. Settles on Base in ~2 seconds. Prices start at $0.001 per call.
 
 ```bash
-npm install @2sio/sdk viem
+npm install @2sio/sdk
 ```
 
 ## Quick start
 
 ```ts
 import { TwoS } from '@2sio/sdk'
-import { privateKeyToAccount } from 'viem/accounts'
 
 const client = new TwoS({
-  signer: privateKeyToAccount(process.env.EVM_PRIVATE_KEY as `0x${string}`),
+  privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}`,
 })
 
 const { data } = await client.patents.search({ q: 'neural network', limit: 5 })
 console.log(data.hits[0].title)
+```
+
+If you'd rather build the signer yourself (e.g. for a custodial KMS-backed wallet), pass `signer` directly:
+
+```ts
+import { privateKeyToAccount } from 'viem/accounts'
+const client = new TwoS({ signer: privateKeyToAccount('0x...') })
 ```
 
 The SDK auto-detects 402 responses, signs the payment, retries, and returns typed data. Your private key never leaves your process.
@@ -63,10 +69,10 @@ const client = new TwoS({
 Every call returns `{ data, settlement?, costUsd, endpoint }`. `settlement` carries the x402 receipt; `data` is the typed response body.
 
 ```ts
-const result = await client.law.sanctionsCheck({ name: 'John Doe' })
+const result = await client.law.sanctionsCheck({ query: 'John Doe' })
 console.log(result.data.matches)         // typed
 console.log(result.settlement?.txHash)   // basescan tx
-console.log(result.costUsd)              // 0.005
+console.log(result.costUsd)              // 0.0048
 ```
 
 ## Errors

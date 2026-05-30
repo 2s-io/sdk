@@ -1,38 +1,44 @@
 /**
  * @2sio/sdk — typed client for the 2s.io pay-per-call AI agent API.
  *
- * Two auth modes:
- *   - x402 (default): pass a viem `LocalAccount`. The SDK auto-handles 402,
- *     signs an EIP-3009 payment authorization, retries with the signature
- *     header, and returns the typed response. No accounts, no API keys,
- *     no signup — buyers pay per call in USDC on Base.
- *   - Bearer: pass `apiKey` to debit a pre-funded account on 2s.io.
+ * Pass an EVM private key (or a pre-built signer) and call any endpoint —
+ * the SDK auto-handles HTTP 402, signs an EIP-3009 payment authorization,
+ * retries with the signature header, and returns the typed response. No
+ * accounts, no API keys, no signup — buyers pay per call in USDC on Base.
  *
  *   ```ts
  *   import { TwoS } from '@2sio/sdk'
- *   import { privateKeyToAccount } from 'viem/accounts'
  *
- *   const client = new TwoS({ signer: privateKeyToAccount('0x...') })
+ *   const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
  *   const result = await client.patents.search({ q: 'neural network', limit: 5 })
- *   console.log(result.hits)
+ *   console.log(result.data.hits)
  *   ```
  */
 
 import { x402Client, x402HTTPClient } from '@x402/core/client'
 import { registerExactEvmScheme } from '@x402/evm/exact/client'
 import type { LocalAccount } from 'viem'
+import { privateKeyToAccount } from 'viem/accounts'
 
 import { createEndpoints, type Endpoints } from './endpoints.js'
 
 export interface TwoSConfig {
   /**
-   * EVM signer for x402 payments (e.g. `viem`'s `privateKeyToAccount('0x...')`).
-   * Required for paying endpoints unless `apiKey` is supplied.
+   * Hex EVM private key (`0x...`). The SDK wraps it with viem's
+   * `privateKeyToAccount` internally — recommended convenience for most
+   * users. Mutually exclusive with `signer`.
+   */
+  privateKey?: `0x${string}`
+  /**
+   * Pre-built viem `LocalAccount`. Use if you already have a custodial /
+   * KMS-backed signer. Mutually exclusive with `privateKey`.
    */
   signer?: LocalAccount
   /**
-   * Pre-funded account API key for bearer-mode billing. When set, the SDK
-   * uses this instead of x402 (deduct from balance on each call).
+   * Internal-only API key. The public surface is x402-only; the bearer
+   * path is reserved for pre-funded internal accounts until deposit
+   * detection ships.
+   * @internal
    */
   apiKey?: string
   /**
@@ -104,6 +110,8 @@ const DEFAULT_MAX_PRICE = 0.10
  * namespaced (`client.patents.search`, `client.ai.summarize`, etc.).
  */
 export class TwoS {
+  /** Resolved runtime config (signer is built from privateKey if needed). */
+  public readonly config: TwoSConfig & { signer?: LocalAccount }
   /** All endpoint methods, namespaced by group. */
   public readonly endpoints: Endpoints
 
@@ -133,11 +141,24 @@ export class TwoS {
   public readonly url: Endpoints['url']
   public readonly weather: Endpoints['weather']
   public readonly wikipedia: Endpoints['wikipedia']
+  public readonly poi: Endpoints['poi']
 
-  constructor(public readonly config: TwoSConfig = {}) {
-    if (!config.signer && !config.apiKey) {
+  constructor(config: TwoSConfig = {}) {
+    if (config.privateKey && config.signer) {
       throw new Error(
-        '@2sio/sdk: TwoS requires either `signer` (x402 mode) or `apiKey` (bearer mode).',
+        '@2sio/sdk: pass either `privateKey` OR `signer`, not both.',
+      )
+    }
+    let signer = config.signer
+    if (!signer && config.privateKey) {
+      // Normalize so callers can pass either '0x...' or a bare hex string.
+      const k = config.privateKey.startsWith('0x') ? config.privateKey : (`0x${config.privateKey}` as `0x${string}`)
+      signer = privateKeyToAccount(k)
+    }
+    this.config = { ...config, signer }
+    if (!signer && !config.apiKey) {
+      throw new Error(
+        "@2sio/sdk: TwoS requires `privateKey: '0x...'` (recommended) or a pre-built `signer`.",
       )
     }
     this.endpoints = createEndpoints(this)
@@ -166,6 +187,7 @@ export class TwoS {
     this.url = this.endpoints.url
     this.weather = this.endpoints.weather
     this.wikipedia = this.endpoints.wikipedia
+    this.poi = this.endpoints.poi
   }
 
   /** Base URL with no trailing slash. */

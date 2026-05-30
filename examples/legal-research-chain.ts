@@ -1,12 +1,11 @@
 /**
  * Agent: chained legal research — citation discovery → verification → full text.
  *
- * Given a topic, surface relevant US court opinions. For each top hit,
- * confirm the citation is real (anti-hallucination) and fetch the full
+ * Given a topic, surface relevant US court opinions. For the top hit,
+ * verify the citation is real (anti-hallucination) and fetch the full
  * opinion text for downstream analysis.
  *
- * Costs per topic: ~$0.003 (case-search) + N × $0.006 (case-verify) +
- * N × $0.0048 (opinion). Budget accordingly.
+ * Costs: ~$0.0036 (case-search) + $0.006 (case-verify) + $0.0048 (opinion).
  *
  * Run:
  *   EVM_PRIVATE_KEY=0x... npx tsx legal-research-chain.ts
@@ -16,37 +15,49 @@ import { TwoS } from '@2sio/sdk'
 
 const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}` })
 
-const topic = 'qualified immunity for police officers'
+const topic = 'qualified immunity'
 
 async function research() {
   console.log(`Researching: ${topic}\n`)
 
-  // 1. Discover candidate opinions.
-  const search = await client.law.caseSearch({ q: topic, limit: 5, order: 'citeCount-desc' })
-  console.log(`Top ${search.data.hits.length} hits by citation count:`)
-  for (const h of search.data.hits) {
-    console.log(`  ${h.caseName} — ${h.court} ${h.year} | cites=${h.citationCount}`)
+  // 1. Discover candidate opinions. case-search returns { cases: [...] }.
+  const search = await client.law.caseSearch({ q: topic, limit: 5 })
+  const cases = (search.data as any).cases as Array<any>
+  console.log(`Top ${cases.length} hits:`)
+  for (const c of cases) {
+    const cite = (c.citations && c.citations[0]) || c.citation || '(no citation)'
+    console.log(`  ${c.caseName ?? c.name} — ${c.court ?? ''} ${c.year ?? ''} | ${cite}`)
   }
   console.log()
 
-  // 2. Pick the most-cited, verify the citation, and fetch the full text.
-  const top = search.data.hits[0]
-  console.log(`Fetching full text of: ${top.caseName}`)
-  console.log(`  Reporter citations: ${top.citations?.join(', ') ?? '(none)'}\n`)
-
-  if (top.citations?.length) {
-    const verify = await client.law.caseVerify({ citation: top.citations[0] })
-    if (!verify.data.exists) {
-      console.error('Citation did not resolve! Aborting.')
-      return
-    }
-    console.log(`  Verified: ${verify.data.canonical.caseName} (${verify.data.canonical.court}, ${verify.data.canonical.year})`)
+  const top = cases[0]
+  if (!top) {
+    console.log('(no results)')
+    return
+  }
+  const sampleCitation = (top.citations && top.citations[0]) || top.citation
+  if (!sampleCitation) {
+    console.log('(top hit has no citation to verify; skipping)')
+    return
   }
 
-  const opinion = await client.law.opinion({ clusterId: top.clusterId })
-  console.log(`\n--- Opinion text (${opinion.data.text.length} chars, first 600) ---`)
-  console.log(opinion.data.text.slice(0, 600) + '…')
-  console.log(`\nSource: ${opinion.data.source.url}`)
+  // 2. Verify the citation lives in the corpus.
+  console.log(`Verifying citation: "${sampleCitation}"`)
+  const verify = await client.law.caseVerify({ text: `as cited at ${sampleCitation}` })
+  const citations = (verify.data as any).citations as Array<any>
+  const hit = citations.find((c) => c.verified)
+  if (!hit) {
+    console.error('  Citation did not resolve.')
+    return
+  }
+  console.log(`  ✓ ${hit.case.name} (${hit.case.year}) — ${hit.case.url}`)
+
+  // 3. Pull the full opinion text by citation.
+  const opinion = await client.law.opinion({ citation: sampleCitation })
+  const text = ((opinion.data as any).text as string) ?? ''
+  console.log(`\n--- Opinion text (${text.length} chars, first 600) ---`)
+  console.log(text.slice(0, 600) + (text.length > 600 ? '…' : ''))
+  console.log(`\nPaid total: $${(search.costUsd + verify.costUsd + opinion.costUsd).toFixed(4)} USDC`)
 }
 
 research().catch((e) => {

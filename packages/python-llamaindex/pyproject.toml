@@ -1,6 +1,6 @@
 [project]
 name = "llama-index-tools-twosio"
-version = "0.1.2"
+version = "0.1.4"
 description = "LlamaIndex tools for 2s.io — pay-per-call AI agent APIs on Base via x402."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,7 +32,7 @@ dependencies = [
     "llama-index-core>=0.11",
     "pydantic>=2.5",
     "httpx>=0.27",
-    "2sio>=0.1.3",
+    "2sio>=0.1.5",
 ]
 
 [project.urls]

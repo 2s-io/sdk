@@ -2,13 +2,14 @@
 
 Usage::
 
+    import asyncio
     from llama_index_tools_twosio import get_twosio_tools
     tools = get_twosio_tools(private_key=os.environ["EVM_PRIVATE_KEY"])
 
-    from llama_index.core.agent import ReActAgent
-    from llama_index.llms.openai import OpenAI
-    agent = ReActAgent.from_tools(tools, llm=OpenAI(model="gpt-4o-mini"))
-    response = agent.chat("Find recent patents for 'neural network beamforming'.")
+    from llama_index.core.agent.workflow import FunctionAgent
+    from llama_index.llms.anthropic import Anthropic
+    agent = FunctionAgent(tools=tools, llm=Anthropic(model="claude-haiku-4-5"))
+    response = asyncio.run(agent.run("Find recent patents for 'neural network beamforming'."))
 
 Each tool wraps a typed call against the `2sio` SDK, which handles the x402
 payment loop (no signup, no API keys — just a USDC-funded EVM wallet on Base).

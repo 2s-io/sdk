@@ -100,14 +100,16 @@ ENDPOINT_SPECS: list[EndpointSpec] = [
         name="twosio_law_case_verify",
         short_name="law.case-verify",
         description=(
-            "Anti-hallucination citation check: given a reporter citation string "
-            "(e.g. '576 U.S. 644'), confirm it resolves to a real opinion and return "
-            "the canonical case name, court, year, and CourtListener URL. Costs ~$0.006 per call."
+            "Anti-hallucination citation check: given a passage of text that contains "
+            "one or more citations (e.g. 'as held in Brown v. Board, 347 U.S. 483 (1954)'), "
+            "the endpoint extracts every citation and verifies each against the live "
+            "CourtListener corpus, returning canonical case name, court, year, and URL. "
+            "Costs ~$0.006 per call."
         ),
         sdk_path=("law", "case_verify"),
         price_usd=0.006,
         params=[
-            Param("citation", str, "A reporter citation like '410 U.S. 113' or '142 S. Ct. 2228'."),
+            Param("text", str, "A passage of legal text containing one or more case citations."),
         ],
     ),
     EndpointSpec(
@@ -115,16 +117,16 @@ ENDPOINT_SPECS: list[EndpointSpec] = [
         short_name="law.sanctions-check",
         description=(
             "OFAC SDN screening (KYC/AML). Given a name, returns sanction-list matches "
-            "with program, source URL, and match score. Backed by the live OFAC SDN "
+            "with program, source URL, and similarity score. Backed by the live OFAC SDN "
             "dataset (refreshed daily). Use this in any onboarding or counterparty-"
             "screening flow. Costs ~$0.0048 per call."
         ),
         sdk_path=("law", "sanctions_check"),
         price_usd=0.0048,
         params=[
-            Param("name", str, "Individual or entity name to screen."),
-            Param("min_score", float, "Minimum match score (0.0-1.0). Default 0.7.", required=False, default=0.7),
-            Param("limit", int, "Max matches returned (1-50). Default 10.", required=False, default=10),
+            Param("query", str, "Name to screen (person, company, vessel, or aircraft)."),
+            Param("threshold", float, "Similarity floor (0.0-1.0). Default 0.4. Scores >= 0.85 are flagged as high-confidence by the endpoint.", required=False),
+            Param("limit", int, "Max matches returned (1-100). Default 10.", required=False),
         ],
     ),
     EndpointSpec(
@@ -168,8 +170,9 @@ ENDPOINT_SPECS: list[EndpointSpec] = [
         sdk_path=("geocode", "address"),
         price_usd=0.001,
         params=[
-            Param("query", str, "Address to geocode (e.g. '1 Infinite Loop, Cupertino')."),
-            Param("country_code", str, "ISO 3166-1 alpha-2 country code to bias results.", required=False),
+            Param("q", str, "Address or place name to geocode (e.g. '1 Infinite Loop, Cupertino')."),
+            Param("limit", int, "Max results (1-10). Default 5.", required=False),
+            Param("country", str, "ISO 3166-1 alpha-2 country code to bias results.", required=False),
         ],
     ),
     EndpointSpec(

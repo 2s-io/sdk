@@ -52,23 +52,47 @@ export interface Endpoints {
   }
   ai: {
     summarize(input: { url: string; instruction?: string }): R<AiSummarizeResponse>
-    translate(input: { text: string; target: string; source?: string }): R<AiTranslateResponse>
+    /** POST — server param names: text, targetLanguage, sourceLanguage. */
+    translate(input: {
+      text: string
+      targetLanguage: string
+      sourceLanguage?: string
+    }): R<AiTranslateResponse>
     extract<T = unknown>(input: {
       url: string
       schema: Record<string, unknown>
       instruction?: string
     }): R<AiExtractResponse<T>>
-    describeImage(input: { url?: string; base64?: string }): R<AiDescribeImageResponse>
+    /** POST — server param name: imageUrl (HTTPS URL of a JPEG/PNG/GIF/WebP image ≤1MB). */
+    describeImage(input: {
+      imageUrl: string
+      instruction?: string
+    }): R<AiDescribeImageResponse>
     screenshot(input: {
       url: string
-      viewportWidth?: number
-      viewportHeight?: number
+      width?: number
+      height?: number
       fullPage?: boolean
+      format?: 'png' | 'jpeg' | 'webp'
+      quality?: number
+      waitUntil?: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2'
+      timeoutMs?: number
+      deviceScaleFactor?: number
+      blockAds?: boolean
     }): R<AiScreenshotResponse>
   }
   airport: {
-    lookup(input: { iata?: string; icao?: string; ident?: string }): R<AirportLookupResponse>
-    near(input: { lat: number; lon: number; limit?: number }): R<AirportNearResponse>
+    /** Look up by IATA (3-letter) or ICAO (4-letter) code. */
+    lookup(input: { code: string }): R<AirportLookupResponse>
+    near(input: {
+      lat: number
+      lon: number
+      radius_km?: number
+      limit?: number
+      type?: 'large_airport' | 'medium_airport' | 'small_airport' | 'heliport' | 'seaplane_base' | 'balloonport' | 'closed'
+      country?: string
+      scheduled_service?: boolean
+    }): R<AirportNearResponse>
   }
   barcode: {
     /** Returns raw image bytes — `result.data` is a `Uint8Array`. */
@@ -84,12 +108,21 @@ export interface Endpoints {
     stationNear(input: {
       lat: number
       lon: number
+      radius_km?: number
       limit?: number
     }): R<ClimateStationNearResponse>
   }
   countdown: {
-    /** Returns animated GIF bytes — `result.data` is a `Uint8Array`. */
-    gif(input: { to: string; seconds?: number }): R<Uint8Array>
+    /** Returns animated GIF bytes — `result.data` is a `Uint8Array`. Server param: endDate (ISO-8601 UTC). */
+    gif(input: {
+      endDate: string
+      template?: 'default' | 'minimal' | 'neon' | 'retro' | 'corporate'
+      seconds?: number
+      fps?: number
+      width?: number
+      height?: number
+      [k: string]: unknown
+    }): R<Uint8Array>
   }
   crypto: {
     addressValidate(input: {
@@ -99,22 +132,31 @@ export interface Endpoints {
     gasOracle(input?: { chain?: string }): R<CryptoGasOracleResponse>
   }
   dns: {
+    /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
     lookup(input: {
-      name: string
-      type?: 'A' | 'AAAA' | 'MX' | 'TXT' | 'NS' | 'CNAME' | 'SOA'
+      host: string
+      types?: string
+      resolver?: 'cloudflare' | 'google' | 'quad9' | 'opendns'
     }): R<DnsLookupResponse>
   }
   domain: {
     whois(input: { domain: string }): R<DomainWhoisResponse>
   }
   earth: {
-    now(input: { lat: number; lon: number }): R<EarthNowResponse>
+    now(input: {
+      lat: number
+      lon: number
+      radius_km?: number
+      hours?: number
+      min_magnitude?: number
+    }): R<EarthNowResponse>
   }
   geo: {
     ip(input: { ip: string }): R<GeoIpResponse>
   }
   geocode: {
-    address(input: { query: string; countryCode?: string }): R<GeocodeAddressResponse>
+    /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
+    address(input: { q: string; limit?: number; country?: string }): R<GeocodeAddressResponse>
     reverse(input: { lat: number; lon: number }): R<GeocodeReverseResponse>
   }
   hash: {
@@ -127,26 +169,56 @@ export interface Endpoints {
     }): R<HashComputeResponse>
   }
   image: {
-    /** Returns compressed image bytes — `result.data` is a `Uint8Array`. */
-    compress(input: { url: string; quality?: number; format?: 'jpeg' | 'webp' | 'png' }): R<Uint8Array>
+    /** Returns compressed image bytes — `result.data` is a `Uint8Array`. Provide exactly one of url | imageBase64. */
+    compress(input: {
+      url?: string
+      imageBase64?: string
+      format?: 'auto' | 'png' | 'jpeg' | 'webp' | 'avif'
+      quality?: number
+      lossy?: boolean
+      effort?: number
+    }): R<Uint8Array>
   }
   ipinfo: {
     bulk(input: { ips: string[] }): R<IpinfoBulkResponse>
   }
   law: {
-    caseSearch(input: { q: string; limit?: number; offset?: number }): R<LawCaseSearchResponse>
-    caseVerify(input: { citation: string }): R<LawCaseVerifyResponse>
-    sanctionsCheck(input: { name: string; minScore?: number; limit?: number }): R<LawSanctionsCheckResponse>
+    caseSearch(input: {
+      q: string
+      court?: string
+      filedAfter?: string
+      filedBefore?: string
+      order?: 'relevance' | 'dateFiled-desc' | 'dateFiled-asc' | 'citeCount-desc'
+      limit?: number
+    }): R<LawCaseSearchResponse>
+    /** POST { text } — finds + verifies citations inside a passage. */
+    caseVerify(input: { text: string }): R<LawCaseVerifyResponse>
+    /** POST { query, threshold?, limit?, sourceList? } — OFAC SDN fuzzy match. */
+    sanctionsCheck(input: {
+      query: string
+      threshold?: number
+      limit?: number
+      sourceList?: string
+    }): R<LawSanctionsCheckResponse>
+    /** Server params: q, type (RULE|PRORULE|NOTICE|PRESDOCU), agency (slug), since/until (yyyy-mm-dd), limit. */
     federalRegister(input: {
       q: string
+      type?: 'RULE' | 'PRORULE' | 'NOTICE' | 'PRESDOCU'
+      agency?: string
+      since?: string
+      until?: string
       limit?: number
-      dateFrom?: string
-      dateTo?: string
     }): R<LawFederalRegisterResponse>
-    opinion(input: { id: string | number }): R<LawOpinionResponse>
+    /** POST — supply exactly one of `opinionId` or `citation`. */
+    opinion(input: { opinionId: number } | { citation: string }): R<LawOpinionResponse>
   }
   papers: {
-    search(input: { q: string; limit?: number }): R<PapersSearchResponse>
+    search(input: {
+      q: string
+      limit?: number
+      since?: string
+      sources?: string
+    }): R<PapersSearchResponse>
   }
   patents: {
     search(input: {
@@ -161,27 +233,41 @@ export interface Endpoints {
     documents(input: { applicationNumber: string }): R<PatentsDocumentsResponse>
   }
   quakes: {
-    recent(input?: {
-      minMagnitude?: number
-      limit?: number
-      sinceHours?: number
+    /** Server requires lat + lon. Optional: radius_km, hours, min_magnitude. */
+    recent(input: {
+      lat: number
+      lon: number
+      radius_km?: number
+      hours?: number
+      min_magnitude?: number
     }): R<QuakesRecentResponse>
   }
   sunrise: {
-    compute(input: { lat: number; lon: number; date?: string }): R<SunriseComputeResponse>
+    /** Server requires lat + lon + date (yyyy-mm-dd). */
+    compute(input: { lat: number; lon: number; date: string }): R<SunriseComputeResponse>
   }
   tides: {
-    now(input: { lat: number; lon: number }): R<TidesNowResponse>
+    now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<TidesNowResponse>
   }
   url: {
     unfurl(input: { url: string }): R<UrlUnfurlResponse>
-    clean(input: { url: string }): R<UrlCleanResponse>
+    clean(input: { url: string; format?: 'markdown' | 'text' | 'both' }): R<UrlCleanResponse>
   }
   weather: {
     zip(input: { zip: string }): R<WeatherZipResponse>
   }
   wikipedia: {
-    summary(input: { title: string }): R<WikipediaSummaryResponse>
+    summary(input: { title: string; lang?: string }): R<WikipediaSummaryResponse>
+  }
+  poi: {
+    /** Find POIs near a coord — OpenStreetMap-backed via Overpass. */
+    near(input: {
+      lat: number
+      lon: number
+      category: string
+      radius_m?: number
+      limit?: number
+    }): R<unknown>
   }
 }
 
@@ -249,10 +335,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     law: {
       caseSearch: (i) => get('law.case-search', '/api/law/case-search', i),
-      caseVerify: (i) => get('law.case-verify', '/api/law/case-verify', i),
-      sanctionsCheck: (i) => get('law.sanctions-check', '/api/law/sanctions-check', i),
+      caseVerify: (i) => post('law.case-verify', '/api/law/case-verify', i),
+      sanctionsCheck: (i) => post('law.sanctions-check', '/api/law/sanctions-check', i),
       federalRegister: (i) => get('law.federal-register', '/api/law/federal-register', i),
-      opinion: (i) => get('law.opinion', '/api/law/opinion', i),
+      opinion: (i) => post('law.opinion', '/api/law/opinion', i),
     },
     papers: {
       search: (i) => get('papers.search', '/api/papers/search', i),
@@ -280,6 +366,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     wikipedia: {
       summary: (i) => get('wikipedia.summary', '/api/wikipedia/summary', i),
+    },
+    poi: {
+      near: (i) => get('poi.near', '/api/poi/near', i),
     },
   }
 }

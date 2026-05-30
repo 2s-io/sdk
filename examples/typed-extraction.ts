@@ -50,7 +50,7 @@ async function extract() {
   const res = await client.ai.extract({ url: sourceUrl, schema })
   console.log('Extracted:')
   console.log(JSON.stringify(res.data, null, 2))
-  console.log(`\nPaid: $${res.meta.cost.usd} USDC`)
+  console.log(`\nPaid: $${res.costUsd} USDC  tx: ${res.settlement?.txHash}`)
 }
 
 extract().catch((e) => {

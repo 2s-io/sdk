@@ -8,17 +8,15 @@
  * Usage as a library:
  *
  *   import { createTwoSioMcpServer } from '@2sio/mcp'
- *   import { privateKeyToAccount } from 'viem/accounts'
  *
  *   const server = createTwoSioMcpServer({
- *     signer: privateKeyToAccount('0x...'),
+ *     privateKey: process.env.EVM_PRIVATE_KEY as `0x${string}`,
  *   })
  *   // wire `server` to your MCP transport
  *
- * Or run the bundled CLI (stdio transport, suitable for Claude Desktop
- * MCP config):
+ * Or run the bundled CLI (stdio transport, suitable for Claude Desktop):
  *
- *   npx @2sio/mcp --signer-env EVM_PRIVATE_KEY
+ *   EVM_PRIVATE_KEY=0x...  npx @2sio/mcp
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
@@ -30,10 +28,14 @@ import { TwoS, type TwoSConfig } from '@2sio/sdk'
 
 import { buildToolList, type ToolDef } from './tools.js'
 
+// Pinned in code so the version reported via initialize.serverInfo matches
+// the package version. Bump in lockstep with package.json on every release.
+const SERVER_VERSION = '0.1.4'
+
 export interface CreateMcpServerOptions extends TwoSConfig {
   /** Server name shown to MCP hosts. Defaults to `2sio`. */
   name?: string
-  /** Server version. Defaults to package.json version (set at build). */
+  /** Server version. Defaults to the package version. */
   version?: string
 }
 
@@ -45,7 +47,7 @@ export function createTwoSioMcpServer(opts: CreateMcpServerOptions): Server {
   const server = new Server(
     {
       name: opts.name ?? '2sio',
-      version: opts.version ?? '0.1.0',
+      version: opts.version ?? SERVER_VERSION,
     },
     {
       capabilities: { tools: {} },

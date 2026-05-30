@@ -9,14 +9,15 @@ pip install llama-index-tools-twosio
 ```
 
 ```python
+import asyncio
 import os
 from llama_index_tools_twosio import get_twosio_tools
-from llama_index.core.agent import ReActAgent
-from llama_index.llms.openai import OpenAI
+from llama_index.core.agent.workflow import FunctionAgent
+from llama_index.llms.anthropic import Anthropic
 
 tools = get_twosio_tools(private_key=os.environ["EVM_PRIVATE_KEY"])
-agent = ReActAgent.from_tools(tools, llm=OpenAI(model="gpt-4o-mini"))
-response = agent.chat("Find recent patents for 'neural network beamforming'.")
+agent = FunctionAgent(tools=tools, llm=Anthropic(model="claude-haiku-4-5"))
+response = asyncio.run(agent.run("Find recent patents for 'neural network beamforming'."))
 print(response)
 ```
 

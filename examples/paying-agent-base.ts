@@ -1,27 +1,26 @@
 /**
- * Minimum-viable paying agent: hits 2s.io with a viem-keyed signer,
- * pays per call in USDC on Base mainnet, prints typed responses.
+ * Minimum-viable paying agent: hits 2s.io with a private key, pays per call
+ * in USDC on Base mainnet, prints typed responses.
  *
  * Usage:
  *
- *   EVM_PRIVATE_KEY=0x...  node --env-file=.env paying-agent-base.ts
+ *   EVM_PRIVATE_KEY=0x...  npx tsx paying-agent-base.ts
  *
- * Requires a Base mainnet wallet with USDC ≥ $0.01.
+ * Requires a Base mainnet wallet with USDC ≥ $0.01. Total cost across the
+ * three calls below: ~$0.0076.
  */
 
 import { TwoS } from '@2sio/sdk'
-import { privateKeyToAccount } from 'viem/accounts'
-import type { Hex } from 'viem'
 
 async function main() {
-  const key = process.env.EVM_PRIVATE_KEY as Hex
+  const key = process.env.EVM_PRIVATE_KEY as `0x${string}` | undefined
   if (!key) {
     console.error('Set EVM_PRIVATE_KEY (0x + 64 hex).')
     process.exit(2)
   }
 
   const client = new TwoS({
-    signer: privateKeyToAccount(key),
+    privateKey: key,
     maxPriceUsd: 0.05,
     onPaymentRequested: async ({ url, amountUsd }) => {
       console.log(`  → paying $${amountUsd.toFixed(6)} for ${url}`)
@@ -38,8 +37,8 @@ async function main() {
   console.log(`  settled: ${patents.settlement?.txHash}`)
 
   // 2. Sanctions-screen a name
-  console.log('\n[law.sanctions-check] name="John Smith"')
-  const sanctions = await client.law.sanctionsCheck({ name: 'John Smith' })
+  console.log('\n[law.sanctions-check] query="John Smith"')
+  const sanctions = await client.law.sanctionsCheck({ query: 'John Smith' })
   console.log(`  ${sanctions.data.matches.length} match(es) found`)
 
   // 3. Validate an Ethereum address

@@ -24,8 +24,9 @@ async function run() {
   const res = await client.url.clean({ url })
   const d = res.data
   console.log(`# ${d.title}\n`)
-  console.log(`Source: ${d.finalUrl}`)
+  console.log(`Source: ${url}`)
   console.log(`Words: ${d.wordCount}, bytes scraped: ${d.sourceBytes}\n`)
+  console.log(`Paid: $${res.costUsd}  tx: ${res.settlement?.txHash}\n`)
   console.log('---\n')
   console.log(d.markdown.slice(0, 2000))
   if (d.markdown.length > 2000) console.log(`…\n[truncated; full markdown is ${d.markdown.length} chars]`)
