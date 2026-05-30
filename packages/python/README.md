@@ -10,11 +10,10 @@ pip install "2sio[x402]"
 
 ```python
 import os
-from eth_account import Account
 from twosio import TwoS
 
-account = Account.from_key(os.environ["EVM_PRIVATE_KEY"])
-client = TwoS(signer=account)
+# private_key is an EVM key (0x...) holding USDC on Base mainnet.
+client = TwoS(private_key=os.environ["EVM_PRIVATE_KEY"])
 
 r = client.patents.search(q="neural network", limit=5)
 print(r.data["hits"][0]["title"])
@@ -22,6 +21,14 @@ print("paid:", r.cost_usd, "USDC, tx:", r.settlement["tx_hash"])
 ```
 
 Settles on Base mainnet in ~2 seconds. Prices start at $0.001/call.
+
+If you'd rather construct the signer yourself (e.g. for a custodial KMS-backed wallet), pass it directly:
+
+```python
+from eth_account import Account
+signer = Account.from_key(os.environ["EVM_PRIVATE_KEY"])
+client = TwoS(signer=signer)
+```
 
 ## What's included
 
@@ -47,7 +54,7 @@ Full catalog: <https://2s.io/api/directory>. OpenAPI: <https://2s.io/api/openapi
 
 ```python
 client = TwoS(
-    signer=account,
+    private_key=os.environ["EVM_PRIVATE_KEY"],
     max_price_usd=0.05,
     on_payment_requested=lambda info: info["amount_usd"] < 0.02,
 )

@@ -263,8 +263,16 @@ class TwoS:
     Main client for 2s.io. Construct once, reuse across calls.
 
     Args:
-        signer: ``eth_account.LocalAccount`` for x402 payment signing.
-        api_key: Pre-funded 2s.io API key for bearer billing.
+        private_key: Hex EVM private key (``0x...``) for the wallet that will
+            sign x402 payments. We construct ``eth_account.Account.from_key``
+            for you and pass it through as ``signer``. This is the canonical
+            way to instantiate — matches our docs + SDK examples.
+        signer: Pre-built ``eth_account.LocalAccount`` for x402 payment signing.
+            Use this if you already have a signer (e.g. from a custodial KMS
+            wrapper). Mutually exclusive with ``private_key``.
+        api_key: Internal-only bearer API key. The public 2s.io surface is
+            x402-only; we do NOT advertise bearer auth. Reserved for internal
+            use until deposit detection is wired up.
         base_url: Override the default ``https://2s.io`` host.
         max_price_usd: Local ceiling on per-call payment. Defaults to ``$0.10``.
         on_payment_requested: Optional ``(info) -> bool`` hook fired before signing.
@@ -273,6 +281,7 @@ class TwoS:
     def __init__(
         self,
         *,
+        private_key: Optional[str] = None,
         signer: Any = None,
         api_key: Optional[str] = None,
         base_url: str = DEFAULT_BASE,
@@ -280,8 +289,22 @@ class TwoS:
         on_payment_requested: Optional[Callable[[dict], bool]] = None,
         timeout: float = 30.0,
     ):
+        if private_key is not None and signer is not None:
+            raise ValueError("TwoS accepts private_key= OR signer=, not both.")
+        if private_key is not None:
+            try:
+                from eth_account import Account  # type: ignore
+            except ImportError as e:
+                raise ImportError(
+                    "TwoS(private_key=...) requires `eth-account`. Reinstall: pip install '2sio[x402]'"
+                ) from e
+            # Normalize so callers can pass either '0x...' or bare hex.
+            key = private_key if private_key.startswith("0x") else "0x" + private_key
+            signer = Account.from_key(key)
         if signer is None and not api_key:
-            raise ValueError("TwoS requires either signer=... (x402) or api_key=... (bearer)")
+            raise ValueError(
+                "TwoS requires either private_key='0x...' (recommended) or a pre-built signer=... ."
+            )
         self.signer = signer
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
