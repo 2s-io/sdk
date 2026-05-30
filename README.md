@@ -9,6 +9,8 @@ This repo ships SDKs for every major agent-development language plus an MCP serv
 | **TypeScript / Node** | [`@2sio/sdk`](./packages/2s-sdk) | `npm install @2sio/sdk viem` | ✅ x402 |
 | **TypeScript / Node** | [`@2sio/mcp`](./packages/2s-mcp) | `npx @2sio/mcp` | ✅ MCP server, x402 |
 | **Python** | [`2sio`](./packages/python) | `pip install "2sio[x402]"` | ✅ x402 |
+| **Python / LangChain** | [`langchain-twosio`](./packages/python-langchain) | `pip install langchain-twosio` | ✅ Tool adapters |
+| **Python / LlamaIndex** | [`llama-index-tools-twosio`](./packages/python-llamaindex) | `pip install llama-index-tools-twosio` | ✅ Tool adapters |
 | **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 x402 wire-up pending |
 | **Rust** | [`twosio`](./packages/rust) | `cargo add twosio` | 🚧 x402 wire-up pending |
 

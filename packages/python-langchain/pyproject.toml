@@ -1,0 +1,52 @@
+[project]
+name = "langchain-twosio"
+version = "0.1.0"
+description = "LangChain tools for 2s.io — pay-per-call AI agent APIs on Base via x402."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Josh Alley", email = "josh@alley.io" }]
+keywords = [
+    "langchain",
+    "langchain-community",
+    "tools",
+    "agent-tools",
+    "x402",
+    "usdc",
+    "base",
+    "ai-agents",
+    "2s.io",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "langchain-core>=0.3",
+    "pydantic>=2.5",
+    "httpx>=0.27",
+    "2sio>=0.1",
+]
+
+[project.urls]
+Homepage = "https://2s.io"
+Source = "https://github.com/2s-io/sdk"
+Issues = "https://github.com/2s-io/sdk/issues"
+Documentation = "https://2s.io/api/openapi"
+
+[build-system]
+requires = ["hatchling>=1.18"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/langchain_twosio"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src/langchain_twosio", "README.md", "LICENSE"]
