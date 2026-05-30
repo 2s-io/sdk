@@ -1,6 +1,6 @@
 [project]
 name = "2sio"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python client for 2s.io — pay-per-call AI agent APIs on Base via x402."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -30,7 +30,12 @@ classifiers = [
 dependencies = [
     "httpx>=0.27",
     "eth-account>=0.13",
-    "x402[httpx]>=2.0",
+    # Both x402 extras are needed: [httpx] for the transport adapter used in
+    # our client core, [evm] for the EVM signer wrapper (which imports web3).
+    # Without [evm], `pip install 2sio` succeeds but the very first paid call
+    # raises `ModuleNotFoundError: No module named 'web3'` from inside
+    # x402.mechanisms.evm.signers. We're x402-only, so EVM is mandatory.
+    "x402[httpx,evm]>=2.0",
 ]
 
 [project.urls]
