@@ -14,6 +14,30 @@ DEFAULT_BASE = "https://2s.io"
 DEFAULT_MAX_PRICE_USD = 0.10
 
 
+def _run_coro_sync(coro):
+    """Run an awaitable to completion from sync code, even when an event loop is already running.
+
+    The x402 Python SDK's `create_payment_payload` is async-only, but TwoS exposes
+    a sync surface (the canonical use case is a research script or a sync LangChain
+    tool body). `asyncio.run` would fail if the caller is already inside a loop
+    (e.g. LangGraph's async agent path), so we always shunt to a fresh thread
+    running its own event loop. ~1ms overhead per paid call; robust everywhere.
+    """
+
+    import asyncio
+    import concurrent.futures
+
+    def _runner(c):
+        loop = asyncio.new_event_loop()
+        try:
+            return loop.run_until_complete(c)
+        finally:
+            loop.close()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+        return ex.submit(_runner, coro).result()
+
+
 class TwoSError(Exception):
     """HTTP error from 2s.io after payment (4xx/5xx)."""
 
@@ -408,7 +432,12 @@ class TwoS:
             if not self.on_payment_requested(info):
                 raise PaymentRefusedError("on_payment_requested denied", url, amount_usd)
 
-        payload = client.create_payment_payload(required)
+        # x402Client.create_payment_payload is async-only. We need a sync
+        # wrapper that works in BOTH plain-sync contexts AND inside an
+        # already-running event loop (e.g., LangChain's async agent path).
+        # asyncio.run() fails inside a running loop, so we always shunt to a
+        # fresh thread + fresh loop. ~1ms overhead, robust everywhere.
+        payload = _run_coro_sync(client.create_payment_payload(required))
         sig_headers = http_helper.encode_payment_signature_header(payload)
         merged = {**headers, **sig_headers}
 
