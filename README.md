@@ -1,14 +1,16 @@
 # 2s.io SDK
 
+[![smithery badge](https://smithery.ai/badge/twosio/mcp)](https://smithery.ai/servers/twosio/mcp)
+
 **Client SDK + MCP server for [2s.io](https://2s.io) — a unified JSON REST API for AI agents, paid per call in USDC on Base via [x402](https://x402.org).**
 
 This repo ships SDKs for every major agent-development language plus an MCP server for any MCP-aware host:
 
 | Language | Package | Install | Status |
 |---|---|---|---|
-| **TypeScript / Node** | [`@2sio/sdk`](./packages/2s-sdk) | `npm install @2sio/sdk viem` | ✅ x402 |
+| **TypeScript / Node** | [`@2sio/sdk`](./packages/2s-sdk) | `npm install @2sio/sdk` | ✅ x402 |
 | **TypeScript / Node** | [`@2sio/mcp`](./packages/2s-mcp) | `npx @2sio/mcp` | ✅ MCP server, x402 |
-| **Python** | [`2sio`](./packages/python) | `pip install "2sio[x402]"` | ✅ x402 |
+| **Python** | [`2sio`](./packages/python) | `pip install 2sio` | ✅ x402 |
 | **Python / LangChain** | [`langchain-twosio`](./packages/python-langchain) | `pip install langchain-twosio` | ✅ Tool adapters |
 | **Python / LlamaIndex** | [`llama-index-tools-twosio`](./packages/python-llamaindex) | `pip install llama-index-tools-twosio` | ✅ Tool adapters |
 | **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 x402 wire-up pending |
