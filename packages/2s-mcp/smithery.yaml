@@ -1,0 +1,37 @@
+# Smithery deployment config for @2sio/mcp.
+#
+# When the GitHub integration is connected to `2s-io/sdk` with subdirectory
+# `packages/2s-mcp`, Smithery reads this file on every commit and rebuilds
+# the container from the adjacent Dockerfile. See
+# https://smithery.ai/docs/build/deployments for the full spec.
+
+runtime: "container"
+
+build:
+  dockerfile: "Dockerfile"
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - "EVM_PRIVATE_KEY"
+    properties:
+      EVM_PRIVATE_KEY:
+        type: string
+        title: "EVM private key"
+        description: >-
+          0x-prefixed 64-character hex EVM private key holding USDC on Base
+          mainnet. The server signs an EIP-3009 transferWithAuthorization for
+          each paid call. ~$0.001 per call covers most endpoints. The key
+          never leaves the process; signatures are sent to 2s.io and the CDP
+          facilitator settles on-chain.
+        format: password
+        minLength: 66
+        maxLength: 66
+        pattern: "^0x[0-9a-fA-F]{64}$"
+  commandFunction: |-
+    (config) => ({
+      command: "2sio-mcp",
+      env: { EVM_PRIVATE_KEY: config.EVM_PRIVATE_KEY }
+    })

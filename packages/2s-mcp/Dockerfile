@@ -7,8 +7,8 @@
 # The server speaks MCP over stdio (the canonical transport). MCP hosts
 # spawn the container with `docker run -i ...` and pipe JSON-RPC through
 # stdin/stdout. Introspection (list_tools) works without credentials —
-# tool calls require either EVM_PRIVATE_KEY (x402) or TWOSIO_API_KEY
-# (pre-funded bearer account on 2s.io).
+# tool calls require EVM_PRIVATE_KEY (x402 payment, 0x + 64 hex). 2s.io is
+# x402-only; there is no bearer / API-key path on the public surface.
 
 FROM node:22-alpine
 
