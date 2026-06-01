@@ -127,6 +127,7 @@ export class TwoS {
   public readonly dns: Endpoints['dns']
   public readonly domain: Endpoints['domain']
   public readonly earth: Endpoints['earth']
+  public readonly finance: Endpoints['finance']
   public readonly geo: Endpoints['geo']
   public readonly geocode: Endpoints['geocode']
   public readonly hash: Endpoints['hash']
@@ -173,6 +174,7 @@ export class TwoS {
     this.dns = this.endpoints.dns
     this.domain = this.endpoints.domain
     this.earth = this.endpoints.earth
+    this.finance = this.endpoints.finance
     this.geo = this.endpoints.geo
     this.geocode = this.endpoints.geocode
     this.hash = this.endpoints.hash

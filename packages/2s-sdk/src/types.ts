@@ -435,6 +435,172 @@ export interface HashComputeResponse {
   digests: Record<string, string>
 }
 
+// ── Finance ─────────────────────────────────────────────────────────────
+
+export interface FinanceSecFilingsResponse {
+  query: { ticker: string; formType: string | null; limit: number }
+  company: {
+    cik: string
+    ticker: string
+    name: string
+    sicDescription: string | null
+    exchanges: string[]
+    fiscalYearEnd: string | null
+  }
+  returned: number
+  filings: Array<{
+    accessionNumber: string
+    form: string
+    filingDate: string
+    reportDate: string | null
+    primaryDocument: string
+    documentUrl: string
+    isXBRL: boolean
+    size: number
+  }>
+  source: { provider: string; url: string; license: string }
+}
+
+export interface FinanceCompanyFactsResponse {
+  query: {
+    ticker: string
+    metrics: string | null
+    annualLimit: number
+    quarterlyLimit: number
+  }
+  cik: string
+  ticker: string
+  entityName: string
+  returned: number
+  metrics: Array<{
+    key: string
+    concept: string
+    label: string
+    namespace: string
+    unit: string
+    annual: Array<{
+      end: string
+      start: string | null
+      val: number
+      fiscalYear: number
+      fiscalPeriod: string
+      form: string
+      filed: string
+    }>
+    quarterly: Array<{
+      end: string
+      start: string | null
+      val: number
+      fiscalYear: number
+      fiscalPeriod: string
+      form: string
+      filed: string
+    }>
+  }>
+  source: { provider: string; url: string; license: string }
+}
+
+export interface FinanceInsiderTradesResponse {
+  query: { ticker: string; limit: number }
+  cik: string
+  ticker: string
+  issuerName: string
+  returned: number
+  filings: Array<{
+    accessionNumber: string
+    filingDate: string
+    periodOfReport: string | null
+    formXmlUrl: string
+    documentUrl: string
+    reportingOwner: {
+      cik: string | null
+      name: string
+      isDirector: boolean
+      isOfficer: boolean
+      officerTitle: string | null
+      isTenPercentOwner: boolean
+      isOther: boolean
+    }
+    transactions: Array<{
+      securityTitle: string
+      transactionDate: string | null
+      code: string | null
+      acquiredOrDisposed: 'A' | 'D' | null
+      shares: number | null
+      pricePerShare: number | null
+      totalValueUsd: number | null
+      sharesOwnedFollowing: number | null
+      ownership: 'D' | 'I' | null
+      isDerivative: boolean
+    }>
+  }>
+  source: { provider: string; url: string; license: string }
+}
+
+export interface FinanceThirteenFResponse {
+  query: { managerCik: string; formType: string; limit: number }
+  cik: string
+  managerName: string
+  filing: {
+    accessionNumber: string
+    form: string
+    filingDate: string
+    periodOfReport: string | null
+    infoTableUrl: string
+    documentUrl: string
+  }
+  totalValueUsd: number
+  totalPositions: number
+  returned: number
+  holdings: Array<{
+    nameOfIssuer: string
+    titleOfClass: string | null
+    cusip: string
+    valueUsd: number
+    sharesOrPrinAmt: number | null
+    sharesOrPrinAmtType: 'SH' | 'PRN' | null
+    investmentDiscretion: string | null
+    putCall: 'PUT' | 'CALL' | null
+    votingAuthority: {
+      sole: number | null
+      shared: number | null
+      none: number | null
+    }
+  }>
+  source: { provider: string; url: string; license: string }
+}
+
+// ── Law (extended) ──────────────────────────────────────────────────────
+
+export interface LawAttorneyLookupResponse {
+  query: { name?: string; firmName?: string; limit: number }
+  returned: number
+  attorneys: Array<{
+    id: number
+    name: string
+    firmName: string | null
+    contactRaw: string | null
+    dateCreated: string | null
+    dateModified: string | null
+    resourceUri: string
+  }>
+  source: { provider: string; url: string }
+}
+
+export interface LawJudgeLookupResponse {
+  query: { name: string; limit: number }
+  returned: number
+  judges: Array<{
+    id: number
+    name: string
+    dateOfBirth: string | null
+    dateOfDeath: string | null
+    fjcId: number | null
+    resourceUri: string
+  }>
+  source: { provider: string; url: string }
+}
+
 // ── Account ─────────────────────────────────────────────────────────────
 
 export interface AccountBalanceResponse {

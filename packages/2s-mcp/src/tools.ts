@@ -204,6 +204,76 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.law.opinion(a as never),
     },
+    {
+      name: 'law.attorney-lookup',
+      description:
+        'CourtListener attorney search by name and/or firm. Returns parsed attorney records with firm name, contact info, and CL IDs. Supply at least one of name or firmName. Case-insensitive matching via Title-Case + startswith.',
+      inputSchema: s('Attorney lookup', {
+        name: { type: 'string', minLength: 2, maxLength: 100, description: 'Full or partial attorney name (case-insensitive).' },
+        firmName: { type: 'string', minLength: 2, maxLength: 200, description: 'Full or partial firm name (case-insensitive).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.law.attorneyLookup(a as never),
+    },
+    {
+      name: 'law.judge-lookup',
+      description:
+        'CourtListener federal judge lookup by name. Returns parsed judge records with biographical data (DOB, DOD, FJC ID). Useful for venue research, judicial profile lookup, and bio enrichment.',
+      inputSchema: s('Judge lookup', {
+        name: { type: 'string', minLength: 2, maxLength: 100, description: 'Judge name (case-insensitive).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['name']),
+      invoke: (a) => c.law.judgeLookup(a as never),
+    },
+
+    // ── Finance (SEC EDGAR) ──────────────────────────────────────────
+    {
+      name: 'finance.sec-filings',
+      description:
+        'Recent SEC filings (10-K, 10-Q, 8-K, etc.) for a US public company by stock ticker. Returns parsed company info + a list of filings with accession numbers, forms, dates, primary document URLs. Backed by SEC EDGAR public submissions API.',
+      inputSchema: s('SEC filings', {
+        ticker: { type: 'string', minLength: 1, maxLength: 10, description: 'US stock ticker (case-insensitive). Examples: AAPL, GOOGL, BRK.B.' },
+        formType: { type: 'string', maxLength: 20, description: 'Optional form filter (e.g. 10-K, 10-Q, 8-K, 4).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['ticker']),
+      invoke: (a) => c.finance.secFilings(a as never),
+    },
+    {
+      name: 'finance.company-facts',
+      description:
+        "Curated XBRL financial metrics for a US public company by stock ticker. Returns ~15 top-line metrics (revenue, gross profit, operating income, net income, EPS, R&D, total assets, liabilities, equity, cash, debt, operating cash flow, capex, shares outstanding) with their most recent annual + quarterly values. Each metric returns the originating form (10-K/10-Q), period dates, fiscal year/period, and filed date.",
+      inputSchema: s('Company facts', {
+        ticker: { type: 'string', minLength: 1, maxLength: 10, description: 'US stock ticker (case-insensitive).' },
+        metrics: {
+          type: 'string',
+          description: 'Optional comma-separated subset of metric keys. Available: revenue, grossProfit, operatingIncome, netIncome, eps, epsDiluted, rdExpense, totalAssets, totalLiabilities, stockholdersEquity, cash, longTermDebt, operatingCashFlow, capex, sharesOutstanding. Omit to get all ~15.',
+        },
+        annualLimit: { type: 'integer', minimum: 1, maximum: 20, default: 4, description: 'Max annual (FY) values per metric, most recent first.' },
+        quarterlyLimit: { type: 'integer', minimum: 0, maximum: 20, default: 4, description: 'Max quarterly values per metric, most recent first. 0 to skip quarterly.' },
+      }, ['ticker']),
+      invoke: (a) => c.finance.companyFacts(a as never),
+    },
+    {
+      name: 'finance.insider-trades',
+      description:
+        'Recent SEC Form 4 insider transactions for a US public company by ticker. Returns parsed transactions: insider name + relationship (director, officer/title, 10%+ owner), date, SEC transaction code (P=purchase, S=sale, A=grant, D=disposition, M=exercise, F=tax-withholding, G=gift), security title, shares, price/share, total USD value, post-transaction balance, direct vs indirect ownership, derivative flag.',
+      inputSchema: s('Insider trades', {
+        ticker: { type: 'string', minLength: 1, maxLength: 10, description: 'US stock ticker (case-insensitive).' },
+        limit: { type: 'integer', minimum: 1, maximum: 10, default: 5, description: 'Max Form 4 filings to fetch + parse. Each is its own upstream call, bounded tight.' },
+      }, ['ticker']),
+      invoke: (a) => c.finance.insiderTrades(a as never),
+    },
+    {
+      name: 'finance.thirteen-f',
+      description:
+        "Parsed institutional holdings (Form 13F-HR) for an investment manager by CIK. Returns each holding's nameOfIssuer, cusip, market value (USD; converted from SEC's $000s convention), shares or principal amount + type, putCall flag for options, and voting authority (sole/shared/none). Sorted by value descending. Common manager CIKs: Berkshire Hathaway=1067983, Renaissance=1037389, Bridgewater=1350694, Vanguard=102909, BlackRock=1364742.",
+      inputSchema: s('13F holdings', {
+        managerCik: { type: 'string', pattern: '^\\d+$', maxLength: 10, description: 'Investment manager CIK (numeric).' },
+        formType: { type: 'string', description: '13F variant. Default 13F-HR; use 13F-HR/A for amendments, 13F-NT for notice of non-filings.', default: '13F-HR' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 25, description: 'Max holdings, sorted by value descending.' },
+      }, ['managerCik']),
+      invoke: (a) => c.finance.thirteenF(a as never),
+    },
 
     // ── Airports / weather / geo ─────────────────────────────────────
     {

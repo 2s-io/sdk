@@ -327,6 +327,142 @@ class _Law(_Group):
             body=body,
         )
 
+    def attorney_lookup(
+        self,
+        *,
+        name: Optional[str] = None,
+        firm_name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """CourtListener attorney search. Supply name and/or firm_name.
+
+        Server params: name, firmName, limit (1-50, default 10). Case-insensitive
+        match via Title-Case + __startswith on CourtListener.
+        """
+        if name is None and firm_name is None:
+            raise ValueError("attorney_lookup() requires at least one of name or firm_name.")
+        query: dict[str, Any] = {}
+        if name is not None:
+            query["name"] = name
+        if firm_name is not None:
+            query["firmName"] = firm_name
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request(
+            "GET", "/api/law/attorney-lookup",
+            endpoint="law.attorney-lookup",
+            query=query,
+        )
+
+    def judge_lookup(self, *, name: str, limit: Optional[int] = None) -> CallResult:
+        """CourtListener federal judge lookup by name.
+
+        Server params: name (required), limit (1-50, default 10).
+        """
+        query: dict[str, Any] = {"name": name}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request(
+            "GET", "/api/law/judge-lookup",
+            endpoint="law.judge-lookup",
+            query=query,
+        )
+
+
+class _Finance(_Group):
+    def sec_filings(
+        self,
+        *,
+        ticker: str,
+        form_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Recent SEC filings for a US public company by ticker.
+
+        Server params: ticker (case-insensitive), formType (e.g. 10-K, 10-Q, 8-K),
+        limit (1-50, default 10).
+        """
+        query: dict[str, Any] = {"ticker": ticker}
+        if form_type is not None:
+            query["formType"] = form_type
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request(
+            "GET", "/api/finance/sec-filings",
+            endpoint="finance.sec-filings",
+            query=query,
+        )
+
+    def company_facts(
+        self,
+        *,
+        ticker: str,
+        metrics: Optional[str] = None,
+        annual_limit: Optional[int] = None,
+        quarterly_limit: Optional[int] = None,
+    ) -> CallResult:
+        """Curated XBRL financial metrics for a US public company by ticker.
+
+        Server params: ticker, metrics (comma-separated subset of curated keys),
+        annualLimit (1-20, default 4), quarterlyLimit (0-20, default 4).
+        """
+        query: dict[str, Any] = {"ticker": ticker}
+        if metrics is not None:
+            query["metrics"] = metrics
+        if annual_limit is not None:
+            query["annualLimit"] = annual_limit
+        if quarterly_limit is not None:
+            query["quarterlyLimit"] = quarterly_limit
+        return self._c.request(
+            "GET", "/api/finance/company-facts",
+            endpoint="finance.company-facts",
+            query=query,
+        )
+
+    def insider_trades(
+        self,
+        *,
+        ticker: str,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Recent SEC Form 4 insider transactions by ticker.
+
+        Server params: ticker, limit (1-10, default 5). Each filing is parsed
+        from raw XML; bounded tight because each is its own upstream call.
+        """
+        query: dict[str, Any] = {"ticker": ticker}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request(
+            "GET", "/api/finance/insider-trades",
+            endpoint="finance.insider-trades",
+            query=query,
+        )
+
+    def thirteen_f(
+        self,
+        *,
+        manager_cik: str,
+        form_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Parsed institutional holdings (13F-HR) for an investment manager by CIK.
+
+        Server params: managerCik (numeric, e.g. 1067983 for Berkshire), formType
+        (default 13F-HR; try 13F-HR/A for amendments), limit (1-200, default 25).
+        Sorted by value descending.
+        """
+        query: dict[str, Any] = {"managerCik": manager_cik}
+        if form_type is not None:
+            query["formType"] = form_type
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request(
+            "GET", "/api/finance/thirteen-f",
+            endpoint="finance.thirteen-f",
+            query=query,
+        )
+
 
 class _Geocode(_Group):
     def address(
@@ -799,6 +935,7 @@ class TwoS:
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)
+        self.finance = _Finance(self)
         self.geocode = _Geocode(self)
         self.airport = _Airport(self)
         self.weather = _Weather(self)

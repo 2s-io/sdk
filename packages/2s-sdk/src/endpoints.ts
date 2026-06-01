@@ -42,6 +42,12 @@ import type {
   IpinfoBulkResponse,
   HashComputeResponse,
   AccountBalanceResponse,
+  FinanceSecFilingsResponse,
+  FinanceCompanyFactsResponse,
+  FinanceInsiderTradesResponse,
+  FinanceThirteenFResponse,
+  LawAttorneyLookupResponse,
+  LawJudgeLookupResponse,
 } from './types.js'
 
 type R<T> = Promise<CallResult<T>>
@@ -151,6 +157,32 @@ export interface Endpoints {
       min_magnitude?: number
     }): R<EarthNowResponse>
   }
+  finance: {
+    /** Recent SEC filings for a US public company by ticker. */
+    secFilings(input: {
+      ticker: string
+      formType?: string
+      limit?: number
+    }): R<FinanceSecFilingsResponse>
+    /** Curated XBRL financial metrics (revenue, net income, EPS, etc.) by ticker. */
+    companyFacts(input: {
+      ticker: string
+      metrics?: string
+      annualLimit?: number
+      quarterlyLimit?: number
+    }): R<FinanceCompanyFactsResponse>
+    /** Recent SEC Form 4 insider transactions by ticker. */
+    insiderTrades(input: {
+      ticker: string
+      limit?: number
+    }): R<FinanceInsiderTradesResponse>
+    /** Parsed institutional holdings (13F-HR) for an investment manager by CIK. */
+    thirteenF(input: {
+      managerCik: string
+      formType?: string
+      limit?: number
+    }): R<FinanceThirteenFResponse>
+  }
   geo: {
     ip(input: { ip: string }): R<GeoIpResponse>
   }
@@ -211,6 +243,17 @@ export interface Endpoints {
     }): R<LawFederalRegisterResponse>
     /** POST — supply exactly one of `opinionId` or `citation`. */
     opinion(input: { opinionId: number } | { citation: string }): R<LawOpinionResponse>
+    /** CourtListener attorney search by name and/or firm. */
+    attorneyLookup(input: {
+      name?: string
+      firmName?: string
+      limit?: number
+    }): R<LawAttorneyLookupResponse>
+    /** CourtListener federal judge lookup by name. */
+    judgeLookup(input: {
+      name: string
+      limit?: number
+    }): R<LawJudgeLookupResponse>
   }
   papers: {
     search(input: {
@@ -317,6 +360,12 @@ export function createEndpoints(client: TwoS): Endpoints {
     earth: {
       now: (i) => get('earth.now', '/api/earth/now', i),
     },
+    finance: {
+      secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
+      companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
+      insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
+      thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
+    },
     geo: {
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
     },
@@ -339,6 +388,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       sanctionsCheck: (i) => post('law.sanctions-check', '/api/law/sanctions-check', i),
       federalRegister: (i) => get('law.federal-register', '/api/law/federal-register', i),
       opinion: (i) => post('law.opinion', '/api/law/opinion', i),
+      attorneyLookup: (i) => get('law.attorney-lookup', '/api/law/attorney-lookup', i),
+      judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),
     },
     papers: {
       search: (i) => get('papers.search', '/api/papers/search', i),
