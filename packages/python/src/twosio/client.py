@@ -983,6 +983,22 @@ class _Vehicle(_Group):
 
 
 class _Gov(_Group):
+    def congress_bill(self, **kwargs: Any) -> CallResult:
+        """US Congressional bill lookup or filtered list (Library of Congress)."""
+        return self._c.request("GET", "/api/gov/congress-bill", endpoint="gov.congress-bill", query=kwargs)
+
+    def congress_member(self, **kwargs: Any) -> CallResult:
+        """US Congress member lookup by bioguide ID or filtered list."""
+        return self._c.request("GET", "/api/gov/congress-member", endpoint="gov.congress-member", query=kwargs)
+
+    def fec_candidate(self, **kwargs: Any) -> CallResult:
+        """US federal political candidate search (OpenFEC)."""
+        return self._c.request("GET", "/api/gov/fec-candidate", endpoint="gov.fec-candidate", query=kwargs)
+
+    def fec_committee(self, **kwargs: Any) -> CallResult:
+        """US federal political committee search (OpenFEC)."""
+        return self._c.request("GET", "/api/gov/fec-committee", endpoint="gov.fec-committee", query=kwargs)
+
     def fda_drug_events(
         self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
     ) -> CallResult:
@@ -1536,6 +1552,78 @@ class _Bls(_Group):
         return self._c.request("GET", "/api/bls/series", endpoint="bls.series", query=q)
 
 
+class _Edu(_Group):
+    def college_scorecard(self, **kwargs: Any) -> CallResult:
+        """US college search via Department of Education College Scorecard."""
+        return self._c.request("GET", "/api/edu/college-scorecard", endpoint="edu.college-scorecard", query=kwargs)
+
+
+class _Energy(_Group):
+    def fuel_stations(self, **kwargs: Any) -> CallResult:
+        """NREL alternative-fuel station locator (EV chargers, propane, CNG, etc.)."""
+        return self._c.request("GET", "/api/energy/fuel-stations", endpoint="energy.fuel-stations", query=kwargs)
+
+    def solar_resource(self, *, lat: float, lon: float) -> CallResult:
+        """NREL solar resource averages (NSRDB) for a lat/lon."""
+        return self._c.request("GET", "/api/energy/solar-resource", endpoint="energy.solar-resource", query={"lat": lat, "lon": lon})
+
+
+class _Park(_Group):
+    def lookup(
+        self,
+        *,
+        resource: str,
+        park_code: Optional[str] = None,
+        state: Optional[str] = None,
+        q: Optional[str] = None,
+        limit: int = 10,
+        start: int = 0,
+    ) -> CallResult:
+        """NPS API — resource = parks | alerts | campgrounds | events | newsreleases | thingstodo | visitorcenters."""
+        query: dict[str, Any] = {"resource": resource, "limit": limit, "start": start}
+        if park_code is not None: query["parkCode"] = park_code
+        if state is not None: query["state"] = state
+        if q is not None: query["q"] = q
+        return self._c.request("GET", "/api/park/lookup", endpoint="park.lookup", query=query)
+
+
+class _Recreation(_Group):
+    def search(
+        self,
+        *,
+        resource: str,
+        query: Optional[str] = None,
+        state: Optional[str] = None,
+        activity: Optional[int] = None,
+        latitude: Optional[float] = None,
+        longitude: Optional[float] = None,
+        radius: Optional[float] = None,
+        last_updated: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """RIDB (Recreation.gov) — resource = recareas | facilities | campsites | permits | tours | events | activities."""
+        q: dict[str, Any] = {"resource": resource, "limit": limit, "offset": offset}
+        if query is not None: q["query"] = query
+        if state is not None: q["state"] = state
+        if activity is not None: q["activity"] = activity
+        if latitude is not None: q["latitude"] = latitude
+        if longitude is not None: q["longitude"] = longitude
+        if radius is not None: q["radius"] = radius
+        if last_updated is not None: q["lastUpdated"] = last_updated
+        return self._c.request("GET", "/api/recreation/search", endpoint="recreation.search", query=q)
+
+
+class _Job(_Group):
+    def federal_search(self, **kwargs: Any) -> CallResult:
+        """USAJobs current federal job posting search."""
+        return self._c.request("GET", "/api/job/federal-search", endpoint="job.federal-search", query=kwargs)
+
+    def federal_codes(self, *, name: str) -> CallResult:
+        """USAJobs reference codelist (33 lookup tables)."""
+        return self._c.request("GET", "/api/job/federal-codes", endpoint="job.federal-codes", query={"name": name})
+
+
 class _Food(_Group):
     def barcode_lookup(self, *, barcode: str) -> CallResult:
         """Food product lookup by UPC/EAN barcode via Open Food Facts (CC0)."""
@@ -1725,6 +1813,11 @@ class TwoS:
         self.news = _News(self)
         self.food = _Food(self)
         self.word = _Word(self)
+        self.edu = _Edu(self)
+        self.energy = _Energy(self)
+        self.park = _Park(self)
+        self.recreation = _Recreation(self)
+        self.job = _Job(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

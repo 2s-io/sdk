@@ -303,6 +303,30 @@ export interface Endpoints {
     /** Food product lookup by UPC/EAN barcode (Open Food Facts, CC0). */
     barcodeLookup(input: { barcode: string }): R<unknown>
   }
+  edu: {
+    /** US college + university search (Department of Education College Scorecard). */
+    collegeScorecard(input?: Record<string, unknown>): R<unknown>
+  }
+  energy: {
+    /** Alternative-fuel station locator (NREL Alternative Fuels Data Center). */
+    fuelStations(input?: Record<string, unknown>): R<unknown>
+    /** Solar resource averages (NREL NSRDB) for a lat/lon. */
+    solarResource(input: { lat: number; lon: number }): R<unknown>
+  }
+  park: {
+    /** Unified US National Park Service read API (NPS). */
+    lookup(input: { resource: string; parkCode?: string; state?: string; q?: string; limit?: number; start?: number }): R<unknown>
+  }
+  recreation: {
+    /** Recreation Information Database (RIDB / Recreation.gov) search. */
+    search(input: { resource: string; query?: string; state?: string; activity?: number; latitude?: number; longitude?: number; radius?: number; lastUpdated?: string; limit?: number; offset?: number }): R<unknown>
+  }
+  job: {
+    /** Search current US federal job postings via USAJobs. */
+    federalSearch(input?: Record<string, unknown>): R<unknown>
+    /** USAJobs reference codelist contents. */
+    federalCodes(input: { name: string }): R<unknown>
+  }
   word: {
     /** English dictionary entry (dictionaryapi.dev / Wiktionary, CC BY-SA). */
     define(input: { word: string }): R<unknown>
@@ -563,6 +587,14 @@ export interface Endpoints {
     }): R<unknown>
   }
   gov: {
+    /** US Congress bills — lookup by congress+type+number, or list/filter. */
+    congressBill(input?: Record<string, unknown>): R<unknown>
+    /** Members of US Congress — lookup by bioguide ID or filter. */
+    congressMember(input?: Record<string, unknown>): R<unknown>
+    /** Federal political candidates (OpenFEC). */
+    fecCandidate(input?: Record<string, unknown>): R<unknown>
+    /** Federal political committees (OpenFEC). */
+    fecCommittee(input?: Record<string, unknown>): R<unknown>
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
     /** OpenFDA drug recall enforcement reports. */
@@ -853,6 +885,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),
     },
     gov: {
+      congressBill: (i) => get('gov.congress-bill', '/api/gov/congress-bill', i ?? {}),
+      congressMember: (i) => get('gov.congress-member', '/api/gov/congress-member', i ?? {}),
+      fecCandidate: (i) => get('gov.fec-candidate', '/api/gov/fec-candidate', i ?? {}),
+      fecCommittee: (i) => get('gov.fec-committee', '/api/gov/fec-committee', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
@@ -864,6 +900,23 @@ export function createEndpoints(client: TwoS): Endpoints {
       usgsWater: (i) => get('gov.usgs-water', '/api/gov/usgs-water', i),
       epaFacilities: (i) => get('gov.epa-facilities', '/api/gov/epa-facilities', i),
       federalRegisterRecent: (i) => get('gov.federal-register-recent', '/api/gov/federal-register-recent', i),
+    },
+    edu: {
+      collegeScorecard: (i) => get('edu.college-scorecard', '/api/edu/college-scorecard', i ?? {}),
+    },
+    energy: {
+      fuelStations: (i) => get('energy.fuel-stations', '/api/energy/fuel-stations', i ?? {}),
+      solarResource: (i) => get('energy.solar-resource', '/api/energy/solar-resource', i),
+    },
+    park: {
+      lookup: (i) => get('park.lookup', '/api/park/lookup', i),
+    },
+    recreation: {
+      search: (i) => get('recreation.search', '/api/recreation/search', i),
+    },
+    job: {
+      federalSearch: (i) => get('job.federal-search', '/api/job/federal-search', i ?? {}),
+      federalCodes: (i) => get('job.federal-codes', '/api/job/federal-codes', i),
     },
   }
 }

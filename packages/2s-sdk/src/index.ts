@@ -180,6 +180,11 @@ export class TwoS {
   public readonly news: Endpoints['news']
   public readonly food: Endpoints['food']
   public readonly word: Endpoints['word']
+  public readonly edu: Endpoints['edu']
+  public readonly energy: Endpoints['energy']
+  public readonly park: Endpoints['park']
+  public readonly recreation: Endpoints['recreation']
+  public readonly job: Endpoints['job']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -258,6 +263,11 @@ export class TwoS {
     this.news = this.endpoints.news
     this.food = this.endpoints.food
     this.word = this.endpoints.word
+    this.edu = this.endpoints.edu
+    this.energy = this.endpoints.energy
+    this.park = this.endpoints.park
+    this.recreation = this.endpoints.recreation
+    this.job = this.endpoints.job
   }
 
   /** Base URL with no trailing slash. */
