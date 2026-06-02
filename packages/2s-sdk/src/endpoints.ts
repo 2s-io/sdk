@@ -327,6 +327,16 @@ export interface Endpoints {
     /** USAJobs reference codelist contents. */
     federalCodes(input: { name: string }): R<unknown>
   }
+  treasury: {
+    /** US National Debt — daily Debt to the Penny. */
+    debt(input?: Record<string, unknown>): R<unknown>
+    /** Daily Treasury Statement (DTS) operating cash balance. */
+    cash(input?: Record<string, unknown>): R<unknown>
+    /** Official Treasury exchange rates (quarterly). */
+    exchangeRates(input?: Record<string, unknown>): R<unknown>
+    /** Monthly Treasury Statement (MTS) — Table 4 federal receipts by source. */
+    monthlyStatement(input?: Record<string, unknown>): R<unknown>
+  }
   word: {
     /** English dictionary entry (dictionaryapi.dev / Wiktionary, CC BY-SA). */
     define(input: { word: string }): R<unknown>
@@ -947,6 +957,12 @@ export function createEndpoints(client: TwoS): Endpoints {
     job: {
       federalSearch: (i) => get('job.federal-search', '/api/job/federal-search', i ?? {}),
       federalCodes: (i) => get('job.federal-codes', '/api/job/federal-codes', i),
+    },
+    treasury: {
+      debt: (i) => get('treasury.debt', '/api/treasury/debt', i ?? {}),
+      cash: (i) => get('treasury.cash', '/api/treasury/cash', i ?? {}),
+      exchangeRates: (i) => get('treasury.exchange-rates', '/api/treasury/exchange-rates', i ?? {}),
+      monthlyStatement: (i) => get('treasury.monthly-statement', '/api/treasury/monthly-statement', i ?? {}),
     },
   }
 }

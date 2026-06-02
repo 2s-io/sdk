@@ -185,6 +185,7 @@ export class TwoS {
   public readonly park: Endpoints['park']
   public readonly recreation: Endpoints['recreation']
   public readonly job: Endpoints['job']
+  public readonly treasury: Endpoints['treasury']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -268,6 +269,7 @@ export class TwoS {
     this.park = this.endpoints.park
     this.recreation = this.endpoints.recreation
     this.job = this.endpoints.job
+    this.treasury = this.endpoints.treasury
   }
 
   /** Base URL with no trailing slash. */

@@ -1480,6 +1480,56 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['name']),
       invoke: (a) => c.job.federalCodes(a as never),
     },
+
+    // ── Treasury (US Treasury Fiscal Data) ─────────────────────────────
+    {
+      name: 'treasury.debt',
+      description: 'US National Debt — daily Debt to the Penny via US Treasury Fiscal Data. Total public debt + held-by-public + intragovernmental holdings, every weekday since 1993.',
+      inputSchema: s('Treasury debt', {
+        fields: { type: 'string' },
+        filter: { type: 'string', description: 'Fiscal Data syntax e.g. record_date:gte:2024-01-01' },
+        sort: { type: 'string', default: '-record_date' },
+        pageSize: { type: 'integer', minimum: 1, maximum: 10000, default: 100 },
+        pageNumber: { type: 'integer', minimum: 1 },
+      }),
+      invoke: (a) => c.treasury.debt(a as never),
+    },
+    {
+      name: 'treasury.cash',
+      description: 'Daily Treasury Statement (DTS) operating cash balance — Treasury General Account at the Federal Reserve, plus tax-and-loan + Federal Reserve deposit accounts. Liquidity-tracking + macro signals.',
+      inputSchema: s('Treasury cash', {
+        fields: { type: 'string' },
+        filter: { type: 'string' },
+        sort: { type: 'string', default: '-record_date' },
+        pageSize: { type: 'integer', minimum: 1, maximum: 10000, default: 100 },
+        pageNumber: { type: 'integer', minimum: 1 },
+      }),
+      invoke: (a) => c.treasury.cash(a as never),
+    },
+    {
+      name: 'treasury.exchange-rates',
+      description: 'Official US Treasury exchange rates (quarterly) — used by federal agencies for foreign-currency reporting. Pair with /api/fx/rates (ECB daily) for cross-validation.',
+      inputSchema: s('Treasury FX', {
+        fields: { type: 'string' },
+        filter: { type: 'string', description: 'e.g. country:eq:Brazil' },
+        sort: { type: 'string', default: '-record_date' },
+        pageSize: { type: 'integer', minimum: 1, maximum: 10000, default: 100 },
+        pageNumber: { type: 'integer', minimum: 1 },
+      }),
+      invoke: (a) => c.treasury.exchangeRates(a as never),
+    },
+    {
+      name: 'treasury.monthly-statement',
+      description: 'Monthly Treasury Statement (MTS) — Table 4 federal receipts by source. Monthly + fiscal-year-to-date totals by classification (individual income tax, corporate income tax, social-insurance, excise, customs, estate-and-gift, misc).',
+      inputSchema: s('Treasury MTS', {
+        fields: { type: 'string' },
+        filter: { type: 'string' },
+        sort: { type: 'string', default: '-record_date' },
+        pageSize: { type: 'integer', minimum: 1, maximum: 10000, default: 100 },
+        pageNumber: { type: 'integer', minimum: 1 },
+      }),
+      invoke: (a) => c.treasury.monthlyStatement(a as never),
+    },
   ]
   return t
 }

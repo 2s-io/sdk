@@ -1654,6 +1654,24 @@ class _Recreation(_Group):
         return self._c.request("GET", "/api/recreation/search", endpoint="recreation.search", query=q)
 
 
+class _Treasury(_Group):
+    def debt(self, **kwargs: Any) -> CallResult:
+        """US National Debt — daily Debt to the Penny."""
+        return self._c.request("GET", "/api/treasury/debt", endpoint="treasury.debt", query=kwargs)
+
+    def cash(self, **kwargs: Any) -> CallResult:
+        """Daily Treasury Statement (DTS) operating cash balance."""
+        return self._c.request("GET", "/api/treasury/cash", endpoint="treasury.cash", query=kwargs)
+
+    def exchange_rates(self, **kwargs: Any) -> CallResult:
+        """Official US Treasury exchange rates (quarterly)."""
+        return self._c.request("GET", "/api/treasury/exchange-rates", endpoint="treasury.exchange-rates", query=kwargs)
+
+    def monthly_statement(self, **kwargs: Any) -> CallResult:
+        """Monthly Treasury Statement (MTS) — Table 4 federal receipts by source."""
+        return self._c.request("GET", "/api/treasury/monthly-statement", endpoint="treasury.monthly-statement", query=kwargs)
+
+
 class _Job(_Group):
     def federal_search(self, **kwargs: Any) -> CallResult:
         """USAJobs current federal job posting search."""
@@ -1858,6 +1876,7 @@ class TwoS:
         self.park = _Park(self)
         self.recreation = _Recreation(self)
         self.job = _Job(self)
+        self.treasury = _Treasury(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:
