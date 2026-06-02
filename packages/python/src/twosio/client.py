@@ -999,6 +999,30 @@ class _Gov(_Group):
         """US federal political committee search (OpenFEC)."""
         return self._c.request("GET", "/api/gov/fec-committee", endpoint="gov.fec-committee", query=kwargs)
 
+    def fec_contributions(self, **kwargs: Any) -> CallResult:
+        """FEC Schedule A — itemized contributions to federal political committees."""
+        return self._c.request("GET", "/api/gov/fec-contributions", endpoint="gov.fec-contributions", query=kwargs)
+
+    def fec_expenditures(self, **kwargs: Any) -> CallResult:
+        """FEC Schedule B — itemized committee disbursements."""
+        return self._c.request("GET", "/api/gov/fec-expenditures", endpoint="gov.fec-expenditures", query=kwargs)
+
+    def fec_totals(self, *, scope: str, **kwargs: Any) -> CallResult:
+        """FEC aggregate financial totals (candidates or committees)."""
+        return self._c.request("GET", "/api/gov/fec-totals", endpoint="gov.fec-totals", query={"scope": scope, **kwargs})
+
+    def congress_committee(self, **kwargs: Any) -> CallResult:
+        """US Congressional committee list or single-committee detail."""
+        return self._c.request("GET", "/api/gov/congress-committee", endpoint="gov.congress-committee", query=kwargs)
+
+    def congress_amendment(self, **kwargs: Any) -> CallResult:
+        """US Congressional amendments lookup or list."""
+        return self._c.request("GET", "/api/gov/congress-amendment", endpoint="gov.congress-amendment", query=kwargs)
+
+    def congress_nomination(self, **kwargs: Any) -> CallResult:
+        """US presidential nominations sent to the Senate."""
+        return self._c.request("GET", "/api/gov/congress-nomination", endpoint="gov.congress-nomination", query=kwargs)
+
     def fda_drug_events(
         self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
     ) -> CallResult:

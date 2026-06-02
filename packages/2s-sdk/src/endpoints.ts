@@ -595,6 +595,18 @@ export interface Endpoints {
     fecCandidate(input?: Record<string, unknown>): R<unknown>
     /** Federal political committees (OpenFEC). */
     fecCommittee(input?: Record<string, unknown>): R<unknown>
+    /** FEC Schedule A — itemized contributions to political committees. */
+    fecContributions(input?: Record<string, unknown>): R<unknown>
+    /** FEC Schedule B — itemized political committee disbursements. */
+    fecExpenditures(input?: Record<string, unknown>): R<unknown>
+    /** FEC aggregate financial totals (candidates or committees). */
+    fecTotals(input: { scope: 'candidates' | 'committees'; [k: string]: unknown }): R<unknown>
+    /** US Congressional committees — list or look up by systemCode. */
+    congressCommittee(input?: Record<string, unknown>): R<unknown>
+    /** US Congressional amendments — list or look up by congress+type+number. */
+    congressAmendment(input?: Record<string, unknown>): R<unknown>
+    /** US presidential nominations sent to the Senate. */
+    congressNomination(input?: Record<string, unknown>): R<unknown>
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
     /** OpenFDA drug recall enforcement reports. */
@@ -889,6 +901,12 @@ export function createEndpoints(client: TwoS): Endpoints {
       congressMember: (i) => get('gov.congress-member', '/api/gov/congress-member', i ?? {}),
       fecCandidate: (i) => get('gov.fec-candidate', '/api/gov/fec-candidate', i ?? {}),
       fecCommittee: (i) => get('gov.fec-committee', '/api/gov/fec-committee', i ?? {}),
+      fecContributions: (i) => get('gov.fec-contributions', '/api/gov/fec-contributions', i ?? {}),
+      fecExpenditures: (i) => get('gov.fec-expenditures', '/api/gov/fec-expenditures', i ?? {}),
+      fecTotals: (i) => get('gov.fec-totals', '/api/gov/fec-totals', i),
+      congressCommittee: (i) => get('gov.congress-committee', '/api/gov/congress-committee', i ?? {}),
+      congressAmendment: (i) => get('gov.congress-amendment', '/api/gov/congress-amendment', i ?? {}),
+      congressNomination: (i) => get('gov.congress-nomination', '/api/gov/congress-nomination', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
