@@ -1375,6 +1375,22 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.gov.billSummaries(a as never),
     },
+    {
+      name: 'gov.osha-inspections',
+      description: 'Search OSHA inspection records via US Department of Labor Open Data Portal (~5M historical inspections). Filter by state/city/zip, establishment name substring, plus raw OData filter clauses.',
+      inputSchema: s('OSHA inspections', {
+        state: { type: 'string' },
+        city: { type: 'string' },
+        zip: { type: 'string' },
+        estabName: { type: 'string' },
+        fields: { type: 'string' },
+        filter: { type: 'string' },
+        sort: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.oshaInspections(a as never),
+    },
 
     // ── Education / Energy / Park / Recreation / Job (api.data.gov + USAJobs) ──
     {

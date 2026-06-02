@@ -1039,6 +1039,10 @@ class _Gov(_Group):
         """Latest US Congressional bill summaries (CRS-authored)."""
         return self._c.request("GET", "/api/gov/bill-summaries", endpoint="gov.bill-summaries", query=kwargs)
 
+    def osha_inspections(self, **kwargs: Any) -> CallResult:
+        """OSHA inspection records via US Department of Labor Open Data Portal."""
+        return self._c.request("GET", "/api/gov/osha-inspections", endpoint="gov.osha-inspections", query=kwargs)
+
     def fda_drug_events(
         self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
     ) -> CallResult:

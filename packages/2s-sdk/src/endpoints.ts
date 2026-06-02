@@ -625,6 +625,8 @@ export interface Endpoints {
     congressRecord(input?: Record<string, unknown>): R<unknown>
     /** Latest US Congressional bill summaries (Congress.gov). */
     billSummaries(input?: Record<string, unknown>): R<unknown>
+    /** OSHA inspection records via DOL Open Data Portal. */
+    oshaInspections(input?: Record<string, unknown>): R<unknown>
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
     /** OpenFDA drug recall enforcement reports. */
@@ -929,6 +931,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       congressTreaty: (i) => get('gov.congress-treaty', '/api/gov/congress-treaty', i ?? {}),
       congressRecord: (i) => get('gov.congress-record', '/api/gov/congress-record', i ?? {}),
       billSummaries: (i) => get('gov.bill-summaries', '/api/gov/bill-summaries', i ?? {}),
+      oshaInspections: (i) => get('gov.osha-inspections', '/api/gov/osha-inspections', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
