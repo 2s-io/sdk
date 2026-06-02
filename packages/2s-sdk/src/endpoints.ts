@@ -401,6 +401,62 @@ export interface Endpoints {
       inchikey?: string
     }): R<unknown>
   }
+  bank: {
+    /** FDIC-insured US bank directory. Lookup by name, cert, RSSD, or state. */
+    lookup(input: {
+      name?: string
+      cert?: string
+      rssdId?: string
+      state?: string
+      status?: 'active' | 'inactive' | 'any'
+      limit?: number
+      offset?: number
+    }): R<unknown>
+  }
+  license: {
+    /** US healthcare provider lookup (NPPES NPI Registry). */
+    medical(input: {
+      npi?: string
+      firstName?: string
+      lastName?: string
+      name?: string
+      state?: string
+      enumerationType?: '1' | '2'
+      limit?: number
+      skip?: number
+    }): R<unknown>
+    /** FINRA BrokerCheck — registered US brokers / investment advisors. */
+    broker(input: {
+      query?: string
+      crd?: string
+      limit?: number
+      offset?: number
+    }): R<unknown>
+  }
+  health: {
+    /** CMS Open Payments — pharma/device → US physician payment disclosures. */
+    openPayments(input: {
+      npi?: string
+      firstName?: string
+      lastName?: string
+      payerName?: string
+      state?: string
+      minAmount?: number
+      limit?: number
+      offset?: number
+    }): R<unknown>
+  }
+  nonprofit: {
+    /** US 501(c) nonprofit search via ProPublica Nonprofit Explorer. */
+    search(input: {
+      q?: string
+      ein?: string
+      state?: string
+      nteeCode?: string
+      subsectionCode?: number
+      page?: number
+    }): R<unknown>
+  }
   gov: {
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
@@ -633,6 +689,19 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     chem: {
       compound: (i) => get('chem.compound', '/api/chem/compound', i),
+    },
+    bank: {
+      lookup: (i) => get('bank.lookup', '/api/bank/lookup', i),
+    },
+    license: {
+      medical: (i) => get('license.medical', '/api/license/medical', i),
+      broker: (i) => get('license.broker', '/api/license/broker', i),
+    },
+    health: {
+      openPayments: (i) => get('health.open-payments', '/api/health/open-payments', i),
+    },
+    nonprofit: {
+      search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),
     },
     gov: {
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),

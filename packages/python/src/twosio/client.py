@@ -1281,6 +1281,111 @@ class _Agent(_Group):
         return self._c.request("POST", "/api/agent/knowledge-delta", endpoint="agent.knowledge-delta", body=body)
 
 
+class _Bank(_Group):
+    def lookup(
+        self,
+        *,
+        name: Optional[str] = None,
+        cert: Optional[str] = None,
+        rssd_id: Optional[str] = None,
+        state: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> CallResult:
+        """FDIC-insured US bank directory."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if name is not None: q["name"] = name
+        if cert is not None: q["cert"] = cert
+        if rssd_id is not None: q["rssdId"] = rssd_id
+        if state is not None: q["state"] = state
+        if status is not None: q["status"] = status
+        return self._c.request("GET", "/api/bank/lookup", endpoint="bank.lookup", query=q)
+
+
+class _License(_Group):
+    def medical(
+        self,
+        *,
+        npi: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        name: Optional[str] = None,
+        state: Optional[str] = None,
+        enumeration_type: Optional[str] = None,
+        limit: int = 10,
+        skip: int = 0,
+    ) -> CallResult:
+        """NPPES NPI registry — US healthcare provider lookup."""
+        q: dict[str, Any] = {"limit": limit, "skip": skip}
+        if npi is not None: q["npi"] = npi
+        if first_name is not None: q["firstName"] = first_name
+        if last_name is not None: q["lastName"] = last_name
+        if name is not None: q["name"] = name
+        if state is not None: q["state"] = state
+        if enumeration_type is not None: q["enumerationType"] = enumeration_type
+        return self._c.request("GET", "/api/license/medical", endpoint="license.medical", query=q)
+
+    def broker(
+        self,
+        *,
+        query: Optional[str] = None,
+        crd: Optional[str] = None,
+        limit: int = 10,
+        offset: int = 0,
+    ) -> CallResult:
+        """FINRA BrokerCheck — registered US brokers / advisors."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if query is not None: q["query"] = query
+        if crd is not None: q["crd"] = crd
+        return self._c.request("GET", "/api/license/broker", endpoint="license.broker", query=q)
+
+
+class _Health(_Group):
+    def open_payments(
+        self,
+        *,
+        npi: Optional[str] = None,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        payer_name: Optional[str] = None,
+        state: Optional[str] = None,
+        min_amount: Optional[float] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> CallResult:
+        """CMS Open Payments — Sunshine Act payments to US physicians."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if npi is not None: q["npi"] = npi
+        if first_name is not None: q["firstName"] = first_name
+        if last_name is not None: q["lastName"] = last_name
+        if payer_name is not None: q["payerName"] = payer_name
+        if state is not None: q["state"] = state
+        if min_amount is not None: q["minAmount"] = min_amount
+        return self._c.request("GET", "/api/health/open-payments", endpoint="health.open-payments", query=q)
+
+
+class _Nonprofit(_Group):
+    def search(
+        self,
+        *,
+        q: Optional[str] = None,
+        ein: Optional[str] = None,
+        state: Optional[str] = None,
+        ntee_code: Optional[str] = None,
+        subsection_code: Optional[int] = None,
+        page: int = 0,
+    ) -> CallResult:
+        """US 501(c) nonprofit search via ProPublica Nonprofit Explorer."""
+        query: dict[str, Any] = {"page": page}
+        if q is not None: query["q"] = q
+        if ein is not None: query["ein"] = ein
+        if state is not None: query["state"] = state
+        if ntee_code is not None: query["nteeCode"] = ntee_code
+        if subsection_code is not None: query["subsectionCode"] = subsection_code
+        return self._c.request("GET", "/api/nonprofit/search", endpoint="nonprofit.search", query=query)
+
+
 class TwoS:
     """
     Main client for 2s.io. Construct once, reuse across calls.
@@ -1370,6 +1475,10 @@ class TwoS:
         self.gov = _Gov(self)
         self.agent = _Agent(self)
         self.chem = _Chem(self)
+        self.bank = _Bank(self)
+        self.license = _License(self)
+        self.health = _Health(self)
+        self.nonprofit = _Nonprofit(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

@@ -755,6 +755,76 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.chem.compound(a as never),
     },
 
+    // ── Public records: licenses / banks / health / nonprofit ────────
+    {
+      name: 'license.medical',
+      description: 'US healthcare provider lookup (NPPES NPI Registry). Lookup by 10-digit NPI (precise) or firstName + lastName + state. Returns name, credentials, specialty taxonomies with state license numbers, addresses, phone, identifiers.',
+      inputSchema: s('NPI lookup', {
+        npi: { type: 'string', description: '10-digit NPI for direct lookup.' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        name: { type: 'string', description: 'Convenience — last-name search when firstName not set.' },
+        state: { type: 'string', description: '2-letter US state.' },
+        enumerationType: { type: 'string', enum: ['1', '2'], description: '1 = individual, 2 = organization.' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 10 },
+        skip: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.license.medical(a as never),
+    },
+    {
+      name: 'license.broker',
+      description: 'FINRA BrokerCheck — registered US brokers / investment advisors. Search by free-text query (name + firm) or by CRD number. Returns CRD, name + aliases, scopes, disclosure flag, industry-start date, current + previous employments.',
+      inputSchema: s('Broker lookup', {
+        query: { type: 'string', description: 'Free-text query — name + firm.' },
+        crd: { type: 'string', description: 'Direct CRD number.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.license.broker(a as never),
+    },
+    {
+      name: 'bank.lookup',
+      description: 'FDIC-insured US bank directory. Lookup by name (fuzzy), FDIC certificate, RSSD ID, or state. Returns name, web address, active flag, location, established + insured dates, charter, branch count, assets/deposits ($1000s).',
+      inputSchema: s('Bank lookup', {
+        name: { type: 'string', description: 'Fuzzy name search.' },
+        cert: { type: 'string', description: 'FDIC certificate number.' },
+        rssdId: { type: 'string', description: 'Federal Reserve RSSD ID.' },
+        state: { type: 'string', description: '2-letter US state.' },
+        status: { type: 'string', enum: ['active', 'inactive', 'any'], default: 'active' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.bank.lookup(a as never),
+    },
+    {
+      name: 'health.open-payments',
+      description: 'CMS Open Payments — Sunshine Act payments from pharma/device manufacturers to US physicians or teaching hospitals (~10M records per year). Lookup by NPI, name, payer (manufacturer) name, or state. Returns recipient + payer + payment (amount, date, nature: consulting/food/travel/royalty) + associated product (drug/device + therapeutic area).',
+      inputSchema: s('Open Payments search', {
+        npi: { type: 'string', description: 'Recipient physician NPI.' },
+        firstName: { type: 'string' },
+        lastName: { type: 'string' },
+        payerName: { type: 'string', description: 'Manufacturer/GPO name (contains match).' },
+        state: { type: 'string', description: '2-letter US state.' },
+        minAmount: { type: 'number', description: 'Min USD payment amount.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.health.openPayments(a as never),
+    },
+    {
+      name: 'nonprofit.search',
+      description: 'US 501(c) nonprofit organization search via ProPublica Nonprofit Explorer (IRS Form 990 + BMF). Search by name, 9-digit EIN, state, NTEE category code (e.g. "B99"), or subsection code (3 = 501(c)(3)). Returns EIN, name, location, NTEE code, subsection code + human description.',
+      inputSchema: s('Nonprofit search', {
+        q: { type: 'string', description: 'Free-text name search.' },
+        ein: { type: 'string', description: '9-digit EIN (with or without hyphen).' },
+        state: { type: 'string', description: '2-letter US state.' },
+        nteeCode: { type: 'string', description: 'NTEE category (e.g., "B99").' },
+        subsectionCode: { type: 'integer', description: 'IRS subsection (3 = 501(c)(3), etc.).' },
+        page: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.nonprofit.search(a as never),
+    },
+
     // ── Gov ──────────────────────────────────────────────────────────
     {
       name: 'gov.fda-drug-events',
