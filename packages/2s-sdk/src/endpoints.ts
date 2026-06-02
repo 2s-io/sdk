@@ -281,6 +281,16 @@ export interface Endpoints {
     /** US Bureau of Labor Statistics time series. */
     series(input: { seriesIds: string; startYear?: number; endYear?: number }): R<unknown>
   }
+  country: {
+    /** Country metadata lookup (REST Countries). */
+    lookup(input: { alpha2?: string; alpha3?: string; name?: string; fullText?: boolean }): R<unknown>
+  }
+  news: {
+    /** Hacker News feed (top/new/best/ask/show/job). */
+    hnTop(input?: { kind?: 'top' | 'new' | 'best' | 'ask' | 'show' | 'job'; limit?: number }): R<unknown>
+    /** Hacker News item lookup by ID. */
+    hnItem(input: { id: number }): R<unknown>
+  }
   patents: {
     search(input: {
       q: string
@@ -805,6 +815,13 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     bls: {
       series: (i) => get('bls.series', '/api/bls/series', i),
+    },
+    country: {
+      lookup: (i) => get('country.lookup', '/api/country/lookup', i),
+    },
+    news: {
+      hnTop: (i) => get('news.hn-top', '/api/news/hn-top', i),
+      hnItem: (i) => get('news.hn-item', '/api/news/hn-item', i),
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),

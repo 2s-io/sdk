@@ -1515,6 +1515,40 @@ class _Bls(_Group):
         return self._c.request("GET", "/api/bls/series", endpoint="bls.series", query=q)
 
 
+class _Country(_Group):
+    def lookup(
+        self,
+        *,
+        alpha2: Optional[str] = None,
+        alpha3: Optional[str] = None,
+        name: Optional[str] = None,
+        full_text: bool = False,
+    ) -> CallResult:
+        """Country metadata via REST Countries — names, ISO codes, capital,
+        population, languages, currencies, calling code, flag, coords."""
+        q: dict[str, Any] = {"fullText": full_text}
+        if alpha2 is not None: q["alpha2"] = alpha2
+        if alpha3 is not None: q["alpha3"] = alpha3
+        if name is not None: q["name"] = name
+        return self._c.request("GET", "/api/country/lookup", endpoint="country.lookup", query=q)
+
+
+class _News(_Group):
+    def hn_top(self, *, kind: str = "top", limit: int = 30) -> CallResult:
+        """Hacker News feed (top | new | best | ask | show | job)."""
+        return self._c.request(
+            "GET", "/api/news/hn-top", endpoint="news.hn-top",
+            query={"kind": kind, "limit": limit},
+        )
+
+    def hn_item(self, *, id: int) -> CallResult:
+        """Fetch a Hacker News item (story/comment/job/poll) by numeric id."""
+        return self._c.request(
+            "GET", "/api/news/hn-item", endpoint="news.hn-item",
+            query={"id": id},
+        )
+
+
 class _Nonprofit(_Group):
     def search(
         self,

@@ -943,6 +943,32 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['seriesIds']),
       invoke: (a) => c.bls.series(a as never),
     },
+    {
+      name: 'country.lookup',
+      description: 'Country metadata via REST Countries. Lookup by alpha2 (ISO 3166-1), alpha3, or name (with optional fullText exact match). Returns names, ISO codes, region/subregion, capital, population, area, languages, currencies, calling code, flag, coordinates, driving side, TLDs.',
+      inputSchema: s('Country lookup', {
+        alpha2: { type: 'string' },
+        alpha3: { type: 'string' },
+        name: { type: 'string' },
+        fullText: { type: 'boolean', default: false },
+      }),
+      invoke: (a) => c.country.lookup(a as never),
+    },
+    {
+      name: 'news.hn-top',
+      description: 'Hacker News feed. kind = top | new | best | ask | show | job. Returns items with title, URL, score, comment count, author, time, dead/deleted flags.',
+      inputSchema: s('HN feed', {
+        kind: { type: 'string', enum: ['top', 'new', 'best', 'ask', 'show', 'job'], default: 'top' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 30 },
+      }),
+      invoke: (a) => c.news.hnTop(a as never),
+    },
+    {
+      name: 'news.hn-item',
+      description: 'Fetch a specific Hacker News item by numeric ID.',
+      inputSchema: s('HN item', { id: { type: 'integer' } }, ['id']),
+      invoke: (a) => c.news.hnItem(a as never),
+    },
 
     // ── Gov ──────────────────────────────────────────────────────────
     {

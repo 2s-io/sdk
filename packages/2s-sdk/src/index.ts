@@ -176,6 +176,8 @@ export class TwoS {
   public readonly registry: Endpoints['registry']
   public readonly fx: Endpoints['fx']
   public readonly bls: Endpoints['bls']
+  public readonly country: Endpoints['country']
+  public readonly news: Endpoints['news']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -250,6 +252,8 @@ export class TwoS {
     this.registry = this.endpoints.registry
     this.fx = this.endpoints.fx
     this.bls = this.endpoints.bls
+    this.country = this.endpoints.country
+    this.news = this.endpoints.news
   }
 
   /** Base URL with no trailing slash. */
