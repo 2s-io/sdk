@@ -267,6 +267,20 @@ export interface Endpoints {
     /** Crossref DOI bibliographic metadata lookup. */
     doiLookup(input: { doi: string }): R<unknown>
   }
+  registry: {
+    /** npm package metadata. */
+    npmLookup(input: { name: string }): R<unknown>
+    /** PyPI package metadata. */
+    pypiLookup(input: { name: string }): R<unknown>
+  }
+  fx: {
+    /** ECB daily reference exchange rates via Frankfurter. */
+    rates(input?: { base?: string; symbols?: string; date?: string; amount?: number }): R<unknown>
+  }
+  bls: {
+    /** US Bureau of Labor Statistics time series. */
+    series(input: { seriesIds: string; startYear?: number; endYear?: number }): R<unknown>
+  }
   patents: {
     search(input: {
       q: string
@@ -781,6 +795,16 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     paper: {
       doiLookup: (i) => get('paper.doi-lookup', '/api/paper/doi-lookup', i),
+    },
+    registry: {
+      npmLookup: (i) => get('registry.npm-lookup', '/api/registry/npm-lookup', i),
+      pypiLookup: (i) => get('registry.pypi-lookup', '/api/registry/pypi-lookup', i),
+    },
+    fx: {
+      rates: (i) => get('fx.rates', '/api/fx/rates', i),
+    },
+    bls: {
+      series: (i) => get('bls.series', '/api/bls/series', i),
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),

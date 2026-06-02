@@ -1478,6 +1478,43 @@ class _Paper(_Group):
         return self._c.request("GET", "/api/paper/doi-lookup", endpoint="paper.doi-lookup", query={"doi": doi})
 
 
+class _Registry(_Group):
+    def npm_lookup(self, *, name: str) -> CallResult:
+        return self._c.request("GET", "/api/registry/npm-lookup", endpoint="registry.npm-lookup", query={"name": name})
+
+    def pypi_lookup(self, *, name: str) -> CallResult:
+        return self._c.request("GET", "/api/registry/pypi-lookup", endpoint="registry.pypi-lookup", query={"name": name})
+
+
+class _Fx(_Group):
+    def rates(
+        self,
+        *,
+        base: str = "USD",
+        symbols: Optional[str] = None,
+        date: Optional[str] = None,
+        amount: float = 1.0,
+    ) -> CallResult:
+        q: dict[str, Any] = {"base": base, "amount": amount}
+        if symbols is not None: q["symbols"] = symbols
+        if date is not None: q["date"] = date
+        return self._c.request("GET", "/api/fx/rates", endpoint="fx.rates", query=q)
+
+
+class _Bls(_Group):
+    def series(
+        self,
+        *,
+        series_ids: str,
+        start_year: Optional[int] = None,
+        end_year: Optional[int] = None,
+    ) -> CallResult:
+        q: dict[str, Any] = {"seriesIds": series_ids}
+        if start_year is not None: q["startYear"] = start_year
+        if end_year is not None: q["endYear"] = end_year
+        return self._c.request("GET", "/api/bls/series", endpoint="bls.series", query=q)
+
+
 class _Nonprofit(_Group):
     def search(
         self,
@@ -1598,6 +1635,9 @@ class TwoS:
         self.code = _Code(self)
         self.wikidata = _Wikidata(self)
         self.paper = _Paper(self)
+        self.registry = _Registry(self)
+        self.fx = _Fx(self)
+        self.bls = _Bls(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

@@ -910,6 +910,40 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.wikidata.entity(a as never),
     },
 
+    {
+      name: 'registry.npm-lookup',
+      description: 'Look up an npm package by name (supports @scope/name). Returns description, repository, license, author + maintainers, keywords, distTags, latest version, and the 50 most recent versions with publish dates.',
+      inputSchema: s('npm lookup', { name: { type: 'string' } }, ['name']),
+      invoke: (a) => c.registry.npmLookup(a as never),
+    },
+    {
+      name: 'registry.pypi-lookup',
+      description: 'Look up a Python package on PyPI. Returns version, summary, project URLs, license, author/maintainer, classifiers, requires-python, runtime deps, recent release dates, yanked versions.',
+      inputSchema: s('PyPI lookup', { name: { type: 'string' } }, ['name']),
+      invoke: (a) => c.registry.pypiLookup(a as never),
+    },
+    {
+      name: 'fx.rates',
+      description: 'Daily reference exchange rates from the European Central Bank (via Frankfurter). 30+ major currencies. Optional base (default USD), symbols (target codes), date (YYYY-MM-DD; omit for latest), amount.',
+      inputSchema: s('FX rates', {
+        base: { type: 'string', description: '3-letter ISO 4217.' },
+        symbols: { type: 'string', description: 'Comma-separated target codes.' },
+        date: { type: 'string', format: 'date' },
+        amount: { type: 'number' },
+      }),
+      invoke: (a) => c.fx.rates(a as never),
+    },
+    {
+      name: 'bls.series',
+      description: 'US Bureau of Labor Statistics time-series data. seriesIds = comma-separated BLS series IDs (1-10 per call), optional startYear + endYear (max 10 years). Common: LNS14000000 (unemployment), CUUR0000SA0 (CPI-U), CES0000000001 (nonfarm employment).',
+      inputSchema: s('BLS series', {
+        seriesIds: { type: 'string' },
+        startYear: { type: 'integer', minimum: 1900, maximum: 2100 },
+        endYear: { type: 'integer', minimum: 1900, maximum: 2100 },
+      }, ['seriesIds']),
+      invoke: (a) => c.bls.series(a as never),
+    },
+
     // ── Gov ──────────────────────────────────────────────────────────
     {
       name: 'gov.fda-drug-events',
