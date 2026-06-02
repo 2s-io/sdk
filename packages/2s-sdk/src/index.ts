@@ -161,6 +161,8 @@ export class TwoS {
   public readonly space: Endpoints['space']
   public readonly vehicle: Endpoints['vehicle']
   public readonly gov: Endpoints['gov']
+  public readonly agent: Endpoints['agent']
+  public readonly chem: Endpoints['chem']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -220,6 +222,8 @@ export class TwoS {
     this.space = this.endpoints.space
     this.vehicle = this.endpoints.vehicle
     this.gov = this.endpoints.gov
+    this.agent = this.endpoints.agent
+    this.chem = this.endpoints.chem
   }
 
   /** Base URL with no trailing slash. */

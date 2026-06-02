@@ -875,6 +875,412 @@ class _Image(_Group):
         )
 
 
+class _Phone(_Group):
+    def normalize(self, *, phone: str, default_region: Optional[str] = None) -> CallResult:
+        """E.164-normalize and classify a phone number via libphonenumber."""
+        q: dict[str, Any] = {"phone": phone}
+        if default_region is not None:
+            q["defaultRegion"] = default_region
+        return self._c.request("GET", "/api/phone/normalize", endpoint="phone.normalize", query=q)
+
+
+class _Space(_Group):
+    def weather(self) -> CallResult:
+        """Current NOAA space-weather snapshot (Kp index, solar flux, aurora)."""
+        return self._c.request("GET", "/api/space/weather", endpoint="space.weather")
+
+
+class _Vehicle(_Group):
+    def vin_decode(self, *, vin: str, model_year: Optional[int] = None) -> CallResult:
+        """Decode a 17-char VIN via NHTSA vPIC."""
+        q: dict[str, Any] = {"vin": vin}
+        if model_year is not None:
+            q["modelYear"] = model_year
+        return self._c.request("GET", "/api/vehicle/vin-decode", endpoint="vehicle.vin-decode", query=q)
+
+    def recalls(
+        self,
+        *,
+        vin: Optional[str] = None,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+        model_year: Optional[int] = None,
+        nhtsa_id: Optional[str] = None,
+    ) -> CallResult:
+        """NHTSA recall lookup. Supply VIN, or make/model/year, or campaign ID."""
+        q: dict[str, Any] = {}
+        if vin is not None: q["vin"] = vin
+        if make is not None: q["make"] = make
+        if model is not None: q["model"] = model
+        if model_year is not None: q["modelYear"] = model_year
+        if nhtsa_id is not None: q["nhtsaId"] = nhtsa_id
+        return self._c.request("GET", "/api/vehicle/recalls", endpoint="vehicle.recalls", query=q)
+
+    def complaints(
+        self,
+        *,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+        model_year: Optional[int] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> CallResult:
+        """NHTSA consumer complaints by make/model/year."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if make is not None: q["make"] = make
+        if model is not None: q["model"] = model
+        if model_year is not None: q["modelYear"] = model_year
+        return self._c.request("GET", "/api/vehicle/complaints", endpoint="vehicle.complaints", query=q)
+
+    def investigations(self, *, limit: int = 20, offset: int = 0) -> CallResult:
+        """NHTSA open investigations (newest first)."""
+        return self._c.request(
+            "GET", "/api/vehicle/investigations", endpoint="vehicle.investigations",
+            query={"limit": limit, "offset": offset},
+        )
+
+    def models(self, *, make: str, model_year: int) -> CallResult:
+        """List all models offered by a make in a given model year (vPIC)."""
+        return self._c.request(
+            "GET", "/api/vehicle/models", endpoint="vehicle.models",
+            query={"make": make, "modelYear": model_year},
+        )
+
+    def decode_wmi(self, *, wmi: str) -> CallResult:
+        """Decode a 3-character World Manufacturer Identifier."""
+        return self._c.request(
+            "GET", "/api/vehicle/decode-wmi", endpoint="vehicle.decode-wmi",
+            query={"wmi": wmi},
+        )
+
+    def manufacturers(self, *, page: int = 1) -> CallResult:
+        """Paginated NHTSA manufacturer list."""
+        return self._c.request(
+            "GET", "/api/vehicle/manufacturers", endpoint="vehicle.manufacturers",
+            query={"page": page},
+        )
+
+
+class _Gov(_Group):
+    def fda_drug_events(
+        self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
+    ) -> CallResult:
+        """FDA adverse drug event reports (FAERS). Search by drug name + optional MedDRA reaction."""
+        q: dict[str, Any] = {"drug": drug, "limit": limit}
+        if reaction is not None: q["reaction"] = reaction
+        return self._c.request("GET", "/api/gov/fda-drug-events", endpoint="gov.fda-drug-events", query=q)
+
+    def fda_recalls(
+        self,
+        *,
+        drug: Optional[str] = None,
+        classification: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 20,
+    ) -> CallResult:
+        """FDA drug recall enforcement reports. classification: 'I' | 'II' | 'III'."""
+        q: dict[str, Any] = {"limit": limit}
+        if drug is not None: q["drug"] = drug
+        if classification is not None: q["classification"] = classification
+        if status is not None: q["status"] = status
+        return self._c.request("GET", "/api/gov/fda-recalls", endpoint="gov.fda-recalls", query=q)
+
+    def fda_food_recalls(
+        self,
+        *,
+        product: Optional[str] = None,
+        classification: Optional[str] = None,
+        status: Optional[str] = None,
+        state: Optional[str] = None,
+        limit: int = 20,
+    ) -> CallResult:
+        """FDA food recall enforcement reports."""
+        q: dict[str, Any] = {"limit": limit}
+        if product is not None: q["product"] = product
+        if classification is not None: q["classification"] = classification
+        if status is not None: q["status"] = status
+        if state is not None: q["state"] = state
+        return self._c.request("GET", "/api/gov/fda-food-recalls", endpoint="gov.fda-food-recalls", query=q)
+
+    def fda_device_events(
+        self,
+        *,
+        device: Optional[str] = None,
+        manufacturer: Optional[str] = None,
+        problem: Optional[str] = None,
+        limit: int = 20,
+    ) -> CallResult:
+        """FDA medical device adverse event reports (MAUDE)."""
+        q: dict[str, Any] = {"limit": limit}
+        if device is not None: q["device"] = device
+        if manufacturer is not None: q["manufacturer"] = manufacturer
+        if problem is not None: q["problem"] = problem
+        return self._c.request("GET", "/api/gov/fda-device-events", endpoint="gov.fda-device-events", query=q)
+
+    def fda_animalvet_events(
+        self,
+        *,
+        drug: Optional[str] = None,
+        species: Optional[str] = None,
+        reaction: Optional[str] = None,
+        limit: int = 20,
+    ) -> CallResult:
+        """FDA animal/veterinary adverse event reports."""
+        q: dict[str, Any] = {"limit": limit}
+        if drug is not None: q["drug"] = drug
+        if species is not None: q["species"] = species
+        if reaction is not None: q["reaction"] = reaction
+        return self._c.request("GET", "/api/gov/fda-animalvet-events", endpoint="gov.fda-animalvet-events", query=q)
+
+    def house_votes(
+        self,
+        *,
+        year: Optional[int] = None,
+        congress: Optional[int] = None,
+        result: Optional[str] = None,
+        bill: Optional[str] = None,
+        since: Optional[str] = None,
+        until: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """US House roll-call votes (locally aggregated, daily)."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if year is not None: q["year"] = year
+        if congress is not None: q["congress"] = congress
+        if result is not None: q["result"] = result
+        if bill is not None: q["bill"] = bill
+        if since is not None: q["since"] = since
+        if until is not None: q["until"] = until
+        return self._c.request("GET", "/api/gov/house-votes", endpoint="gov.house-votes", query=q)
+
+    def senate_votes(
+        self,
+        *,
+        congress: Optional[int] = None,
+        session: Optional[int] = None,
+        result: Optional[str] = None,
+        document: Optional[str] = None,
+        since: Optional[str] = None,
+        until: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """US Senate roll-call votes (locally aggregated, daily)."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if congress is not None: q["congress"] = congress
+        if session is not None: q["session"] = session
+        if result is not None: q["result"] = result
+        if document is not None: q["document"] = document
+        if since is not None: q["since"] = since
+        if until is not None: q["until"] = until
+        return self._c.request("GET", "/api/gov/senate-votes", endpoint="gov.senate-votes", query=q)
+
+    def usaspending_awards(
+        self,
+        *,
+        recipient: Optional[str] = None,
+        agency: Optional[str] = None,
+        recipient_state: Optional[str] = None,
+        award_type: Optional[str] = None,
+        since: Optional[str] = None,
+        until: Optional[str] = None,
+        limit: int = 25,
+        page: int = 1,
+    ) -> CallResult:
+        """Federal awards search via USAspending.gov. award_type: contracts|grants|loans|direct_payments|other."""
+        q: dict[str, Any] = {"limit": limit, "page": page}
+        if recipient is not None: q["recipient"] = recipient
+        if agency is not None: q["agency"] = agency
+        if recipient_state is not None: q["recipientState"] = recipient_state
+        if award_type is not None: q["awardType"] = award_type
+        if since is not None: q["since"] = since
+        if until is not None: q["until"] = until
+        return self._c.request("GET", "/api/gov/usaspending-awards", endpoint="gov.usaspending-awards", query=q)
+
+    def usgs_water(
+        self,
+        *,
+        lat: float,
+        lon: float,
+        radius: float = 0.5,
+        variables: Optional[str] = None,
+        limit: int = 25,
+    ) -> CallResult:
+        """Real-time USGS water gauge readings in a bbox around lat/lon."""
+        q: dict[str, Any] = {"lat": lat, "lon": lon, "radius": radius, "limit": limit}
+        if variables is not None: q["variables"] = variables
+        return self._c.request("GET", "/api/gov/usgs-water", endpoint="gov.usgs-water", query=q)
+
+    def epa_facilities(
+        self,
+        *,
+        state: str,
+        name: Optional[str] = None,
+        program: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """EPA Facility Registry Service (FRS) by state + optional name + program."""
+        q: dict[str, Any] = {"state": state, "limit": limit, "offset": offset}
+        if name is not None: q["name"] = name
+        if program is not None: q["program"] = program
+        return self._c.request("GET", "/api/gov/epa-facilities", endpoint="gov.epa-facilities", query=q)
+
+    def federal_register_recent(
+        self,
+        *,
+        type: Optional[str] = None,
+        agency: Optional[str] = None,
+        since: Optional[str] = None,
+        until: Optional[str] = None,
+        limit: int = 25,
+        page: int = 1,
+    ) -> CallResult:
+        """Newest Federal Register documents — chronological feed for compliance change-detection. type: RULE|PRORULE|NOTICE|PRESDOCU."""
+        q: dict[str, Any] = {"limit": limit, "page": page}
+        if type is not None: q["type"] = type
+        if agency is not None: q["agency"] = agency
+        if since is not None: q["since"] = since
+        if until is not None: q["until"] = until
+        return self._c.request("GET", "/api/gov/federal-register-recent", endpoint="gov.federal-register-recent", query=q)
+
+
+class _Chem(_Group):
+    def compound(
+        self,
+        *,
+        cid: Optional[int] = None,
+        name: Optional[str] = None,
+        smiles: Optional[str] = None,
+        inchikey: Optional[str] = None,
+    ) -> CallResult:
+        """Look up a chemical compound by cid, name, smiles, or inchikey (NIH PubChem)."""
+        q: dict[str, Any] = {}
+        if cid is not None: q["cid"] = cid
+        if name is not None: q["name"] = name
+        if smiles is not None: q["smiles"] = smiles
+        if inchikey is not None: q["inchikey"] = inchikey
+        return self._c.request("GET", "/api/chem/compound", endpoint="chem.compound", query=q)
+
+
+class _AgentMemory(_Group):
+    def put(
+        self,
+        *,
+        key: str,
+        value: Any,
+        ttl_seconds: Optional[int] = None,
+    ) -> CallResult:
+        """Write/replace a memory entry. Namespace = your x402 pubkey."""
+        body: dict[str, Any] = {"key": key, "value": value}
+        if ttl_seconds is not None:
+            body["ttlSeconds"] = ttl_seconds
+        return self._c.request("POST", "/api/agent/memory/put", endpoint="agent.memory.put", body=body)
+
+    def get(self, *, key: str) -> CallResult:
+        return self._c.request("GET", "/api/agent/memory/get", endpoint="agent.memory.get", query={"key": key})
+
+    def list(
+        self,
+        *,
+        prefix: Optional[str] = None,
+        limit: int = 25,
+        cursor: Optional[str] = None,
+    ) -> CallResult:
+        q: dict[str, Any] = {"limit": limit}
+        if prefix is not None: q["prefix"] = prefix
+        if cursor is not None: q["cursor"] = cursor
+        return self._c.request("GET", "/api/agent/memory/list", endpoint="agent.memory.list", query=q)
+
+    def delete(self, *, key: str) -> CallResult:
+        return self._c.request("POST", "/api/agent/memory/delete", endpoint="agent.memory.delete", body={"key": key})
+
+
+class _AgentMarketplace(_Group):
+    def register(
+        self,
+        *,
+        name: str,
+        description: str,
+        capabilities: list,
+        endpoint_url: Optional[str] = None,
+        price_usd: Optional[float] = None,
+        network: Optional[str] = None,
+        pay_to: Optional[str] = None,
+        status: Optional[str] = None,
+        metadata: Optional[dict] = None,
+    ) -> CallResult:
+        body: dict[str, Any] = {
+            "name": name,
+            "description": description,
+            "capabilities": capabilities,
+        }
+        if endpoint_url is not None: body["endpointUrl"] = endpoint_url
+        if price_usd is not None: body["priceUsd"] = price_usd
+        if network is not None: body["network"] = network
+        if pay_to is not None: body["payTo"] = pay_to
+        if status is not None: body["status"] = status
+        if metadata is not None: body["metadata"] = metadata
+        return self._c.request("POST", "/api/agent/marketplace/register", endpoint="agent.marketplace.register", body=body)
+
+    def discover(
+        self,
+        *,
+        q: Optional[str] = None,
+        capabilities: Optional[str] = None,
+        network: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        query: dict[str, Any] = {"limit": limit, "offset": offset}
+        if q is not None: query["q"] = q
+        if capabilities is not None: query["capabilities"] = capabilities
+        if network is not None: query["network"] = network
+        return self._c.request("GET", "/api/agent/marketplace/discover", endpoint="agent.marketplace.discover", query=query)
+
+    def profile(self, *, namespace: str) -> CallResult:
+        return self._c.request("GET", "/api/agent/marketplace/profile", endpoint="agent.marketplace.profile", query={"namespace": namespace})
+
+    def review(
+        self,
+        *,
+        reviewed: str,
+        outcome: str,
+        rating: Optional[int] = None,
+        comment: Optional[str] = None,
+        tx_hash: Optional[str] = None,
+        network: Optional[str] = None,
+    ) -> CallResult:
+        body: dict[str, Any] = {"reviewed": reviewed, "outcome": outcome}
+        if rating is not None: body["rating"] = rating
+        if comment is not None: body["comment"] = comment
+        if tx_hash is not None: body["txHash"] = tx_hash
+        if network is not None: body["network"] = network
+        return self._c.request("POST", "/api/agent/marketplace/review", endpoint="agent.marketplace.review", body=body)
+
+
+class _Agent(_Group):
+    """Agent-native primitives: knowledge-delta, memory, marketplace."""
+    def __init__(self, c):
+        super().__init__(c)
+        self.memory = _AgentMemory(c)
+        self.marketplace = _AgentMarketplace(c)
+
+    def knowledge_delta(
+        self,
+        *,
+        topic: str,
+        since: str,
+        until: Optional[str] = None,
+        max_events: int = 20,
+    ) -> CallResult:
+        """What's happened in <topic> since <date>? Multi-source delta. Tier 2."""
+        body: dict[str, Any] = {"topic": topic, "since": since, "maxEvents": max_events}
+        if until is not None: body["until"] = until
+        return self._c.request("POST", "/api/agent/knowledge-delta", endpoint="agent.knowledge-delta", body=body)
+
+
 class TwoS:
     """
     Main client for 2s.io. Construct once, reuse across calls.
@@ -958,6 +1364,12 @@ class TwoS:
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)
         self.image = _Image(self)
+        self.phone = _Phone(self)
+        self.space = _Space(self)
+        self.vehicle = _Vehicle(self)
+        self.gov = _Gov(self)
+        self.agent = _Agent(self)
+        self.chem = _Chem(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

@@ -348,6 +348,59 @@ export interface Endpoints {
     /** Paginated NHTSA manufacturer list (vPIC). */
     manufacturers(input: { page?: number }): R<unknown>
   }
+  agent: {
+    /** Multi-source delta of recent events on a topic. Tier 2. */
+    knowledgeDelta(input: {
+      topic: string
+      since: string
+      until?: string
+      maxEvents?: number
+    }): R<unknown>
+    memory: {
+      put(input: { key: string; value: unknown; ttlSeconds?: number }): R<unknown>
+      get(input: { key: string }): R<unknown>
+      list(input?: { prefix?: string; limit?: number; cursor?: string }): R<unknown>
+      delete(input: { key: string }): R<unknown>
+    }
+    marketplace: {
+      register(input: {
+        name: string
+        description: string
+        capabilities: string[]
+        endpointUrl?: string
+        priceUsd?: number
+        network?: 'base' | 'solana' | 'base+solana'
+        payTo?: string
+        status?: 'active' | 'paused' | 'removed'
+        metadata?: Record<string, unknown>
+      }): R<unknown>
+      discover(input?: {
+        q?: string
+        capabilities?: string
+        network?: 'base' | 'solana'
+        limit?: number
+        offset?: number
+      }): R<unknown>
+      profile(input: { namespace: string }): R<unknown>
+      review(input: {
+        reviewed: string
+        outcome: 'success' | 'failure' | 'partial'
+        rating?: number
+        comment?: string
+        txHash?: string
+        network?: 'base' | 'solana'
+      }): R<unknown>
+    }
+  }
+  chem: {
+    /** Look up a chemical compound by cid, name, smiles, or inchikey. NIH PubChem. */
+    compound(input: {
+      cid?: number
+      name?: string
+      smiles?: string
+      inchikey?: string
+    }): R<unknown>
+  }
   gov: {
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
@@ -562,6 +615,24 @@ export function createEndpoints(client: TwoS): Endpoints {
       models: (i) => get('vehicle.models', '/api/vehicle/models', i),
       decodeWmi: (i) => get('vehicle.decode-wmi', '/api/vehicle/decode-wmi', i),
       manufacturers: (i) => get('vehicle.manufacturers', '/api/vehicle/manufacturers', i),
+    },
+    agent: {
+      knowledgeDelta: (i) => post('agent.knowledge-delta', '/api/agent/knowledge-delta', i),
+      memory: {
+        put: (i) => post('agent.memory.put', '/api/agent/memory/put', i),
+        get: (i) => get('agent.memory.get', '/api/agent/memory/get', i),
+        list: (i) => get('agent.memory.list', '/api/agent/memory/list', i),
+        delete: (i) => post('agent.memory.delete', '/api/agent/memory/delete', i),
+      },
+      marketplace: {
+        register: (i) => post('agent.marketplace.register', '/api/agent/marketplace/register', i),
+        discover: (i) => get('agent.marketplace.discover', '/api/agent/marketplace/discover', i),
+        profile: (i) => get('agent.marketplace.profile', '/api/agent/marketplace/profile', i),
+        review: (i) => post('agent.marketplace.review', '/api/agent/marketplace/review', i),
+      },
+    },
+    chem: {
+      compound: (i) => get('chem.compound', '/api/chem/compound', i),
     },
     gov: {
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
