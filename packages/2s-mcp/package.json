@@ -1,6 +1,6 @@
 {
   "name": "@2sio/mcp",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "mcpName": "io.github.2s-io/mcp",
   "description": "MCP server exposing 2s.io's ever-expanding catalog of pay-per-call AI agent APIs as Model Context Protocol tools. Settled in USDC on Base or Solana via x402.",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@2sio/sdk": "^0.12.0",
+    "@2sio/sdk": "^0.13.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "viem": "^2.21.0",
     "zod": "^3.24.0"

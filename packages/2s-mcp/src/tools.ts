@@ -1324,6 +1324,57 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.gov.congressNomination(a as never),
     },
+    {
+      name: 'gov.congress-hearing',
+      description: 'US Congressional hearings (Congress.gov). Pass congress+chamber+jacketNumber for single hearing; otherwise list by congress+chamber with optional date range.',
+      inputSchema: s('Congress hearing', {
+        congress: { type: 'integer' },
+        chamber: { type: 'string', enum: ['house', 'senate'] },
+        jacketNumber: { type: 'integer' },
+        fromDate: { type: 'string' },
+        toDate: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 250, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.congressHearing(a as never),
+    },
+    {
+      name: 'gov.congress-treaty',
+      description: 'International treaties transmitted to the US Senate for advice and consent (Congress.gov).',
+      inputSchema: s('Congress treaty', {
+        congress: { type: 'integer' },
+        number: { type: 'integer' },
+        suffix: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 250, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.congressTreaty(a as never),
+    },
+    {
+      name: 'gov.congress-record',
+      description: 'Daily Congressional Record issues (official US House+Senate proceedings transcript) via Congress.gov. Filter by year/month/day.',
+      inputSchema: s('Congressional Record', {
+        year: { type: 'integer' },
+        month: { type: 'integer', minimum: 1, maximum: 12 },
+        day: { type: 'integer', minimum: 1, maximum: 31 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.congressRecord(a as never),
+    },
+    {
+      name: 'gov.bill-summaries',
+      description: 'Latest US Congressional bill summaries (CRS-authored, attached to specific bill versions) via Congress.gov. Filter by congress + bill type + date range.',
+      inputSchema: s('Bill summaries', {
+        congress: { type: 'integer' },
+        type: { type: 'string', enum: ['hr', 's', 'hjres', 'sjres', 'hconres', 'sconres', 'hres', 'sres'] },
+        fromDate: { type: 'string' },
+        toDate: { type: 'string' },
+        sort: { type: 'string', enum: ['updateDate+desc', 'updateDate+asc'] },
+        limit: { type: 'integer', minimum: 1, maximum: 250, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.billSummaries(a as never),
+    },
 
     // ── Education / Energy / Park / Recreation / Job (api.data.gov + USAJobs) ──
     {

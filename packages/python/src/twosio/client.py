@@ -1023,6 +1023,22 @@ class _Gov(_Group):
         """US presidential nominations sent to the Senate."""
         return self._c.request("GET", "/api/gov/congress-nomination", endpoint="gov.congress-nomination", query=kwargs)
 
+    def congress_hearing(self, **kwargs: Any) -> CallResult:
+        """US Congressional hearings."""
+        return self._c.request("GET", "/api/gov/congress-hearing", endpoint="gov.congress-hearing", query=kwargs)
+
+    def congress_treaty(self, **kwargs: Any) -> CallResult:
+        """International treaties transmitted to the US Senate."""
+        return self._c.request("GET", "/api/gov/congress-treaty", endpoint="gov.congress-treaty", query=kwargs)
+
+    def congress_record(self, **kwargs: Any) -> CallResult:
+        """Daily Congressional Record issues."""
+        return self._c.request("GET", "/api/gov/congress-record", endpoint="gov.congress-record", query=kwargs)
+
+    def bill_summaries(self, **kwargs: Any) -> CallResult:
+        """Latest US Congressional bill summaries (CRS-authored)."""
+        return self._c.request("GET", "/api/gov/bill-summaries", endpoint="gov.bill-summaries", query=kwargs)
+
     def fda_drug_events(
         self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
     ) -> CallResult:

@@ -607,6 +607,14 @@ export interface Endpoints {
     congressAmendment(input?: Record<string, unknown>): R<unknown>
     /** US presidential nominations sent to the Senate. */
     congressNomination(input?: Record<string, unknown>): R<unknown>
+    /** US Congressional hearings (Congress.gov). */
+    congressHearing(input?: Record<string, unknown>): R<unknown>
+    /** International treaties transmitted to the US Senate (Congress.gov). */
+    congressTreaty(input?: Record<string, unknown>): R<unknown>
+    /** Daily Congressional Record issues (Congress.gov). */
+    congressRecord(input?: Record<string, unknown>): R<unknown>
+    /** Latest US Congressional bill summaries (Congress.gov). */
+    billSummaries(input?: Record<string, unknown>): R<unknown>
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
     /** OpenFDA drug recall enforcement reports. */
@@ -907,6 +915,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       congressCommittee: (i) => get('gov.congress-committee', '/api/gov/congress-committee', i ?? {}),
       congressAmendment: (i) => get('gov.congress-amendment', '/api/gov/congress-amendment', i ?? {}),
       congressNomination: (i) => get('gov.congress-nomination', '/api/gov/congress-nomination', i ?? {}),
+      congressHearing: (i) => get('gov.congress-hearing', '/api/gov/congress-hearing', i ?? {}),
+      congressTreaty: (i) => get('gov.congress-treaty', '/api/gov/congress-treaty', i ?? {}),
+      congressRecord: (i) => get('gov.congress-record', '/api/gov/congress-record', i ?? {}),
+      billSummaries: (i) => get('gov.bill-summaries', '/api/gov/bill-summaries', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
