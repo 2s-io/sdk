@@ -263,6 +263,10 @@ export interface Endpoints {
       sources?: string
     }): R<PapersSearchResponse>
   }
+  paper: {
+    /** Crossref DOI bibliographic metadata lookup. */
+    doiLookup(input: { doi: string }): R<unknown>
+  }
   patents: {
     search(input: {
       q: string
@@ -477,6 +481,32 @@ export interface Endpoints {
       isbn?: string
       limit?: number
       page?: number
+    }): R<unknown>
+  }
+  clinical: {
+    /** ClinicalTrials.gov study search. */
+    trialSearch(input: {
+      query?: string
+      nctId?: string
+      status?: 'RECRUITING' | 'ACTIVE_NOT_RECRUITING' | 'COMPLETED' | 'TERMINATED' | 'WITHDRAWN' | 'NOT_YET_RECRUITING' | 'SUSPENDED'
+      sponsor?: string
+      phase?: string
+      country?: string
+      pageSize?: number
+      pageToken?: string
+    }): R<unknown>
+  }
+  code: {
+    /** GitHub repository lookup by "owner/name". */
+    repoLookup(input: { repo: string }): R<unknown>
+  }
+  wikidata: {
+    /** Wikidata entity (Q/P/L/M/S id) lookup. */
+    entity(input: {
+      id: string
+      languages?: string
+      includeClaims?: boolean
+      maxClaimsPerProperty?: number
     }): R<unknown>
   }
   nonprofit: {
@@ -739,6 +769,18 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     book: {
       search: (i) => get('book.search', '/api/book/search', i),
+    },
+    clinical: {
+      trialSearch: (i) => get('clinical.trial-search', '/api/clinical/trial-search', i),
+    },
+    code: {
+      repoLookup: (i) => get('code.repo-lookup', '/api/code/repo-lookup', i),
+    },
+    wikidata: {
+      entity: (i) => get('wikidata.entity', '/api/wikidata/entity', i),
+    },
+    paper: {
+      doiLookup: (i) => get('paper.doi-lookup', '/api/paper/doi-lookup', i),
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),

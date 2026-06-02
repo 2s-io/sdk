@@ -867,6 +867,49 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.book.search(a as never),
     },
 
+    {
+      name: 'clinical.trial-search',
+      description: "Search ClinicalTrials.gov — every registered US (+ many international) clinical study (~500k). Free-text query, or direct NCT ID. Optional filters: recruitment status, sponsor, phase, country.",
+      inputSchema: s('Clinical trial search', {
+        query: { type: 'string' },
+        nctId: { type: 'string', description: 'NCT\\d{8}.' },
+        status: { type: 'string', enum: ['RECRUITING', 'ACTIVE_NOT_RECRUITING', 'COMPLETED', 'TERMINATED', 'WITHDRAWN', 'NOT_YET_RECRUITING', 'SUSPENDED'] },
+        sponsor: { type: 'string' },
+        phase: { type: 'string' },
+        country: { type: 'string' },
+        pageSize: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+        pageToken: { type: 'string' },
+      }),
+      invoke: (a) => c.clinical.trialSearch(a as never),
+    },
+    {
+      name: 'paper.doi-lookup',
+      description: 'Resolve a DOI to authoritative bibliographic metadata via Crossref. Returns work type, title, container (journal), publisher, dates, abstract, authors (ORCID + affiliations), pages, ISSN/ISBN, license, subjects, reference + citation counts.',
+      inputSchema: s('DOI lookup', {
+        doi: { type: 'string', description: 'Bare DOI (10.1038/nature12373) or full https://doi.org/... URL.' },
+      }, ['doi']),
+      invoke: (a) => c.paper.doiLookup(a as never),
+    },
+    {
+      name: 'code.repo-lookup',
+      description: 'Look up a public GitHub repository by "owner/name". Returns description, language, topics, license, counts (stars/forks/watchers/issues), timestamps, visibility, feature flags. Rate-limited to 60 req/hr/IP (unauthenticated).',
+      inputSchema: s('Repo lookup', {
+        repo: { type: 'string', description: 'GitHub "owner/name" slug.' },
+      }, ['repo']),
+      invoke: (a) => c.code.repoLookup(a as never),
+    },
+    {
+      name: 'wikidata.entity',
+      description: 'Fetch a Wikidata entity (Q42, P31, etc.) — structured knowledge-graph record with labels + descriptions in selectable languages, claims (property → value), sitelinks. 110M+ entities, CC0.',
+      inputSchema: s('Wikidata entity', {
+        id: { type: 'string', description: 'Wikidata identifier (Q/P/L/M/S + digits).' },
+        languages: { type: 'string', description: 'Comma-separated language codes (default "en").' },
+        includeClaims: { type: 'boolean', default: true },
+        maxClaimsPerProperty: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['id']),
+      invoke: (a) => c.wikidata.entity(a as never),
+    },
+
     // ── Gov ──────────────────────────────────────────────────────────
     {
       name: 'gov.fda-drug-events',

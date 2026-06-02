@@ -169,6 +169,10 @@ export class TwoS {
   public readonly nonprofit: Endpoints['nonprofit']
   public readonly worldbank: Endpoints['worldbank']
   public readonly book: Endpoints['book']
+  public readonly clinical: Endpoints['clinical']
+  public readonly code: Endpoints['code']
+  public readonly wikidata: Endpoints['wikidata']
+  public readonly paper: Endpoints['paper']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -236,6 +240,10 @@ export class TwoS {
     this.nonprofit = this.endpoints.nonprofit
     this.worldbank = this.endpoints.worldbank
     this.book = this.endpoints.book
+    this.clinical = this.endpoints.clinical
+    this.code = this.endpoints.code
+    this.wikidata = this.endpoints.wikidata
+    this.paper = this.endpoints.paper
   }
 
   /** Base URL with no trailing slash. */

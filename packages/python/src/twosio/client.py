@@ -1425,6 +1425,59 @@ class _Book(_Group):
         return self._c.request("GET", "/api/book/search", endpoint="book.search", query=query)
 
 
+class _Clinical(_Group):
+    def trial_search(
+        self,
+        *,
+        query: Optional[str] = None,
+        nct_id: Optional[str] = None,
+        status: Optional[str] = None,
+        sponsor: Optional[str] = None,
+        phase: Optional[str] = None,
+        country: Optional[str] = None,
+        page_size: int = 10,
+        page_token: Optional[str] = None,
+    ) -> CallResult:
+        """ClinicalTrials.gov study search."""
+        q: dict[str, Any] = {"pageSize": page_size}
+        if query is not None: q["query"] = query
+        if nct_id is not None: q["nctId"] = nct_id
+        if status is not None: q["status"] = status
+        if sponsor is not None: q["sponsor"] = sponsor
+        if phase is not None: q["phase"] = phase
+        if country is not None: q["country"] = country
+        if page_token is not None: q["pageToken"] = page_token
+        return self._c.request("GET", "/api/clinical/trial-search", endpoint="clinical.trial-search", query=q)
+
+
+class _Code(_Group):
+    def repo_lookup(self, *, repo: str) -> CallResult:
+        """GitHub repo lookup by 'owner/name'."""
+        return self._c.request("GET", "/api/code/repo-lookup", endpoint="code.repo-lookup", query={"repo": repo})
+
+
+class _Wikidata(_Group):
+    def entity(
+        self,
+        *,
+        id: str,
+        languages: str = "en",
+        include_claims: bool = True,
+        max_claims_per_property: int = 10,
+    ) -> CallResult:
+        """Wikidata entity (Q/P/L/M/S id) lookup."""
+        return self._c.request(
+            "GET", "/api/wikidata/entity", endpoint="wikidata.entity",
+            query={"id": id, "languages": languages, "includeClaims": include_claims, "maxClaimsPerProperty": max_claims_per_property},
+        )
+
+
+class _Paper(_Group):
+    def doi_lookup(self, *, doi: str) -> CallResult:
+        """Crossref DOI bibliographic metadata lookup."""
+        return self._c.request("GET", "/api/paper/doi-lookup", endpoint="paper.doi-lookup", query={"doi": doi})
+
+
 class _Nonprofit(_Group):
     def search(
         self,
@@ -1541,6 +1594,10 @@ class TwoS:
         self.nonprofit = _Nonprofit(self)
         self.worldbank = _WorldBank(self)
         self.book = _Book(self)
+        self.clinical = _Clinical(self)
+        self.code = _Code(self)
+        self.wikidata = _Wikidata(self)
+        self.paper = _Paper(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:
