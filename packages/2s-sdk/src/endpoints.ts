@@ -445,6 +445,39 @@ export interface Endpoints {
       limit?: number
       offset?: number
     }): R<unknown>
+    /** CMS Care Compare hospital lookup. */
+    hospitalLookup(input: {
+      facilityId?: string
+      name?: string
+      city?: string
+      state?: string
+      hospitalType?: string
+      minRating?: number
+      limit?: number
+      offset?: number
+    }): R<unknown>
+  }
+  worldbank: {
+    /** World Bank Open Data indicator time series. */
+    indicator(input: {
+      country: string
+      indicator: string
+      yearFrom?: number
+      yearTo?: number
+      limit?: number
+      page?: number
+    }): R<unknown>
+  }
+  book: {
+    /** Open Library book metadata search. */
+    search(input: {
+      q?: string
+      title?: string
+      author?: string
+      isbn?: string
+      limit?: number
+      page?: number
+    }): R<unknown>
   }
   nonprofit: {
     /** US 501(c) nonprofit search via ProPublica Nonprofit Explorer. */
@@ -699,6 +732,13 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     health: {
       openPayments: (i) => get('health.open-payments', '/api/health/open-payments', i),
+      hospitalLookup: (i) => get('health.hospital-lookup', '/api/health/hospital-lookup', i),
+    },
+    worldbank: {
+      indicator: (i) => get('worldbank.indicator', '/api/worldbank/indicator', i),
+    },
+    book: {
+      search: (i) => get('book.search', '/api/book/search', i),
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),

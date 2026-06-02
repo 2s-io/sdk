@@ -825,6 +825,48 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.nonprofit.search(a as never),
     },
 
+    {
+      name: 'health.hospital-lookup',
+      description: 'CMS Care Compare hospital lookup. Lookup by 6-digit CMS Facility ID, or fuzzy by name + city + state + hospital type with optional min star rating. Returns address, phone, type, ownership, emergency services, overall rating, per-measure-group counts.',
+      inputSchema: s('Hospital lookup', {
+        facilityId: { type: 'string', description: '6-digit CMS Facility ID.' },
+        name: { type: 'string' },
+        city: { type: 'string' },
+        state: { type: 'string', description: '2-letter US state.' },
+        hospitalType: { type: 'string' },
+        minRating: { type: 'integer', minimum: 1, maximum: 5 },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.health.hospitalLookup(a as never),
+    },
+    {
+      name: 'worldbank.indicator',
+      description: 'World Bank Open Data — fetch a time series of a specific indicator (e.g., NY.GDP.MKTP.CD = GDP current US$) for a country (ISO 2/3-letter code or "all"). Optional yearFrom/yearTo bracket. 1000+ indicators, 200+ countries.',
+      inputSchema: s('World Bank indicator', {
+        country: { type: 'string', description: 'ISO 2/3-letter or "all".' },
+        indicator: { type: 'string', description: 'World Bank indicator code.' },
+        yearFrom: { type: 'integer', minimum: 1960, maximum: 2100 },
+        yearTo: { type: 'integer', minimum: 1960, maximum: 2100 },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 50 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }, ['country', 'indicator']),
+      invoke: (a) => c.worldbank.indicator(a as never),
+    },
+    {
+      name: 'book.search',
+      description: 'Open Library book metadata search. Lookup by free-text query (title + author), or by individual title / author / ISBN. Returns work key, title, authors, first publish year, edition count, cover image URL, ISBNs, publishers, languages, subjects, ebook access.',
+      inputSchema: s('Book search', {
+        q: { type: 'string' },
+        title: { type: 'string' },
+        author: { type: 'string' },
+        isbn: { type: 'string', description: 'ISBN-10 or ISBN-13 (with or without hyphens).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }),
+      invoke: (a) => c.book.search(a as never),
+    },
+
     // ── Gov ──────────────────────────────────────────────────────────
     {
       name: 'gov.fda-drug-events',

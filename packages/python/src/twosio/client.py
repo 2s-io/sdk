@@ -1342,6 +1342,28 @@ class _License(_Group):
 
 
 class _Health(_Group):
+    def hospital_lookup(
+        self,
+        *,
+        facility_id: Optional[str] = None,
+        name: Optional[str] = None,
+        city: Optional[str] = None,
+        state: Optional[str] = None,
+        hospital_type: Optional[str] = None,
+        min_rating: Optional[int] = None,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> CallResult:
+        """CMS Care Compare hospital lookup."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if facility_id is not None: q["facilityId"] = facility_id
+        if name is not None: q["name"] = name
+        if city is not None: q["city"] = city
+        if state is not None: q["state"] = state
+        if hospital_type is not None: q["hospitalType"] = hospital_type
+        if min_rating is not None: q["minRating"] = min_rating
+        return self._c.request("GET", "/api/health/hospital-lookup", endpoint="health.hospital-lookup", query=q)
+
     def open_payments(
         self,
         *,
@@ -1363,6 +1385,44 @@ class _Health(_Group):
         if state is not None: q["state"] = state
         if min_amount is not None: q["minAmount"] = min_amount
         return self._c.request("GET", "/api/health/open-payments", endpoint="health.open-payments", query=q)
+
+
+class _WorldBank(_Group):
+    def indicator(
+        self,
+        *,
+        country: str,
+        indicator: str,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        limit: int = 50,
+        page: int = 1,
+    ) -> CallResult:
+        """World Bank Open Data indicator time series."""
+        q: dict[str, Any] = {"country": country, "indicator": indicator, "limit": limit, "page": page}
+        if year_from is not None: q["yearFrom"] = year_from
+        if year_to is not None: q["yearTo"] = year_to
+        return self._c.request("GET", "/api/worldbank/indicator", endpoint="worldbank.indicator", query=q)
+
+
+class _Book(_Group):
+    def search(
+        self,
+        *,
+        q: Optional[str] = None,
+        title: Optional[str] = None,
+        author: Optional[str] = None,
+        isbn: Optional[str] = None,
+        limit: int = 10,
+        page: int = 1,
+    ) -> CallResult:
+        """Open Library book metadata search."""
+        query: dict[str, Any] = {"limit": limit, "page": page}
+        if q is not None: query["q"] = q
+        if title is not None: query["title"] = title
+        if author is not None: query["author"] = author
+        if isbn is not None: query["isbn"] = isbn
+        return self._c.request("GET", "/api/book/search", endpoint="book.search", query=query)
 
 
 class _Nonprofit(_Group):
@@ -1479,6 +1539,8 @@ class TwoS:
         self.license = _License(self)
         self.health = _Health(self)
         self.nonprofit = _Nonprofit(self)
+        self.worldbank = _WorldBank(self)
+        self.book = _Book(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

@@ -167,6 +167,8 @@ export class TwoS {
   public readonly license: Endpoints['license']
   public readonly health: Endpoints['health']
   public readonly nonprofit: Endpoints['nonprofit']
+  public readonly worldbank: Endpoints['worldbank']
+  public readonly book: Endpoints['book']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -232,6 +234,8 @@ export class TwoS {
     this.license = this.endpoints.license
     this.health = this.endpoints.health
     this.nonprofit = this.endpoints.nonprofit
+    this.worldbank = this.endpoints.worldbank
+    this.book = this.endpoints.book
   }
 
   /** Base URL with no trailing slash. */
