@@ -178,6 +178,8 @@ export class TwoS {
   public readonly bls: Endpoints['bls']
   public readonly country: Endpoints['country']
   public readonly news: Endpoints['news']
+  public readonly food: Endpoints['food']
+  public readonly word: Endpoints['word']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -254,6 +256,8 @@ export class TwoS {
     this.bls = this.endpoints.bls
     this.country = this.endpoints.country
     this.news = this.endpoints.news
+    this.food = this.endpoints.food
+    this.word = this.endpoints.word
   }
 
   /** Base URL with no trailing slash. */

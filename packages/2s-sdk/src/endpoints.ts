@@ -156,6 +156,14 @@ export interface Endpoints {
       hours?: number
       min_magnitude?: number
     }): R<EarthNowResponse>
+    /** Global natural-events feed (wildfires, storms, volcanoes, floods) via NASA EONET v3. */
+    events(input?: {
+      status?: 'open' | 'closed' | 'all'
+      limit?: number
+      days?: number
+      category?: string
+      bbox?: string
+    }): R<unknown>
   }
   finance: {
     /** Recent SEC filings for a US public company by ticker. */
@@ -290,6 +298,16 @@ export interface Endpoints {
     hnTop(input?: { kind?: 'top' | 'new' | 'best' | 'ask' | 'show' | 'job'; limit?: number }): R<unknown>
     /** Hacker News item lookup by ID. */
     hnItem(input: { id: number }): R<unknown>
+  }
+  food: {
+    /** Food product lookup by UPC/EAN barcode (Open Food Facts, CC0). */
+    barcodeLookup(input: { barcode: string }): R<unknown>
+  }
+  word: {
+    /** English dictionary entry (dictionaryapi.dev / Wiktionary, CC BY-SA). */
+    define(input: { word: string }): R<unknown>
+    /** Related words: rhymes, synonyms, antonyms, semantic neighbours (Datamuse). */
+    related(input: { word: string; relation: string; limit?: number }): R<unknown>
   }
   patents: {
     search(input: {
@@ -682,6 +700,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     earth: {
       now: (i) => get('earth.now', '/api/earth/now', i),
+      events: (i) => get('earth.events', '/api/earth/events', i ?? {}),
     },
     finance: {
       secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
@@ -822,6 +841,13 @@ export function createEndpoints(client: TwoS): Endpoints {
     news: {
       hnTop: (i) => get('news.hn-top', '/api/news/hn-top', i),
       hnItem: (i) => get('news.hn-item', '/api/news/hn-item', i),
+    },
+    food: {
+      barcodeLookup: (i) => get('food.barcode-lookup', '/api/food/barcode-lookup', i),
+    },
+    word: {
+      define: (i) => get('word.define', '/api/word/define', i),
+      related: (i) => get('word.related', '/api/word/related', i),
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),

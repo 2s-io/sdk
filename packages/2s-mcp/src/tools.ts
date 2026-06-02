@@ -352,6 +352,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.earth.now(a as never),
     },
     {
+      name: 'earth.events',
+      description: 'Active and historical global natural events via NASA EONET v3: wildfires, severe storms, volcanoes, floods, droughts, landslides, sea/lake ice, dust/haze, manmade incidents, water-color anomalies. Each event includes geo-located observation points and category. Filter by status, days-back, category, or bbox.',
+      inputSchema: s('Earth events (NASA EONET)', {
+        status: { type: 'string', enum: ['open', 'closed', 'all'], default: 'open' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 20 },
+        days: { type: 'integer', minimum: 1, maximum: 365 },
+        category: { type: 'string', enum: ['drought', 'dustHaze', 'earthquakes', 'floods', 'landslides', 'manmade', 'seaLakeIce', 'severeStorms', 'snow', 'tempExtremes', 'volcanoes', 'waterColor', 'wildfires'] },
+        bbox: { type: 'string' },
+      }),
+      invoke: (a) => c.earth.events(a as never),
+    },
+    {
       name: 'quakes.recent',
       description: 'Recent earthquakes near a coordinate (USGS feed).',
       inputSchema: s('Quakes recent', {
@@ -968,6 +980,28 @@ export function buildToolList(c: TwoS): ToolDef[] {
       description: 'Fetch a specific Hacker News item by numeric ID.',
       inputSchema: s('HN item', { id: { type: 'integer' } }, ['id']),
       invoke: (a) => c.news.hnItem(a as never),
+    },
+    {
+      name: 'food.barcode-lookup',
+      description: 'Food product lookup by UPC/EAN barcode via Open Food Facts (CC0, >3M products). Returns product name, brand, ingredients, allergens, nutriments (per-100g + per-serving), Nutri-Score (a-e), NOVA processing classification (1-4), Eco-Score, categories, manufacturing origin, packaging, product image URLs.',
+      inputSchema: s('Food barcode lookup', { barcode: { type: 'string', description: '6-14 digit UPC/EAN.' } }, ['barcode']),
+      invoke: (a) => c.food.barcodeLookup(a as never),
+    },
+    {
+      name: 'word.define',
+      description: 'English dictionary entry via dictionaryapi.dev (Wiktionary, CC BY-SA). Returns IPA phonetic transcription(s), audio URLs, and meanings grouped by part of speech with definitions, examples, synonyms, antonyms.',
+      inputSchema: s('Word define', { word: { type: 'string', description: '1-50 English alphabetic characters.' } }, ['word']),
+      invoke: (a) => c.word.define(a as never),
+    },
+    {
+      name: 'word.related',
+      description: 'Related-word lookup via Datamuse. Supply a seed word and relation kind: rhymes, near-rhymes, synonyms, antonyms, means (semantic match), triggers, homophones, sounds-like, spelled-like, follows-from, preceded-by. Returns ranked candidates with relevance score, syllable count, and grammar tags.',
+      inputSchema: s('Word related', {
+        word: { type: 'string' },
+        relation: { type: 'string', enum: ['rhymes', 'near-rhymes', 'synonyms', 'antonyms', 'means', 'triggers', 'homophones', 'sounds-like', 'spelled-like', 'follows-from', 'preceded-by'] },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }, ['word', 'relation']),
+      invoke: (a) => c.word.related(a as never),
     },
 
     // ── Gov ──────────────────────────────────────────────────────────

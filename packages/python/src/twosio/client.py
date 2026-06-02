@@ -715,6 +715,27 @@ class _Earth(_Group):
             q["min_magnitude"] = min_magnitude
         return self._c.request("GET", "/api/earth/now", endpoint="earth.now", query=q)
 
+    def events(
+        self,
+        *,
+        status: str = "open",
+        limit: int = 20,
+        days: Optional[int] = None,
+        category: Optional[str] = None,
+        bbox: Optional[str] = None,
+    ) -> CallResult:
+        """Active and historical global natural events via NASA EONET v3.
+
+        status = open | closed | all. category = drought | dustHaze | earthquakes |
+        floods | landslides | manmade | seaLakeIce | severeStorms | snow |
+        tempExtremes | volcanoes | waterColor | wildfires. bbox = minLon,maxLat,maxLon,minLat.
+        """
+        q: dict[str, Any] = {"status": status, "limit": limit}
+        if days is not None: q["days"] = days
+        if category is not None: q["category"] = category
+        if bbox is not None: q["bbox"] = bbox
+        return self._c.request("GET", "/api/earth/events", endpoint="earth.events", query=q)
+
 
 class _Climate(_Group):
     def station_near(
@@ -1515,6 +1536,34 @@ class _Bls(_Group):
         return self._c.request("GET", "/api/bls/series", endpoint="bls.series", query=q)
 
 
+class _Food(_Group):
+    def barcode_lookup(self, *, barcode: str) -> CallResult:
+        """Food product lookup by UPC/EAN barcode via Open Food Facts (CC0)."""
+        return self._c.request(
+            "GET", "/api/food/barcode-lookup", endpoint="food.barcode-lookup",
+            query={"barcode": barcode},
+        )
+
+
+class _Word(_Group):
+    def define(self, *, word: str) -> CallResult:
+        """English dictionary entry via dictionaryapi.dev (Wiktionary, CC BY-SA)."""
+        return self._c.request(
+            "GET", "/api/word/define", endpoint="word.define", query={"word": word},
+        )
+
+    def related(self, *, word: str, relation: str, limit: int = 25) -> CallResult:
+        """Related-word lookup via Datamuse.
+
+        relation = rhymes | near-rhymes | synonyms | antonyms | means | triggers |
+                   homophones | sounds-like | spelled-like | follows-from | preceded-by
+        """
+        return self._c.request(
+            "GET", "/api/word/related", endpoint="word.related",
+            query={"word": word, "relation": relation, "limit": limit},
+        )
+
+
 class _Country(_Group):
     def lookup(
         self,
@@ -1672,6 +1721,10 @@ class TwoS:
         self.registry = _Registry(self)
         self.fx = _Fx(self)
         self.bls = _Bls(self)
+        self.country = _Country(self)
+        self.news = _News(self)
+        self.food = _Food(self)
+        self.word = _Word(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:
