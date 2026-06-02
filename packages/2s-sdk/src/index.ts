@@ -21,6 +21,9 @@ import type { LocalAccount } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
 import { createEndpoints, type Endpoints } from './endpoints.js'
+import { loadSvmRegistrar, normalizeSolanaSecret, type SolanaKeyInput } from './svm.js'
+
+export type { SolanaKeyInput } from './svm.js'
 
 export interface TwoSConfig {
   /**
@@ -34,6 +37,17 @@ export interface TwoSConfig {
    * KMS-backed signer. Mutually exclusive with `privateKey`.
    */
   signer?: LocalAccount
+  /**
+   * Solana secret key. Accepts a base58 string (Phantom export / solana-cli
+   * paper key), a raw 64-byte `Uint8Array`, or the 64-number JSON-array
+   * format that `solana-keygen` writes. When set, the SDK auto-prefers
+   * Solana settlement for any endpoint advertising a Solana entry in
+   * `accepts` — agents holding SPL-USDC pay on Solana, not Base.
+   *
+   * Both EVM + Solana keys can be provided; the SDK picks per call based
+   * on what the server advertised and what schemes you've registered.
+   */
+  solanaPrivateKey?: SolanaKeyInput
   /**
    * Internal-only API key. The public surface is x402-only; the bearer
    * path is reserved for pre-funded internal accounts until deposit
@@ -143,6 +157,10 @@ export class TwoS {
   public readonly weather: Endpoints['weather']
   public readonly wikipedia: Endpoints['wikipedia']
   public readonly poi: Endpoints['poi']
+  public readonly phone: Endpoints['phone']
+  public readonly space: Endpoints['space']
+  public readonly vehicle: Endpoints['vehicle']
+  public readonly gov: Endpoints['gov']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -156,10 +174,18 @@ export class TwoS {
       const k = config.privateKey.startsWith('0x') ? config.privateKey : (`0x${config.privateKey}` as `0x${string}`)
       signer = privateKeyToAccount(k)
     }
+    // Solana secret is normalized to 64-byte form here (sync); the actual
+    // @solana/kit signer object is built lazily in `getX402Client()` so
+    // EVM-only callers never pay the Solana SDK import cost.
+    let solanaSecretBytes: Uint8Array | undefined
+    if (config.solanaPrivateKey !== undefined) {
+      solanaSecretBytes = normalizeSolanaSecret(config.solanaPrivateKey)
+    }
     this.config = { ...config, signer }
-    if (!signer && !config.apiKey) {
+    this._solanaSecretBytes = solanaSecretBytes
+    if (!signer && !solanaSecretBytes && !config.apiKey) {
       throw new Error(
-        "@2sio/sdk: TwoS requires `privateKey: '0x...'` (recommended) or a pre-built `signer`.",
+        "@2sio/sdk: TwoS requires `privateKey: '0x...'` (recommended), `solanaPrivateKey`, or a pre-built `signer`.",
       )
     }
     this.endpoints = createEndpoints(this)
@@ -190,6 +216,10 @@ export class TwoS {
     this.weather = this.endpoints.weather
     this.wikipedia = this.endpoints.wikipedia
     this.poi = this.endpoints.poi
+    this.phone = this.endpoints.phone
+    this.space = this.endpoints.space
+    this.vehicle = this.endpoints.vehicle
+    this.gov = this.endpoints.gov
   }
 
   /** Base URL with no trailing slash. */
@@ -199,15 +229,31 @@ export class TwoS {
 
   /** Cached x402 HTTP client (lazy — only built when first x402 call lands). */
   private _x402: x402HTTPClient | null = null
-  private getX402Client(): x402HTTPClient {
+  /** Solana secret bytes (normalized 64 bytes) — set in constructor, used to lazy-build the signer. */
+  private _solanaSecretBytes: Uint8Array | undefined
+
+  private async getX402Client(): Promise<x402HTTPClient> {
     if (this._x402) return this._x402
-    if (!this.config.signer) {
+    if (!this.config.signer && !this._solanaSecretBytes) {
       throw new Error(
-        '@2sio/sdk: x402 call attempted but no `signer` was configured.',
+        '@2sio/sdk: x402 call attempted but no signer was configured (EVM `signer`/`privateKey` or `solanaPrivateKey`).',
       )
     }
     const c = new x402Client()
-    registerExactEvmScheme(c, { signer: this.config.signer })
+    // Register EVM scheme when we have a viem account. The HTTPClient
+    // walks `accepts[]` from the server and picks the first entry it
+    // can satisfy — so registering both schemes is safe.
+    if (this.config.signer) {
+      registerExactEvmScheme(c, { signer: this.config.signer })
+    }
+    if (this._solanaSecretBytes) {
+      // Lazy-load the Solana SDK (~600KB of @solana/kit) ONLY when a
+      // caller actually configured a Solana key. EVM-only consumers
+      // never pay this cost.
+      const registrar = await loadSvmRegistrar()
+      const svmSigner = await registrar.buildSigner(this._solanaSecretBytes)
+      registrar.registerScheme(c, svmSigner)
+    }
     this._x402 = new x402HTTPClient(c)
     return this._x402
   }
@@ -240,7 +286,7 @@ export class TwoS {
     if (res.status !== 402) return this.parseResponse<T>(res, input.endpoint, url)
 
     // 402 path: parse PaymentRequired, check ceiling, sign, retry.
-    const http = this.getX402Client()
+    const http = await this.getX402Client()
     const body = await res.json().catch(() => ({}))
     const required = http.getPaymentRequiredResponse(
       (n) => res.headers.get(n),

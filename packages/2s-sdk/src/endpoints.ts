@@ -312,6 +312,133 @@ export interface Endpoints {
       limit?: number
     }): R<unknown>
   }
+  phone: {
+    /** E.164-normalize + classify (mobile/fixed/voip/etc.) using libphonenumber. */
+    normalize(input: { phone: string; defaultRegion?: string }): R<unknown>
+  }
+  space: {
+    /** Current NOAA space-weather Kp/solar-flux/aurora snapshot. */
+    weather(input?: Record<string, never>): R<unknown>
+  }
+  vehicle: {
+    /** Decode a VIN via NHTSA vPIC. */
+    vinDecode(input: { vin: string; modelYear?: number }): R<unknown>
+    /** NHTSA recall lookup by VIN, by make/model/year, or by campaign ID. */
+    recalls(input: {
+      vin?: string
+      make?: string
+      model?: string
+      modelYear?: number
+      nhtsaId?: string
+    }): R<unknown>
+    /** NHTSA consumer complaints by make/model/year. */
+    complaints(input: {
+      make?: string
+      model?: string
+      modelYear?: number
+      limit?: number
+      offset?: number
+    }): R<unknown>
+    /** NHTSA open investigations (newest-first, chronological). */
+    investigations(input: { limit?: number; offset?: number }): R<unknown>
+    /** Models for a given make + year (vPIC). */
+    models(input: { make: string; modelYear: number }): R<unknown>
+    /** Decode a 3-character World Manufacturer Identifier (WMI). */
+    decodeWmi(input: { wmi: string }): R<unknown>
+    /** Paginated NHTSA manufacturer list (vPIC). */
+    manufacturers(input: { page?: number }): R<unknown>
+  }
+  gov: {
+    /** OpenFDA drug adverse event reports (FAERS). */
+    fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
+    /** OpenFDA drug recall enforcement reports. */
+    fdaRecalls(input: {
+      drug?: string
+      classification?: 'I' | 'II' | 'III'
+      status?: 'Ongoing' | 'Completed' | 'Terminated' | 'Pending'
+      limit?: number
+    }): R<unknown>
+    /** OpenFDA food recall enforcement reports. */
+    fdaFoodRecalls(input: {
+      product?: string
+      classification?: 'I' | 'II' | 'III'
+      status?: 'Ongoing' | 'Completed' | 'Terminated' | 'Pending'
+      state?: string
+      limit?: number
+    }): R<unknown>
+    /** OpenFDA medical device adverse event reports (MAUDE). */
+    fdaDeviceEvents(input: {
+      device?: string
+      manufacturer?: string
+      problem?: string
+      limit?: number
+    }): R<unknown>
+    /** OpenFDA animal/veterinary adverse event reports. */
+    fdaAnimalvetEvents(input: {
+      drug?: string
+      species?: string
+      reaction?: string
+      limit?: number
+    }): R<unknown>
+    /** US House of Representatives roll-call votes (locally aggregated, daily). */
+    houseVotes(input?: {
+      year?: number
+      congress?: number
+      result?: string
+      bill?: string
+      since?: string
+      until?: string
+      limit?: number
+      offset?: number
+    }): R<unknown>
+    /** US Senate roll-call votes (locally aggregated, daily). */
+    senateVotes(input?: {
+      congress?: number
+      session?: 1 | 2
+      result?: string
+      document?: string
+      since?: string
+      until?: string
+      limit?: number
+      offset?: number
+    }): R<unknown>
+    /** Federal-award (contracts/grants/loans/payments) search via USAspending.gov. */
+    usaspendingAwards(input?: {
+      recipient?: string
+      agency?: string
+      recipientState?: string
+      awardType?: 'contracts' | 'grants' | 'loans' | 'direct_payments' | 'other'
+      since?: string
+      until?: string
+      limit?: number
+      page?: number
+    }): R<unknown>
+    /** Real-time USGS NWIS water gauge readings within a bbox around lat/lon. */
+    usgsWater(input: {
+      lat: number
+      lon: number
+      radius?: number
+      variables?: string
+      limit?: number
+    }): R<unknown>
+    /** EPA Facility Registry Service (FRS) by state + name + program. */
+    epaFacilities(input: {
+      state: string
+      name?: string
+      program?: string
+      limit?: number
+      offset?: number
+    }): R<unknown>
+    /** Newest Federal Register documents by publication date (chronological feed). */
+    federalRegisterRecent(input?: {
+      type?: 'RULE' | 'PRORULE' | 'NOTICE' | 'PRESDOCU'
+      agency?: string
+      since?: string
+      until?: string
+      limit?: number
+      page?: number
+    }): R<unknown>
+  }
 }
 
 export function createEndpoints(client: TwoS): Endpoints {
@@ -420,6 +547,34 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     poi: {
       near: (i) => get('poi.near', '/api/poi/near', i),
+    },
+    phone: {
+      normalize: (i) => get('phone.normalize', '/api/phone/normalize', i),
+    },
+    space: {
+      weather: (i) => get('space.weather', '/api/space/weather', i),
+    },
+    vehicle: {
+      vinDecode: (i) => get('vehicle.vin-decode', '/api/vehicle/vin-decode', i),
+      recalls: (i) => get('vehicle.recalls', '/api/vehicle/recalls', i),
+      complaints: (i) => get('vehicle.complaints', '/api/vehicle/complaints', i),
+      investigations: (i) => get('vehicle.investigations', '/api/vehicle/investigations', i),
+      models: (i) => get('vehicle.models', '/api/vehicle/models', i),
+      decodeWmi: (i) => get('vehicle.decode-wmi', '/api/vehicle/decode-wmi', i),
+      manufacturers: (i) => get('vehicle.manufacturers', '/api/vehicle/manufacturers', i),
+    },
+    gov: {
+      fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
+      fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
+      fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
+      fdaDeviceEvents: (i) => get('gov.fda-device-events', '/api/gov/fda-device-events', i),
+      fdaAnimalvetEvents: (i) => get('gov.fda-animalvet-events', '/api/gov/fda-animalvet-events', i),
+      houseVotes: (i) => get('gov.house-votes', '/api/gov/house-votes', i),
+      senateVotes: (i) => get('gov.senate-votes', '/api/gov/senate-votes', i),
+      usaspendingAwards: (i) => get('gov.usaspending-awards', '/api/gov/usaspending-awards', i),
+      usgsWater: (i) => get('gov.usgs-water', '/api/gov/usgs-water', i),
+      epaFacilities: (i) => get('gov.epa-facilities', '/api/gov/epa-facilities', i),
+      federalRegisterRecent: (i) => get('gov.federal-register-recent', '/api/gov/federal-register-recent', i),
     },
   }
 }

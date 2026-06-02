@@ -1,14 +1,14 @@
 # @2sio/mcp
 
-**MCP server for [2s.io](https://2s.io) — gives any MCP-aware AI agent pay-per-call access to 39+ APIs.**
+**MCP server for [2s.io](https://2s.io) — gives any MCP-aware AI agent pay-per-call access to an ever-expanding catalog of APIs.**
 
-[Model Context Protocol](https://modelcontextprotocol.io) is the standard for AI agents to discover and use tools. This package runs a local MCP server that exposes every 2s.io endpoint (patents, AI, law, geocoding, weather, crypto, etc.) as a callable tool. Plug it into Claude Desktop, AgentKit, Cline, Continue, or any other MCP host.
+[Model Context Protocol](https://modelcontextprotocol.io) is the standard for AI agents to discover and use tools. This package runs a local MCP server that exposes every 2s.io endpoint (patents, finance, AI, law, geocoding, weather, crypto, and more) as a callable tool. Plug it into Claude Desktop, AgentKit, Cline, Continue, or any other MCP host.
 
 ```bash
 npx @2sio/mcp --signer 0x...
 ```
 
-No accounts to create. The server signs an EIP-3009 USDC authorization on-the-fly for each call. Settles on Base in ~2 seconds. Prices start at $0.001/call.
+No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually.
 
 ## Claude Desktop setup
 

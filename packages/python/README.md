@@ -1,6 +1,6 @@
 # 2sio (Python)
 
-**Python client for [2s.io](https://2s.io) — pay-per-call AI agent APIs on Base via x402.**
+**Python client for [2s.io](https://2s.io) — an ever-expanding catalog of pay-per-call AI agent APIs on Base via x402.**
 
 ```bash
 pip install 2sio
@@ -32,7 +32,7 @@ client = TwoS(signer=signer)
 
 ## What's included
 
-39 endpoints, namespaced by group:
+An ever-expanding catalog of endpoints, namespaced by group:
 
 ```python
 client.patents.search(q="...")

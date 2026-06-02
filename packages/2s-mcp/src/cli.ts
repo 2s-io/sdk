@@ -36,6 +36,7 @@ const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/
 
 function parseFlags(argv: string[]): {
   signer?: string
+  solanaSigner?: string
   maxPriceUsd?: number
 } {
   const args = argv.slice(2)
@@ -43,12 +44,15 @@ function parseFlags(argv: string[]): {
   for (let i = 0; i < args.length; i++) {
     const a = args[i]
     if (a === '--signer') out.signer = args[++i]
+    else if (a === '--solana-signer') out.solanaSigner = args[++i]
     else if (a === '--max-price') out.maxPriceUsd = Number(args[++i])
     else if (a === '--help' || a === '-h') {
       console.error(
-        'usage: 2sio-mcp [--signer 0x<64hex>] [--max-price 0.10]\n' +
-          '  Env: EVM_PRIVATE_KEY=0x... (recommended).\n' +
-          '  2s.io is x402-only — pay-per-call USDC on Base mainnet, no API keys.',
+        'usage: 2sio-mcp [--signer 0x<64hex>] [--solana-signer <base58>] [--max-price 0.10]\n' +
+          '  Env: EVM_PRIVATE_KEY=0x<64hex>            (Base USDC settlement)\n' +
+          '       SOLANA_PRIVATE_KEY=<base58>          (Solana SPL-USDC settlement)\n' +
+          '  Set either or both. 2s.io accepts USDC on Base OR Solana via x402.\n' +
+          '  No API keys.',
       )
       process.exit(0)
     }
@@ -59,6 +63,7 @@ function parseFlags(argv: string[]): {
 async function main() {
   const flags = parseFlags(process.argv)
   const signerHex = flags.signer ?? process.env.EVM_PRIVATE_KEY
+  const solanaKey = flags.solanaSigner ?? process.env.SOLANA_PRIVATE_KEY
 
   // Validate input early — common confusion is passing a wallet address
   // (40 hex) instead of a private key (64 hex). The introspection-mode
@@ -81,16 +86,22 @@ async function main() {
     process.exit(2)
   }
 
-  // x402 mode — happy path
-  if (signerHex) {
-    const server = createTwoSioMcpServer({
+  // x402 mode — happy path. Either or both rails can be configured.
+  if (signerHex || solanaKey) {
+    const opts: Parameters<typeof createTwoSioMcpServer>[0] = {
+      maxPriceUsd: flags.maxPriceUsd,
+    }
+    if (signerHex) {
       // Cast: when the MCP package and the SDK package each pull in their
       // own copy of viem (e.g. during local file: linking), TypeScript treats
       // the two LocalAccount types as distinct even though they're identical.
       // The cast is harmless at runtime.
-      signer: privateKeyToAccount(signerHex as Hex) as never,
-      maxPriceUsd: flags.maxPriceUsd,
-    })
+      opts.signer = privateKeyToAccount(signerHex as Hex) as never
+    }
+    if (solanaKey) {
+      opts.solanaPrivateKey = solanaKey
+    }
+    const server = createTwoSioMcpServer(opts)
     await server.connect(new StdioServerTransport())
     return
   }
@@ -98,17 +109,18 @@ async function main() {
   // Introspection mode — no credentials supplied. The server still starts
   // and responds to list_tools so MCP hosts (Smithery, Glama, Claude
   // Desktop, etc.) can discover the tool catalog. Calls to tools will
-  // error until EVM_PRIVATE_KEY is provided.
+  // error until a key is provided.
   console.error(
-    '[2sio-mcp] starting in introspection mode — no EVM_PRIVATE_KEY set.\n' +
-      '  Set EVM_PRIVATE_KEY=0x<64hex> to enable paid tool calls.\n' +
-      '  Tool discovery works without a key.',
+    '[2sio-mcp] starting in introspection mode — no signer configured.\n' +
+      '  Set EVM_PRIVATE_KEY=0x<64hex>  to pay in USDC on Base, OR\n' +
+      '  set SOLANA_PRIVATE_KEY=<base58> to pay in USDC on Solana.\n' +
+      '  Either or both. Tool discovery works without a key.',
   )
   const noopSigner = {
     address: '0x0000000000000000000000000000000000000000' as Hex,
     signTypedData: async () => {
       throw new Error(
-        '@2sio/mcp: server started in introspection mode. Set EVM_PRIVATE_KEY=0x<64hex> to make paid calls.',
+        '@2sio/mcp: server started in introspection mode. Set EVM_PRIVATE_KEY or SOLANA_PRIVATE_KEY to make paid calls.',
       )
     },
   } as never

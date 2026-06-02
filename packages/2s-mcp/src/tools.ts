@@ -549,6 +549,249 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.image.compress(a as never),
     },
+
+    // ── Phone / space ────────────────────────────────────────────────
+    {
+      name: 'phone.normalize',
+      description:
+        'E.164-normalize and classify a phone number using libphonenumber. Returns format variants (E.164, international, national, RFC3966) plus type (mobile, fixed_line, voip, premium_rate, toll_free, etc.) and region.',
+      inputSchema: s('Phone normalize', {
+        phone: { type: 'string', description: 'Phone number in any format (national, international, etc.).' },
+        defaultRegion: { type: 'string', description: 'Optional 2-letter ISO region for parsing local numbers (default: US).' },
+      }, ['phone']),
+      invoke: (a) => c.phone.normalize(a as never),
+    },
+    {
+      name: 'space.weather',
+      description:
+        'Current NOAA space-weather snapshot: planetary Kp index, solar flux, geomagnetic storm scale, aurora viewing forecast.',
+      inputSchema: s('No input', {}),
+      invoke: () => c.space.weather(),
+    },
+
+    // ── Vehicle (NHTSA) ──────────────────────────────────────────────
+    {
+      name: 'vehicle.vin-decode',
+      description:
+        'Decode a 17-character VIN via NHTSA vPIC. Returns make, model, model year, body class, engine, transmission, fuel type, manufacturer, plant info.',
+      inputSchema: s('VIN decode', {
+        vin: { type: 'string', description: '17-character VIN.' },
+        modelYear: { type: 'integer', description: 'Optional model-year hint (1981+).' },
+      }, ['vin']),
+      invoke: (a) => c.vehicle.vinDecode(a as never),
+    },
+    {
+      name: 'vehicle.recalls',
+      description:
+        'NHTSA vehicle recall lookup. Search by VIN (precise), or make/model/year, or NHTSA campaign ID. Returns recall ID, component, summary, consequence, remedy, dates.',
+      inputSchema: s('Recall lookup', {
+        vin: { type: 'string', description: '17-char VIN (most precise option).' },
+        make: { type: 'string', description: 'Manufacturer, e.g., "Toyota".' },
+        model: { type: 'string', description: 'Model name, e.g., "Camry".' },
+        modelYear: { type: 'integer' },
+        nhtsaId: { type: 'string', description: 'NHTSA campaign ID, e.g., "21V123000".' },
+      }),
+      invoke: (a) => c.vehicle.recalls(a as never),
+    },
+    {
+      name: 'vehicle.complaints',
+      description:
+        'NHTSA consumer complaints by make/model/year. Returns incident date, component, summary, crash/injury/fatality flags.',
+      inputSchema: s('Complaints', {
+        make: { type: 'string' },
+        model: { type: 'string' },
+        modelYear: { type: 'integer' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.vehicle.complaints(a as never),
+    },
+    {
+      name: 'vehicle.investigations',
+      description:
+        'NHTSA open vehicle investigations, newest first. Chronological feed — filters (make/model/year) are not supported by upstream.',
+      inputSchema: s('Investigations', {
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.vehicle.investigations(a as never),
+    },
+    {
+      name: 'vehicle.models',
+      description: 'List all models offered by a make in a given model year (vPIC).',
+      inputSchema: s('Models', {
+        make: { type: 'string' },
+        modelYear: { type: 'integer' },
+      }, ['make', 'modelYear']),
+      invoke: (a) => c.vehicle.models(a as never),
+    },
+    {
+      name: 'vehicle.decode-wmi',
+      description: 'Decode a 3-character World Manufacturer Identifier (WMI), the first 3 chars of a VIN, to manufacturer.',
+      inputSchema: s('Decode WMI', {
+        wmi: { type: 'string', description: '3-character WMI code.' },
+      }, ['wmi']),
+      invoke: (a) => c.vehicle.decodeWmi(a as never),
+    },
+    {
+      name: 'vehicle.manufacturers',
+      description: 'Paginated list of all NHTSA-registered vehicle manufacturers (vPIC).',
+      inputSchema: s('Manufacturers', {
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }),
+      invoke: (a) => c.vehicle.manufacturers(a as never),
+    },
+
+    // ── Gov ──────────────────────────────────────────────────────────
+    {
+      name: 'gov.fda-drug-events',
+      description:
+        'FDA adverse drug event reports (FAERS). Search by drug name, optionally filter by MedDRA reaction term. Returns seriousness flags, patient demographics, reactions, drugs.',
+      inputSchema: s('FDA drug events', {
+        drug: { type: 'string', description: 'Drug name (brand/generic/substance, OR-matched).' },
+        reaction: { type: 'string', description: 'Optional MedDRA reaction filter (e.g., "headache").' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+      }, ['drug']),
+      invoke: (a) => c.gov.fdaDrugEvents(a as never),
+    },
+    {
+      name: 'gov.fda-recalls',
+      description:
+        'FDA drug recall enforcement reports, newest first. Filter by drug name, classification (I/II/III), and status.',
+      inputSchema: s('FDA drug recalls', {
+        drug: { type: 'string' },
+        classification: { type: 'string', enum: ['I', 'II', 'III'] },
+        status: { type: 'string', enum: ['Ongoing', 'Completed', 'Terminated', 'Pending'] },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.gov.fdaRecalls(a as never),
+    },
+    {
+      name: 'gov.fda-food-recalls',
+      description: 'FDA food recall enforcement reports, newest first. Filter by product name, classification, status, recalling-firm state.',
+      inputSchema: s('FDA food recalls', {
+        product: { type: 'string' },
+        classification: { type: 'string', enum: ['I', 'II', 'III'] },
+        status: { type: 'string', enum: ['Ongoing', 'Completed', 'Terminated', 'Pending'] },
+        state: { type: 'string', description: '2-letter US state of the recalling firm.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.gov.fdaFoodRecalls(a as never),
+    },
+    {
+      name: 'gov.fda-device-events',
+      description: 'FDA medical device adverse event reports (MAUDE), newest first. Filter by device, manufacturer, or product code.',
+      inputSchema: s('FDA device events', {
+        device: { type: 'string', description: 'Device name (brand/generic).' },
+        manufacturer: { type: 'string' },
+        problem: { type: 'string', description: 'FDA device product code substring.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.gov.fdaDeviceEvents(a as never),
+    },
+    {
+      name: 'gov.fda-animalvet-events',
+      description: 'FDA animal/veterinary adverse event reports. Filter by drug, species, or reaction.',
+      inputSchema: s('FDA animal/vet events', {
+        drug: { type: 'string' },
+        species: { type: 'string', description: 'e.g., "Dog", "Cat", "Horse", "Cattle".' },
+        reaction: { type: 'string', description: 'VeDDRA preferred term.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.gov.fdaAnimalvetEvents(a as never),
+    },
+    {
+      name: 'gov.house-votes',
+      description:
+        'US House of Representatives roll-call votes, newest first. Locally aggregated daily from clerk.house.gov. Filter by year, congress, result, bill (legis_num substring), date range.',
+      inputSchema: s('House votes', {
+        year: { type: 'integer', minimum: 1990, maximum: 2099 },
+        congress: { type: 'integer', minimum: 100, maximum: 200 },
+        result: { type: 'string', description: 'Vote-result substring, e.g., "Passed".' },
+        bill: { type: 'string', description: 'Bill reference substring on legis_num, e.g., "H R 498".' },
+        since: { type: 'string', format: 'date' },
+        until: { type: 'string', format: 'date' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.houseVotes(a as never),
+    },
+    {
+      name: 'gov.senate-votes',
+      description:
+        'US Senate roll-call votes, newest first. Locally aggregated daily from senate.gov. Filter by congress, session (1|2), result, document (e.g., "S. 5"), date range.',
+      inputSchema: s('Senate votes', {
+        congress: { type: 'integer', minimum: 100, maximum: 200 },
+        session: { type: 'integer', enum: [1, 2] },
+        result: { type: 'string' },
+        document: { type: 'string', description: 'Substring on document_name, e.g., "S. 5".' },
+        since: { type: 'string', format: 'date' },
+        until: { type: 'string', format: 'date' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.gov.senateVotes(a as never),
+    },
+    {
+      name: 'gov.usaspending-awards',
+      description:
+        'Search federal awards (contracts, grants, loans, direct payments) via USAspending.gov. Largest-amount first within the date window.',
+      inputSchema: s('USA spending awards', {
+        recipient: { type: 'string', description: 'Recipient (vendor/grantee) name substring.' },
+        agency: { type: 'string', description: 'Awarding top-tier agency name.' },
+        recipientState: { type: 'string', description: '2-letter US state.' },
+        awardType: {
+          type: 'string',
+          enum: ['contracts', 'grants', 'loans', 'direct_payments', 'other'],
+          default: 'contracts',
+        },
+        since: { type: 'string', format: 'date', description: 'Default = 5 years ago.' },
+        until: { type: 'string', format: 'date', description: 'Default = today.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }),
+      invoke: (a) => c.gov.usaspendingAwards(a as never),
+    },
+    {
+      name: 'gov.usgs-water',
+      description:
+        'Real-time USGS NWIS stream/river/groundwater readings within a bbox around lat/lon. Default variables: streamflow (00060), gage height (00065), water temp (00010).',
+      inputSchema: s('USGS water', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+        radius: { type: 'number', minimum: 0.05, maximum: 2.0, default: 0.5, description: 'Half-side of bbox in decimal degrees.' },
+        variables: { type: 'string', description: 'Comma-separated 5-digit USGS parameter codes.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.gov.usgsWater(a as never),
+    },
+    {
+      name: 'gov.epa-facilities',
+      description:
+        'EPA Facility Registry Service (FRS): regulated facilities by state, optional name prefix, optional program acronym (RCRA, NPDES, TRI, etc.).',
+      inputSchema: s('EPA facilities', {
+        state: { type: 'string', description: '2-letter US state.' },
+        name: { type: 'string', description: 'Facility-name prefix.' },
+        program: { type: 'string', description: 'Program acronym, e.g., RCRA, NPDES, TRI.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }, ['state']),
+      invoke: (a) => c.gov.epaFacilities(a as never),
+    },
+    {
+      name: 'gov.federal-register-recent',
+      description:
+        'Chronological feed of newest Federal Register documents (RULE / PRORULE / NOTICE / PRESDOCU) — use for compliance change-detection.',
+      inputSchema: s('Federal Register recent', {
+        type: { type: 'string', enum: ['RULE', 'PRORULE', 'NOTICE', 'PRESDOCU'], default: 'RULE' },
+        agency: { type: 'string', description: 'Agency slug or name.' },
+        since: { type: 'string', format: 'date', description: 'Default = 7 days ago.' },
+        until: { type: 'string', format: 'date', description: 'Default = today.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }),
+      invoke: (a) => c.gov.federalRegisterRecent(a as never),
+    },
   ]
   return t
 }

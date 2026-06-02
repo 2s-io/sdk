@@ -44,7 +44,7 @@ Each tool wraps one [2s.io](https://2s.io) endpoint with a clear description and
 | `twosio_ai_summarize` | `ai.summarize` | URL → concise summary (Tier 2, LLM-backed) | $0.0225 |
 | `twosio_crypto_gas_oracle` | `crypto.gas-oracle` | Live EVM gas oracle | $0.001 |
 
-The full 2s.io catalog has 39 endpoints. To use one not in the curated set, build a tool manually:
+The full 2s.io catalog is constantly expanding — see <https://2s.io/api/directory> for the current list. To use one not in the curated set above, build a tool manually:
 
 ```python
 from langchain_twosio import twosio_tool

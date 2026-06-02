@@ -30,7 +30,7 @@ import { buildToolList, type ToolDef } from './tools.js'
 
 // Pinned in code so the version reported via initialize.serverInfo matches
 // the package version. Bump in lockstep with package.json on every release.
-const SERVER_VERSION = '0.1.4'
+const SERVER_VERSION = '0.2.0'
 
 export interface CreateMcpServerOptions extends TwoSConfig {
   /** Server name shown to MCP hosts. Defaults to `2sio`. */

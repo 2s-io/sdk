@@ -1,8 +1,8 @@
 # @2sio/sdk
 
-**Typed TypeScript client for [2s.io](https://2s.io) — pay-per-call AI agent APIs on Base via x402.**
+**Typed TypeScript client for [2s.io](https://2s.io) — pay-per-call AI agent APIs on Base or Solana via x402.**
 
-No signup, no API keys, no credit card on file. Sign an EIP-3009 USDC authorization, hit any endpoint, get back typed JSON. Settles on Base in ~2 seconds. Prices start at $0.001 per call.
+No signup, no API keys, no credit card on file. Sign for whichever rail you hold USDC on (EIP-3009 on Base, partial SPL transfer on Solana), hit any endpoint, get back typed JSON. Settles in ~2 seconds. Prices start at $0.001 per call. The endpoint catalog is constantly expanding — 2s is an open-ended experiment in maximally-comprehensive agent infrastructure.
 
 ```bash
 npm install @2sio/sdk
@@ -32,21 +32,24 @@ The SDK auto-detects 402 responses, signs the payment, retries, and returns type
 
 ## What's included
 
-39 endpoints across:
+An ever-expanding catalog of endpoints, currently spanning:
 
-- **AI** — `summarize`, `translate`, `extract`, `describe-image`, `screenshot`
-- **Patents** — `search`, `detail`, `documents` (USPTO Open Data Portal)
-- **Law** — `case-search`, `case-verify`, `sanctions-check`, `federal-register`, `opinion`
-- **Geocoding** — `address`, `reverse`
-- **Weather / earth** — `weather.zip`, `climate.station-near`, `tides.now`, `sunrise.compute`, `earth.now`, `quakes.recent`
-- **Airports** — `lookup`, `near` (OurAirports CC0, ~85k airports)
-- **Crypto** — `address-validate` (multi-chain checksum), `gas-oracle`
-- **Wikipedia / papers** — `summary`, `search` (arXiv + PubMed + Semantic Scholar)
-- **Internet** — `dns.lookup`, `domain.whois`, `url.unfurl`, `url.clean`, `geo.ip`, `ipinfo.bulk`
-- **Utilities** — `hash.compute`, `image.compress`, `barcode.generate`, `countdown.gif`
-- **Census** — `census.zipcode`
+- **AI** — summarize, translate, extract, describe-image, screenshot
+- **Patents** — search, detail, documents (USPTO Open Data Portal)
+- **Law** — case-search, case-verify, sanctions-check, federal-register, opinion, attorney-lookup, judge-lookup (CourtListener / Free Law Project)
+- **Finance** — sec-filings, company-facts (XBRL), insider-trades (Form 4), 13F holdings (SEC EDGAR)
+- **Geocoding** — forward, reverse (LocationIQ + US Census)
+- **Weather / earth** — weather.zip, climate.station-near, tides.now, sunrise.compute, earth.now, quakes.recent, space.weather
+- **Airports** — lookup, near (OurAirports CC0)
+- **Crypto** — address-validate (multi-chain checksum), gas-oracle
+- **Wikipedia / papers** — summary, search (arXiv + PubMed + Semantic Scholar)
+- **Internet** — dns.lookup, domain.whois, url.unfurl, url.clean, geo.ip, ipinfo.bulk
+- **Utilities** — hash.compute, image.compress, barcode.generate, countdown.gif
+- **Census** — zipcode demographics
 
-Full endpoint catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/openapi>. Discovery manifest for machines: <https://2s.io/.well-known/x402>.
+New groups and endpoints land regularly. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the goal is to keep widening the surface autonomous software can reach behind a single payment-aware interface.
+
+Live catalog: <https://2s.io/api/directory> · OpenAPI 3.1: <https://2s.io/api/openapi> · Machine manifest: <https://2s.io/.well-known/x402>.
 
 ## Safety
 
