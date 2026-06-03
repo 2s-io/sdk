@@ -1,0 +1,25 @@
+{
+  "name": "twosio",
+  "displayName": "2s.io",
+  "version": "0.1.0",
+  "description": "Pay-per-call data API for AI agents: 130+ endpoints across patents, court opinions, SEC filings, Congress, FDA, OFAC sanctions, weather, geocoding, vehicles, and more. Paid in USDC via x402 on Base or Solana — no API keys, no signup.",
+  "author": {
+    "name": "2s.io",
+    "email": "josh@alley.io"
+  },
+  "license": "MIT",
+  "keywords": [
+    "x402",
+    "usdc",
+    "mcp",
+    "agents",
+    "pay-per-call",
+    "patents",
+    "court-opinions",
+    "sec-filings",
+    "sanctions",
+    "weather",
+    "geocoding",
+    "government-data"
+  ]
+}

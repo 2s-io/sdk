@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "twosio": {
+      "command": "npx",
+      "args": ["-y", "@2sio/mcp"],
+      "env": {
+        "EVM_PRIVATE_KEY": "${EVM_PRIVATE_KEY}"
+      }
+    }
+  }
+}
