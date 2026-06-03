@@ -2,7 +2,7 @@
 
 [![smithery badge](https://smithery.ai/badge/twosio/mcp)](https://smithery.ai/servers/twosio/mcp)
 
-**Client SDK + MCP server for [2s.io](https://2s.io) — a unified JSON REST API for AI agents, paid per call in USDC on Base via [x402](https://x402.org).**
+**Client SDK + MCP server for [2s.io](https://2s.io) — a unified JSON REST API for AI agents, paid per call in USDC on Base or Solana via [x402](https://x402.org).**
 
 This repo ships SDKs for every major agent-development language plus an MCP server for any MCP-aware host:
 
@@ -16,7 +16,7 @@ This repo ships SDKs for every major agent-development language plus an MCP serv
 | **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 x402 wire-up pending |
 | **Rust** | [`twosio`](./packages/rust) | `cargo add twosio` | 🚧 x402 wire-up pending |
 
-No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization on-the-fly, the [Coinbase CDP facilitator](https://docs.cdp.coinbase.com/x402/welcome) verifies + settles in ~2 seconds on Base mainnet, and the API returns typed data. Prices start at $0.001/call.
+No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization (Base) or an SPL USDC transfer (Solana) on-the-fly, the facilitator verifies + settles in ~2 seconds on mainnet, and the API returns typed data. Prices start at $0.001/call.
 
 ## 30-second demo
 
@@ -57,22 +57,26 @@ print(r.data["hits"][0]["title"])
 }
 ```
 
-Restart Claude. The model can now call patents.search, law.sanctions-check, ai.summarize, geocode.address, crypto.address-validate, and 30+ other paid tools — paying per call, no human in the loop.
+Restart Claude. The model can now call patents.search, law.sanctions-check, ai.summarize, geocode.address, vehicle.vin-decode, agent.knowledge-delta, and 120+ other paid tools — paying per call, no human in the loop.
 
 ## What's behind the API
 
-39 endpoints across:
+130+ endpoints (live count in the [directory](https://2s.io/api/directory)) across:
 
 - **AI:** webpage summarization, translation, typed extraction, image description, screenshots
+- **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y")
 - **Patents:** USPTO Open Data Portal search + full file-wrapper detail + document list
 - **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, opinions
-- **Geo / weather:** forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, IP geolocation
+- **Government:** Congress bills/votes/members, FEC campaign finance, FDA drug/device/food events + recalls, OSHA/MSHA, USAspending, EPA facilities, USGS water
+- **Finance:** SEC EDGAR company facts, filings, insider trades, 13F holdings; US Treasury debt + cash
+- **Vehicles:** VIN decode, recalls, complaints, investigations (NHTSA)
+- **Geo / weather:** forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, IP geolocation (single + bulk)
 - **Internet:** DNS lookup, RDAP whois, URL unfurl (Open Graph), URL → clean Markdown
 - **Wikipedia / academic papers:** summaries, multi-source paper search (arXiv + PubMed + Semantic Scholar)
 - **Crypto:** multi-chain address validation (BTC, ETH, SOL, LTC, TRX, XRP, BCH), live EVM gas oracle
 - **Airports:** lookup by IATA/ICAO, nearest-airport-to-coord (OurAirports CC0, ~85k airports)
 - **Utilities:** hash computation, image compression, barcode/QR generation, countdown GIFs
-- **Census:** US Census ACS 5-year demographics by ZCTA
+- **Census / education / health / jobs / nonprofits:** ACS demographics, College Scorecard, hospital + medical-license lookup, USAJOBS + BLS, IRS nonprofit search
 
 Live catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/openapi>. Machine-discovery manifest: <https://2s.io/.well-known/x402>.
 
@@ -86,8 +90,13 @@ Live catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/ope
 
 ```
 packages/
-├── 2s-sdk/     @2sio/sdk — typed client
-└── 2s-mcp/     @2sio/mcp — MCP server (depends on 2s-sdk)
+├── 2s-sdk/             @2sio/sdk — typed TypeScript client
+├── 2s-mcp/             @2sio/mcp — MCP server (depends on 2s-sdk)
+├── python/             2sio — Python client
+├── python-langchain/   langchain-twosio — LangChain tool adapters
+├── python-llamaindex/  llama-index-tools-twosio — LlamaIndex tool adapters
+├── go/                 Go client (x402 wire-up pending)
+└── rust/               Rust client (x402 wire-up pending)
 examples/sdk/   minimal paying-agent samples + Claude Desktop wiring
 ```
 
