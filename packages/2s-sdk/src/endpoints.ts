@@ -327,6 +327,16 @@ export interface Endpoints {
     /** USAJobs reference codelist contents. */
     federalCodes(input: { name: string }): R<unknown>
   }
+  property: {
+    /** NYC tax-lot lookup via PLUTO — by BBL or address. */
+    nycParcelLookup(input?: { bbl?: string; address?: string; borough?: string }): R<unknown>
+    /** NYC ACRIS deed + mortgage history for a BBL. */
+    nycDeedHistory(input: { bbl: string; limit?: number; offset?: number }): R<unknown>
+    /** NYC DOB construction permits by BBL or address. */
+    nycPermits(input?: Record<string, unknown>): R<unknown>
+    /** NYC HPD violations by BBL or address. */
+    nycViolations(input?: Record<string, unknown>): R<unknown>
+  }
   treasury: {
     /** US National Debt — daily Debt to the Penny. */
     debt(input?: Record<string, unknown>): R<unknown>
@@ -969,6 +979,12 @@ export function createEndpoints(client: TwoS): Endpoints {
     job: {
       federalSearch: (i) => get('job.federal-search', '/api/job/federal-search', i ?? {}),
       federalCodes: (i) => get('job.federal-codes', '/api/job/federal-codes', i),
+    },
+    property: {
+      nycParcelLookup: (i) => get('property.nyc-parcel-lookup', '/api/property/nyc-parcel-lookup', i ?? {}),
+      nycDeedHistory: (i) => get('property.nyc-deed-history', '/api/property/nyc-deed-history', i),
+      nycPermits: (i) => get('property.nyc-permits', '/api/property/nyc-permits', i ?? {}),
+      nycViolations: (i) => get('property.nyc-violations', '/api/property/nyc-violations', i ?? {}),
     },
     treasury: {
       debt: (i) => get('treasury.debt', '/api/treasury/debt', i ?? {}),

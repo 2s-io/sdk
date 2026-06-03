@@ -185,6 +185,7 @@ export class TwoS {
   public readonly park: Endpoints['park']
   public readonly recreation: Endpoints['recreation']
   public readonly job: Endpoints['job']
+  public readonly property: Endpoints['property']
   public readonly treasury: Endpoints['treasury']
 
   constructor(config: TwoSConfig = {}) {
@@ -269,6 +270,7 @@ export class TwoS {
     this.park = this.endpoints.park
     this.recreation = this.endpoints.recreation
     this.job = this.endpoints.job
+    this.property = this.endpoints.property
     this.treasury = this.endpoints.treasury
   }
 

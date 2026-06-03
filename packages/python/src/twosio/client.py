@@ -1670,6 +1670,65 @@ class _Recreation(_Group):
         return self._c.request("GET", "/api/recreation/search", endpoint="recreation.search", query=q)
 
 
+class _Property(_Group):
+    def nyc_parcel_lookup(
+        self,
+        *,
+        bbl: Optional[str] = None,
+        address: Optional[str] = None,
+        borough: Optional[str] = None,
+    ) -> CallResult:
+        """NYC tax-lot lookup via PLUTO. Pass bbl (10-digit) or address (with optional borough)."""
+        q: dict[str, Any] = {}
+        if bbl is not None: q["bbl"] = bbl
+        if address is not None: q["address"] = address
+        if borough is not None: q["borough"] = borough
+        return self._c.request("GET", "/api/property/nyc-parcel-lookup", endpoint="property.nyc-parcel-lookup", query=q)
+
+    def nyc_deed_history(self, *, bbl: str, limit: int = 25, offset: int = 0) -> CallResult:
+        """NYC ACRIS deed + mortgage history for a BBL."""
+        return self._c.request(
+            "GET", "/api/property/nyc-deed-history", endpoint="property.nyc-deed-history",
+            query={"bbl": bbl, "limit": limit, "offset": offset},
+        )
+
+    def nyc_permits(
+        self,
+        *,
+        bbl: Optional[str] = None,
+        address: Optional[str] = None,
+        job_type: Optional[str] = None,
+        permit_status: Optional[str] = None,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """NYC DOB construction permits."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if bbl is not None: q["bbl"] = bbl
+        if address is not None: q["address"] = address
+        if job_type is not None: q["jobType"] = job_type
+        if permit_status is not None: q["permitStatus"] = permit_status
+        return self._c.request("GET", "/api/property/nyc-permits", endpoint="property.nyc-permits", query=q)
+
+    def nyc_violations(
+        self,
+        *,
+        bbl: Optional[str] = None,
+        address: Optional[str] = None,
+        class_code: Optional[str] = None,
+        current_status_only: bool = False,
+        limit: int = 25,
+        offset: int = 0,
+    ) -> CallResult:
+        """NYC HPD housing violations."""
+        q: dict[str, Any] = {"limit": limit, "offset": offset}
+        if bbl is not None: q["bbl"] = bbl
+        if address is not None: q["address"] = address
+        if class_code is not None: q["classCode"] = class_code
+        if current_status_only: q["currentStatusOnly"] = True
+        return self._c.request("GET", "/api/property/nyc-violations", endpoint="property.nyc-violations", query=q)
+
+
 class _Treasury(_Group):
     def debt(self, **kwargs: Any) -> CallResult:
         """US National Debt — daily Debt to the Penny."""
@@ -1892,6 +1951,7 @@ class TwoS:
         self.park = _Park(self)
         self.recreation = _Recreation(self)
         self.job = _Job(self)
+        self.property = _Property(self)
         self.treasury = _Treasury(self)
 
     def _client(self) -> httpx.Client:

@@ -1551,6 +1551,54 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.job.federalCodes(a as never),
     },
 
+    // ── Property (NYC OpenData via Socrata) ────────────────────────────
+    {
+      name: 'property.nyc-parcel-lookup',
+      description: 'NYC tax-lot lookup via PLUTO — every NYC lot with owner, zoning, lot/building area, year built, classification, lat/lon. Pass bbl (10-digit Borough-Block-Lot) for exact lookup or address (partial) optionally constrained by borough (MN/BX/BK/QN/SI). The BBL returned here is the universal join key for property.nyc-deed-history / nyc-permits / nyc-violations.',
+      inputSchema: s('NYC parcel lookup', {
+        bbl: { type: 'string', description: '10-digit BBL.' },
+        address: { type: 'string' },
+        borough: { type: 'string', description: 'Name or 2-letter code (MN/BX/BK/QN/SI).' },
+      }),
+      invoke: (a) => c.property.nycParcelLookup(a as never),
+    },
+    {
+      name: 'property.nyc-deed-history',
+      description: 'NYC ACRIS deed + mortgage history for a BBL. Each row carries a documentId you can use to drill into the ACRIS master dataset (URL pattern in response).',
+      inputSchema: s('NYC deed history', {
+        bbl: { type: 'string', description: '10-digit BBL.' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }, ['bbl']),
+      invoke: (a) => c.property.nycDeedHistory(a as never),
+    },
+    {
+      name: 'property.nyc-permits',
+      description: 'NYC DOB construction permits. Filter by bbl or address, jobType (A1/A2/A3/NB/DM/etc.), permitStatus (ISSUED/IN PROCESS/etc.). Returns job + permit IDs, work type, building type, residential flag, filing/issuance/expiration dates, estimated fee.',
+      inputSchema: s('NYC permits', {
+        bbl: { type: 'string' },
+        address: { type: 'string' },
+        jobType: { type: 'string' },
+        permitStatus: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.property.nycPermits(a as never),
+    },
+    {
+      name: 'property.nyc-violations',
+      description: 'NYC HPD housing violations. Filter by bbl or address, classCode (A=least severe through C=immediately hazardous), currentStatusOnly=true (open violations). Returns full address + apartment + story, inspection + certify-by + correct-by dates, current status, NOV narrative.',
+      inputSchema: s('NYC HPD violations', {
+        bbl: { type: 'string' },
+        address: { type: 'string' },
+        classCode: { type: 'string', enum: ['A', 'B', 'C'] },
+        currentStatusOnly: { type: 'boolean' },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 25 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.property.nycViolations(a as never),
+    },
+
     // ── Treasury (US Treasury Fiscal Data) ─────────────────────────────
     {
       name: 'treasury.debt',
