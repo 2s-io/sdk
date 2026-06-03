@@ -26,11 +26,20 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import { TwoS, type TwoSConfig } from '@2sio/sdk'
 
+import { createRequire } from 'node:module'
+
 import { buildToolList, type ToolDef } from './tools.js'
 
-// Pinned in code so the version reported via initialize.serverInfo matches
-// the package version. Bump in lockstep with package.json on every release.
-const SERVER_VERSION = '0.2.0'
+// Read from package.json at load time so initialize.serverInfo always
+// matches the published version. (Was a hand-pinned constant; it sat at
+// 0.2.0 through thirteen releases before the 2026-06-03 audit caught it.)
+const SERVER_VERSION: string = (() => {
+  try {
+    return createRequire(import.meta.url)('../package.json').version ?? '0.0.0'
+  } catch {
+    return '0.0.0'
+  }
+})()
 
 export interface CreateMcpServerOptions extends TwoSConfig {
   /** Server name shown to MCP hosts. Defaults to `2sio`. */

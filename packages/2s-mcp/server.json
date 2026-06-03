@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.2s-io/mcp",
-  "description": "MCP server for 2s.io — ever-expanding catalog of pay-per-call tools settled in USDC on Base or Solana via x402.",
+  "description": "MCP server for 2s.io — pay-per-call tools settled in USDC on Base or Solana via x402.",
   "repository": {
     "url": "https://github.com/2s-io/sdk",
     "source": "github",
