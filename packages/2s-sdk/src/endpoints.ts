@@ -627,6 +627,12 @@ export interface Endpoints {
     billSummaries(input?: Record<string, unknown>): R<unknown>
     /** OSHA inspection records via DOL Open Data Portal. */
     oshaInspections(input?: Record<string, unknown>): R<unknown>
+    /** OSHA citation / violation records via DOL Open Data Portal. */
+    oshaViolations(input?: Record<string, unknown>): R<unknown>
+    /** OSHA-investigated workplace accident reports via DOL Open Data Portal. */
+    oshaAccidents(input?: Record<string, unknown>): R<unknown>
+    /** MSHA mine safety accident records via DOL Open Data Portal. */
+    mshaAccidents(input?: Record<string, unknown>): R<unknown>
     /** OpenFDA drug adverse event reports (FAERS). */
     fdaDrugEvents(input: { drug: string; reaction?: string; limit?: number }): R<unknown>
     /** OpenFDA drug recall enforcement reports. */
@@ -932,6 +938,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       congressRecord: (i) => get('gov.congress-record', '/api/gov/congress-record', i ?? {}),
       billSummaries: (i) => get('gov.bill-summaries', '/api/gov/bill-summaries', i ?? {}),
       oshaInspections: (i) => get('gov.osha-inspections', '/api/gov/osha-inspections', i ?? {}),
+      oshaViolations: (i) => get('gov.osha-violations', '/api/gov/osha-violations', i ?? {}),
+      oshaAccidents: (i) => get('gov.osha-accidents', '/api/gov/osha-accidents', i ?? {}),
+      mshaAccidents: (i) => get('gov.msha-accidents', '/api/gov/msha-accidents', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),

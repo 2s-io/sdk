@@ -1043,6 +1043,18 @@ class _Gov(_Group):
         """OSHA inspection records via US Department of Labor Open Data Portal."""
         return self._c.request("GET", "/api/gov/osha-inspections", endpoint="gov.osha-inspections", query=kwargs)
 
+    def osha_violations(self, **kwargs: Any) -> CallResult:
+        """OSHA citation / violation records via DOL Open Data Portal."""
+        return self._c.request("GET", "/api/gov/osha-violations", endpoint="gov.osha-violations", query=kwargs)
+
+    def osha_accidents(self, **kwargs: Any) -> CallResult:
+        """OSHA-investigated workplace accident reports via DOL Open Data Portal."""
+        return self._c.request("GET", "/api/gov/osha-accidents", endpoint="gov.osha-accidents", query=kwargs)
+
+    def msha_accidents(self, **kwargs: Any) -> CallResult:
+        """MSHA mine safety accident records via DOL Open Data Portal."""
+        return self._c.request("GET", "/api/gov/msha-accidents", endpoint="gov.msha-accidents", query=kwargs)
+
     def fda_drug_events(
         self, *, drug: str, reaction: Optional[str] = None, limit: int = 10,
     ) -> CallResult:
