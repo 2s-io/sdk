@@ -382,6 +382,10 @@ export interface Endpoints {
   tides: {
     now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<TidesNowResponse>
   }
+  timezone: {
+    /** Resolve a coordinate to its IANA timezone + current local wall time. */
+    lookup(input: { lat: number; lon: number; at?: string }): R<unknown>
+  }
   url: {
     unfurl(input: { url: string }): R<UrlUnfurlResponse>
     clean(input: { url: string; format?: 'markdown' | 'text' | 'both' }): R<UrlCleanResponse>
@@ -829,6 +833,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     tides: {
       now: (i) => get('tides.now', '/api/tides/now', i),
+    },
+    timezone: {
+      lookup: (i) => get('timezone.lookup', '/api/timezone/lookup', i),
     },
     url: {
       unfurl: (i) => get('url.unfurl', '/api/url/unfurl', i),

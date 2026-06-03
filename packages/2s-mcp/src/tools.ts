@@ -330,6 +330,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.tides.now(a as never),
     },
     {
+      name: 'timezone.lookup',
+      description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
+      inputSchema: s('Timezone lookup', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+        at: { type: 'string', format: 'date-time', description: 'Optional ISO 8601 instant. Defaults to now.' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.timezone.lookup(a as never),
+    },
+    {
       name: 'sunrise.compute',
       description: 'Astronomically compute sunrise, sunset, solar noon, and civil/nautical/astronomical twilights for a coord + date.',
       inputSchema: s('Sunrise compute', {

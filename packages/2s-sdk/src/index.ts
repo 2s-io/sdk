@@ -153,6 +153,7 @@ export class TwoS {
   public readonly quakes: Endpoints['quakes']
   public readonly sunrise: Endpoints['sunrise']
   public readonly tides: Endpoints['tides']
+  public readonly timezone: Endpoints['timezone']
   public readonly url: Endpoints['url']
   public readonly weather: Endpoints['weather']
   public readonly wikipedia: Endpoints['wikipedia']
@@ -238,6 +239,7 @@ export class TwoS {
     this.quakes = this.endpoints.quakes
     this.sunrise = this.endpoints.sunrise
     this.tides = this.endpoints.tides
+    this.timezone = this.endpoints.timezone
     this.url = this.endpoints.url
     this.weather = this.endpoints.weather
     this.wikipedia = this.endpoints.wikipedia

@@ -691,6 +691,27 @@ class _Tides(_Group):
         return self._c.request("GET", "/api/tides/now", endpoint="tides.now", query=q)
 
 
+class _Timezone(_Group):
+    def lookup(
+        self,
+        *,
+        lat: float,
+        lon: float,
+        at: Optional[str] = None,
+    ) -> CallResult:
+        """Resolve a coordinate to its IANA timezone + current local wall time.
+
+        Pure-compute polygon lookup against a CC0 timezone boundary index;
+        offsets + DST come from the runtime tzdata so transition rules stay
+        current. Args: lat (-90..90), lon (-180..180), at (optional ISO 8601
+        instant; defaults to now).
+        """
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if at is not None:
+            q["at"] = at
+        return self._c.request("GET", "/api/timezone/lookup", endpoint="timezone.lookup", query=q)
+
+
 class _Earth(_Group):
     def now(
         self,
@@ -1915,6 +1936,7 @@ class TwoS:
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)
+        self.timezone = _Timezone(self)
         self.earth = _Earth(self)
         self.climate = _Climate(self)
         self.census = _Census(self)
