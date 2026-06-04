@@ -228,7 +228,7 @@ export interface Endpoints {
   }
   business: {
     /** State Secretary-of-State business registry search, normalized (NY, CO). */
-    sosSearch(input: { state: 'NY' | 'CO'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
+    sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -577,6 +577,8 @@ export interface Endpoints {
     }): R<unknown>
     /** US trade / occupational license verification (TX TDLR). */
     trades(input: { state: 'TX'; name?: string; licenseNumber?: string; licenseType?: string; county?: string; limit?: number; offset?: number }): R<unknown>
+    /** US real-estate license verification (TX TREC). */
+    realEstate(input: { state: 'TX'; name?: string; licenseNumber?: string; licenseType?: string; status?: string; limit?: number; offset?: number }): R<unknown>
   }
   health: {
     /** CMS Open Payments — pharma/device → US physician payment disclosures. */
@@ -962,6 +964,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     license: {
       medical: (i) => get('license.medical', '/api/license/medical', i),
       trades: (i) => get('license.trades', '/api/license/trades', i),
+      realEstate: (i) => get('license.real-estate', '/api/license/real-estate', i),
       broker: (i) => get('license.broker', '/api/license/broker', i),
     },
     health: {

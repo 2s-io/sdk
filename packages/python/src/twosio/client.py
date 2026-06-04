@@ -1633,6 +1633,36 @@ class _Bank(_Group):
 
 
 class _License(_Group):
+    def real_estate(
+        self,
+        *,
+        state: str,
+        name: Optional[str] = None,
+        license_number: Optional[str] = None,
+        license_type: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """US real-estate license verification (currently TX TREC).
+
+        Server params: state, name, licenseNumber, licenseType, status, limit, offset.
+        """
+        q: dict[str, Any] = {"state": state}
+        if name is not None:
+            q["name"] = name
+        if license_number is not None:
+            q["licenseNumber"] = license_number
+        if license_type is not None:
+            q["licenseType"] = license_type
+        if status is not None:
+            q["status"] = status
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/license/real-estate", endpoint="license.real-estate", query=q)
+
     def trades(
         self,
         *,

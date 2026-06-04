@@ -226,7 +226,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
       name: 'business.sos-search',
       description: 'State Secretary-of-State business registry search, normalized across states (currently NY, CO). By name (partial) or exact entityId. Returns entity id, name, type, status, jurisdiction, formation date, address, registered agent.',
       inputSchema: s('SoS business search', {
-        state: { type: 'string', enum: ['NY', 'CO'] },
+        state: { type: 'string', enum: ['NY', 'CO', 'CT'] },
         name: { type: 'string', description: 'Entity name, partial match.' },
         entityId: { type: 'string', description: 'Exact state entity id.' },
         limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
@@ -262,6 +262,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
         offset: { type: 'integer', minimum: 0, default: 0 },
       }, ['state']),
       invoke: (a) => c.license.trades(a as never),
+    },
+    {
+      name: 'license.real-estate',
+      description: 'US real-estate license verification (currently TX TREC: brokers, sales agents, broker companies). By name (partial), licenseNumber, licenseType, status. Returns type, number, holder, status, dates, supervising broker.',
+      inputSchema: s('Real-estate license', {
+        state: { type: 'string', enum: ['TX'] },
+        name: { type: 'string', description: 'License holder name, partial match.' },
+        licenseNumber: { type: 'string' },
+        licenseType: { type: 'string', description: 'Partial, e.g. "Broker", "Sales Agent".' },
+        status: { type: 'string', description: 'E.g. "Active".' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }, ['state']),
+      invoke: (a) => c.license.realEstate(a as never),
     },
     {
       name: 'law.case-search',
