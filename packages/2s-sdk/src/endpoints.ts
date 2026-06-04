@@ -226,7 +226,13 @@ export interface Endpoints {
   ipinfo: {
     bulk(input: { ips: string[] }): R<IpinfoBulkResponse>
   }
+  business: {
+    /** State Secretary-of-State business registry search, normalized (NY, CO). */
+    sosSearch(input: { state: 'NY' | 'CO'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
+  }
   law: {
+    /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
+    docketSearch(input: { q?: string; court?: string; docketNumber?: string; filedAfter?: string; filedBefore?: string; page?: number }): R<unknown>
     caseSearch(input: {
       q: string
       court?: string
@@ -310,6 +316,8 @@ export interface Endpoints {
   edu: {
     /** US college + university search (Department of Education College Scorecard). */
     collegeScorecard(input?: Record<string, unknown>): R<unknown>
+    /** Every US public K-12 school (~102k, NCES CCD). */
+    schoolLookup(input: { name?: string; district?: string; state?: string; city?: string; zip?: string; ncessch?: string; limit?: number; offset?: number }): R<unknown>
   }
   energy: {
     /** Alternative-fuel station locator (NREL Alternative Fuels Data Center). */
@@ -567,6 +575,8 @@ export interface Endpoints {
       limit?: number
       offset?: number
     }): R<unknown>
+    /** US trade / occupational license verification (TX TDLR). */
+    trades(input: { state: 'TX'; name?: string; licenseNumber?: string; licenseType?: string; county?: string; limit?: number; offset?: number }): R<unknown>
   }
   health: {
     /** CMS Open Payments — pharma/device → US physician payment disclosures. */
@@ -591,6 +601,12 @@ export interface Endpoints {
       limit?: number
       offset?: number
     }): R<unknown>
+    /** CMS Care Compare hospital quality (overall star rating + measure domains). */
+    hospitalQuality(input: { facilityId?: string; state?: string; city?: string; name?: string; limit?: number; offset?: number }): R<unknown>
+    /** Medicare utilization + payments by provider NPI (CMS annual dataset). */
+    medicareProvider(input: { npi?: string; lastName?: string; state?: string; limit?: number; offset?: number }): R<unknown>
+    /** US mortality statistics (CDC NCHS: leading causes 1999-2017, weekly counts 2020-2023). */
+    mortalityStats(input?: { dataset?: 'leading-causes' | 'weekly-counts'; state?: string; year?: number; cause?: string; limit?: number; offset?: number }): R<unknown>
   }
   worldbank: {
     /** World Bank Open Data indicator time series. */
@@ -652,6 +668,10 @@ export interface Endpoints {
     }): R<unknown>
   }
   gov: {
+    /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
+    inmateLocator(input: { lastName?: string; firstName?: string; middleName?: string; inmateNumber?: string; age?: number; sex?: 'Male' | 'Female'; race?: string }): R<unknown>
+    /** US Senate lobbying disclosures (LDA filings) — registrant/client/lobbyist/year. */
+    lobbyingFilings(input: { registrant?: string; client?: string; lobbyist?: string; year?: number; period?: string; type?: string; page?: number; pageSize?: number }): R<unknown>
     /** US Congress bills — lookup by congress+type+number, or list/filter. */
     congressBill(input?: Record<string, unknown>): R<unknown>
     /** Members of US Congress — lookup by bioguide ID or filter. */
@@ -852,7 +872,11 @@ export function createEndpoints(client: TwoS): Endpoints {
     ipinfo: {
       bulk: (i) => post('ipinfo.bulk', '/api/ipinfo/bulk', i),
     },
+    business: {
+      sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
+    },
     law: {
+      docketSearch: (i) => get('law.docket-search', '/api/law/docket-search', i),
       caseSearch: (i) => get('law.case-search', '/api/law/case-search', i),
       caseVerify: (i) => post('law.case-verify', '/api/law/case-verify', i),
       sanctionsCheck: (i) => post('law.sanctions-check', '/api/law/sanctions-check', i),
@@ -937,11 +961,15 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     license: {
       medical: (i) => get('license.medical', '/api/license/medical', i),
+      trades: (i) => get('license.trades', '/api/license/trades', i),
       broker: (i) => get('license.broker', '/api/license/broker', i),
     },
     health: {
       openPayments: (i) => get('health.open-payments', '/api/health/open-payments', i),
       hospitalLookup: (i) => get('health.hospital-lookup', '/api/health/hospital-lookup', i),
+      hospitalQuality: (i) => get('health.hospital-quality', '/api/health/hospital-quality', i),
+      medicareProvider: (i) => get('health.medicare-provider', '/api/health/medicare-provider', i),
+      mortalityStats: (i) => get('health.mortality-stats', '/api/health/mortality-stats', i ?? {}),
     },
     worldbank: {
       indicator: (i) => get('worldbank.indicator', '/api/worldbank/indicator', i),
@@ -1013,6 +1041,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       fdaDeviceEvents: (i) => get('gov.fda-device-events', '/api/gov/fda-device-events', i),
       fdaAnimalvetEvents: (i) => get('gov.fda-animalvet-events', '/api/gov/fda-animalvet-events', i),
       houseVotes: (i) => get('gov.house-votes', '/api/gov/house-votes', i),
+      inmateLocator: (i) => get('gov.inmate-locator', '/api/gov/inmate-locator', i),
+      lobbyingFilings: (i) => get('gov.lobbying-filings', '/api/gov/lobbying-filings', i),
       senateVotes: (i) => get('gov.senate-votes', '/api/gov/senate-votes', i),
       usaspendingAwards: (i) => get('gov.usaspending-awards', '/api/gov/usaspending-awards', i),
       usgsWater: (i) => get('gov.usgs-water', '/api/gov/usgs-water', i),
@@ -1021,6 +1051,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     edu: {
       collegeScorecard: (i) => get('edu.college-scorecard', '/api/edu/college-scorecard', i ?? {}),
+      schoolLookup: (i) => get('edu.school-lookup', '/api/edu/school-lookup', i),
     },
     energy: {
       fuelStations: (i) => get('energy.fuel-stations', '/api/energy/fuel-stations', i ?? {}),

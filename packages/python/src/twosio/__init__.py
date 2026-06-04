@@ -25,4 +25,4 @@ from __future__ import annotations
 from .client import TwoS, TwoSError, PaymentRefusedError
 
 __all__ = ["TwoS", "TwoSError", "PaymentRefusedError"]
-__version__ = "0.20.0"
+__version__ = "0.21.0"

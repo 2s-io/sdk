@@ -208,6 +208,35 @@ class _Ai(_Group):
 
 
 class _Law(_Group):
+    def docket_search(
+        self,
+        *,
+        q: Optional[str] = None,
+        court: Optional[str] = None,
+        docket_number: Optional[str] = None,
+        filed_after: Optional[str] = None,
+        filed_before: Optional[str] = None,
+        page: Optional[int] = None,
+    ) -> CallResult:
+        """Federal court dockets (civil + criminal) via RECAP/CourtListener.
+
+        Server params: q, court, docketNumber, filedAfter, filedBefore, page.
+        """
+        qq: dict[str, Any] = {}
+        if q is not None:
+            qq["q"] = q
+        if court is not None:
+            qq["court"] = court
+        if docket_number is not None:
+            qq["docketNumber"] = docket_number
+        if filed_after is not None:
+            qq["filedAfter"] = filed_after
+        if filed_before is not None:
+            qq["filedBefore"] = filed_before
+        if page is not None:
+            qq["page"] = page
+        return self._c.request("GET", "/api/law/docket-search", endpoint="law.docket-search", query=qq)
+
     def case_search(
         self,
         *,
@@ -1095,7 +1124,101 @@ class _Vehicle(_Group):
         )
 
 
+
+class _Business(_Group):
+    def sos_search(
+        self,
+        *,
+        state: str,
+        name: Optional[str] = None,
+        entity_id: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """State Secretary-of-State business registry search (NY, CO), normalized.
+
+        Server params: state, name, entityId, limit, offset.
+        """
+        q: dict[str, Any] = {"state": state}
+        if name is not None:
+            q["name"] = name
+        if entity_id is not None:
+            q["entityId"] = entity_id
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/business/sos-search", endpoint="business.sos-search", query=q)
+
+
 class _Gov(_Group):
+    def inmate_locator(
+        self,
+        *,
+        last_name: Optional[str] = None,
+        first_name: Optional[str] = None,
+        middle_name: Optional[str] = None,
+        inmate_number: Optional[str] = None,
+        age: Optional[int] = None,
+        sex: Optional[str] = None,
+        race: Optional[str] = None,
+    ) -> CallResult:
+        """Federal Bureau of Prisons inmate locator (1982-present).
+
+        Server params: lastName, firstName, middleName, inmateNumber, age, sex, race.
+        """
+        q: dict[str, Any] = {}
+        if last_name is not None:
+            q["lastName"] = last_name
+        if first_name is not None:
+            q["firstName"] = first_name
+        if middle_name is not None:
+            q["middleName"] = middle_name
+        if inmate_number is not None:
+            q["inmateNumber"] = inmate_number
+        if age is not None:
+            q["age"] = age
+        if sex is not None:
+            q["sex"] = sex
+        if race is not None:
+            q["race"] = race
+        return self._c.request("GET", "/api/gov/inmate-locator", endpoint="gov.inmate-locator", query=q)
+
+    def lobbying_filings(
+        self,
+        *,
+        registrant: Optional[str] = None,
+        client: Optional[str] = None,
+        lobbyist: Optional[str] = None,
+        year: Optional[int] = None,
+        period: Optional[str] = None,
+        type: Optional[str] = None,
+        page: Optional[int] = None,
+        page_size: Optional[int] = None,
+    ) -> CallResult:
+        """US Senate lobbying disclosures (LDA filings).
+
+        Server params: registrant, client, lobbyist, year, period, type, page, pageSize.
+        """
+        q: dict[str, Any] = {}
+        if registrant is not None:
+            q["registrant"] = registrant
+        if client is not None:
+            q["client"] = client
+        if lobbyist is not None:
+            q["lobbyist"] = lobbyist
+        if year is not None:
+            q["year"] = year
+        if period is not None:
+            q["period"] = period
+        if type is not None:
+            q["type"] = type
+        if page is not None:
+            q["page"] = page
+        if page_size is not None:
+            q["pageSize"] = page_size
+        return self._c.request("GET", "/api/gov/lobbying-filings", endpoint="gov.lobbying-filings", query=q)
+
     def congress_bill(self, **kwargs: Any) -> CallResult:
         """US Congressional bill lookup or filtered list (Library of Congress)."""
         return self._c.request("GET", "/api/gov/congress-bill", endpoint="gov.congress-bill", query=kwargs)
@@ -1510,6 +1633,36 @@ class _Bank(_Group):
 
 
 class _License(_Group):
+    def trades(
+        self,
+        *,
+        state: str,
+        name: Optional[str] = None,
+        license_number: Optional[str] = None,
+        license_type: Optional[str] = None,
+        county: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """US trade/occupational license verification (currently TX TDLR).
+
+        Server params: state, name, licenseNumber, licenseType, county, limit, offset.
+        """
+        q: dict[str, Any] = {"state": state}
+        if name is not None:
+            q["name"] = name
+        if license_number is not None:
+            q["licenseNumber"] = license_number
+        if license_type is not None:
+            q["licenseType"] = license_type
+        if county is not None:
+            q["county"] = county
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/license/trades", endpoint="license.trades", query=q)
+
     def medical(
         self,
         *,
@@ -1548,6 +1701,90 @@ class _License(_Group):
 
 
 class _Health(_Group):
+    def hospital_quality(
+        self,
+        *,
+        facility_id: Optional[str] = None,
+        state: Optional[str] = None,
+        city: Optional[str] = None,
+        name: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """CMS Care Compare hospital quality (star rating + measure domains).
+
+        Server params: facilityId, state, city, name, limit, offset.
+        """
+        q: dict[str, Any] = {}
+        if facility_id is not None:
+            q["facilityId"] = facility_id
+        if state is not None:
+            q["state"] = state
+        if city is not None:
+            q["city"] = city
+        if name is not None:
+            q["name"] = name
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/health/hospital-quality", endpoint="health.hospital-quality", query=q)
+
+    def medicare_provider(
+        self,
+        *,
+        npi: Optional[str] = None,
+        last_name: Optional[str] = None,
+        state: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """Medicare utilization + payments by provider NPI (CMS annual dataset).
+
+        Server params: npi, lastName, state, limit, offset.
+        """
+        q: dict[str, Any] = {}
+        if npi is not None:
+            q["npi"] = npi
+        if last_name is not None:
+            q["lastName"] = last_name
+        if state is not None:
+            q["state"] = state
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/health/medicare-provider", endpoint="health.medicare-provider", query=q)
+
+    def mortality_stats(
+        self,
+        *,
+        dataset: Optional[str] = None,
+        state: Optional[str] = None,
+        year: Optional[int] = None,
+        cause: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """US mortality statistics (CDC NCHS).
+
+        Server params: dataset (leading-causes|weekly-counts), state, year, cause, limit, offset.
+        """
+        q: dict[str, Any] = {}
+        if dataset is not None:
+            q["dataset"] = dataset
+        if state is not None:
+            q["state"] = state
+        if year is not None:
+            q["year"] = year
+        if cause is not None:
+            q["cause"] = cause
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/health/mortality-stats", endpoint="health.mortality-stats", query=q)
+
     def hospital_lookup(
         self,
         *,
@@ -1722,6 +1959,41 @@ class _Bls(_Group):
 
 
 class _Edu(_Group):
+    def school_lookup(
+        self,
+        *,
+        name: Optional[str] = None,
+        district: Optional[str] = None,
+        state: Optional[str] = None,
+        city: Optional[str] = None,
+        zip: Optional[str] = None,
+        ncessch: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """Every US public K-12 school (~102k, NCES CCD).
+
+        Server params: name, district, state, city, zip, ncessch, limit, offset.
+        """
+        q: dict[str, Any] = {}
+        if name is not None:
+            q["name"] = name
+        if district is not None:
+            q["district"] = district
+        if state is not None:
+            q["state"] = state
+        if city is not None:
+            q["city"] = city
+        if zip is not None:
+            q["zip"] = zip
+        if ncessch is not None:
+            q["ncessch"] = ncessch
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/edu/school-lookup", endpoint="edu.school-lookup", query=q)
+
     def college_scorecard(self, **kwargs: Any) -> CallResult:
         """US college search via Department of Education College Scorecard."""
         return self._c.request("GET", "/api/edu/college-scorecard", endpoint="edu.college-scorecard", query=kwargs)
@@ -2042,6 +2314,7 @@ class TwoS:
         self.phone = _Phone(self)
         self.space = _Space(self)
         self.vehicle = _Vehicle(self)
+        self.business = _Business(self)
         self.gov = _Gov(self)
         self.agent = _Agent(self)
         self.chem = _Chem(self)
