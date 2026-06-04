@@ -392,7 +392,13 @@ export interface Endpoints {
   }
   url: {
     unfurl(input: { url: string }): R<UrlUnfurlResponse>
-    clean(input: { url: string; format?: 'markdown' | 'text' | 'both' }): R<UrlCleanResponse>
+    /**
+     * Clean a URL into article content. `format` markdown|text|both returns a
+     * JSON envelope (`result.data` is {@link UrlCleanResponse}); `html` and
+     * `pdf` return raw bytes (`result.data` is a `Uint8Array` — a
+     * self-contained reader page / typeset PDF respectively).
+     */
+    clean(input: { url: string; format?: 'markdown' | 'text' | 'both' | 'html' | 'pdf' }): R<UrlCleanResponse | Uint8Array>
   }
   weather: {
     zip(input: { zip: string }): R<WeatherZipResponse>

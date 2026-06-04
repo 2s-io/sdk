@@ -571,9 +571,11 @@ class _Url(_Group):
         url: str,
         format: Optional[str] = None,
     ) -> CallResult:
-        """Fetch URL → clean readable markdown.
+        """Fetch URL → de-cluttered article content.
 
-        Server params: url, format (one of markdown|text|both; default markdown).
+        Server params: url, format. markdown (default) | text | both return a
+        JSON envelope; html returns a self-contained reader page and pdf a
+        typeset reading document (both as raw bytes in result.data).
         """
         q: dict[str, Any] = {"url": url}
         if format is not None:

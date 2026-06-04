@@ -464,10 +464,10 @@ export function buildToolList(c: TwoS): ToolDef[] {
     },
     {
       name: 'url.clean',
-      description: 'Fetch a page and return the main content as clean Markdown (no nav, ads, footer).',
+      description: 'Fetch a page and return its article content with clutter stripped (no nav, ads, footer, scripts). format: markdown (default), text, both (JSON), html (self-contained reader page), or pdf (typeset reading doc). html/pdf return raw bytes.',
       inputSchema: s('URL clean', {
         url: { type: 'string', format: 'uri' },
-        format: { type: 'string', enum: ['markdown', 'text', 'both'], default: 'markdown' },
+        format: { type: 'string', enum: ['markdown', 'text', 'both', 'html', 'pdf'], default: 'markdown' },
       }, ['url']),
       invoke: (a) => c.url.clean(a as never),
     },
