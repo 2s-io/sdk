@@ -415,6 +415,21 @@ export interface Endpoints {
       waitUntil?: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2'
       timeoutMs?: number
     }): R<UrlCleanResponse | Uint8Array>
+    /**
+     * Discover the URLs a page or sitemap points at in a single fetch — <loc>
+     * entries from an XML sitemap/sitemap-index, or <a href> links from an
+     * HTML page (auto-detected). Resolved-absolute, deduped, http(s)-only.
+     * Stateless, no JS, NOT a crawler — re-call on a child sitemap/page to go
+     * deeper. `limit` 1-2000 (default 200); `sameHostOnly` keeps same-host links.
+     */
+    map(input: { url: string; limit?: number; sameHostOnly?: boolean }): R<{
+      url: string
+      finalUrl: string
+      source: 'sitemap' | 'links'
+      count: number
+      capped: boolean
+      urls: string[]
+    }>
   }
   weather: {
     zip(input: { zip: string }): R<WeatherZipResponse>
@@ -873,6 +888,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       unfurl: (i) => get('url.unfurl', '/api/url/unfurl', i),
       clean: (i) => get('url.clean', '/api/url/clean', i),
       render: (i) => get('url.render', '/api/url/render', i),
+      map: (i) => get('url.map', '/api/url/map', i),
     },
     weather: {
       zip: (i) => get('weather.zip', '/api/weather/zip', i),

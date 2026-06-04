@@ -621,6 +621,28 @@ class _Url(_Group):
             q["timeoutMs"] = timeout_ms
         return self._c.request("GET", "/api/url/render", endpoint="url.render", query=q)
 
+    def map(
+        self,
+        *,
+        url: str,
+        limit: Optional[int] = None,
+        same_host_only: Optional[bool] = None,
+    ) -> CallResult:
+        """Discover the URLs a page or sitemap points at, in a single fetch.
+
+        <loc> entries from an XML sitemap/sitemap-index, or <a href> links from
+        an HTML page (auto-detected). Resolved-absolute, deduped, http(s)-only.
+        Stateless, no JS, NOT a recursive crawler — re-call on a child sitemap
+        or discovered page to go deeper. Server params: url, limit (1-2000),
+        sameHostOnly.
+        """
+        q: dict[str, Any] = {"url": url}
+        if limit is not None:
+            q["limit"] = limit
+        if same_host_only is not None:
+            q["sameHostOnly"] = "true" if same_host_only else "false"
+        return self._c.request("GET", "/api/url/map", endpoint="url.map", query=q)
+
 
 class _Wikipedia(_Group):
     def summary(self, *, title: str, lang: Optional[str] = None) -> CallResult:

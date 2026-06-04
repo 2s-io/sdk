@@ -492,6 +492,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.url.render(a as never),
     },
     {
+      name: 'url.map',
+      description: 'Discover the URLs a page or sitemap points at in a single fetch — <loc> entries from an XML sitemap/sitemap-index, or <a href> links from an HTML page (auto-detected). Resolved-absolute, deduped, http(s)-only. Stateless, no JS, NOT a recursive crawler — re-call on a child sitemap/page to go deeper. limit 1-2000 (default 200); sameHostOnly keeps same-host links.',
+      inputSchema: s('URL map', {
+        url: { type: 'string', format: 'uri' },
+        limit: { type: 'integer', minimum: 1, maximum: 2000, default: 200 },
+        sameHostOnly: { type: 'boolean', default: false },
+      }, ['url']),
+      invoke: (a) => c.url.map(a as never),
+    },
+    {
       name: 'wikipedia.summary',
       description: 'Wikipedia article summary with thumbnail URL.',
       inputSchema: s('Wikipedia summary', {
