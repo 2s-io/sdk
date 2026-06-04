@@ -277,6 +277,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
 
     // ── Airports / weather / geo ─────────────────────────────────────
     {
+      name: 'aircraft.lookup',
+      description: 'Look up a US-registered aircraft by tail number (N-number, e.g. N757F) or icao24 Mode-S hex (e.g. aa3487). Pass exactly one. Returns make/model/owner/operator + the icao24 that links to live ADS-B flight-tracking. ~307k US airframes (OpenSky, CC-BY-SA).',
+      inputSchema: s('Aircraft lookup', {
+        tail: { type: 'string', description: 'Tail / N-number (e.g. N757F).' },
+        icao24: { type: 'string', description: '24-bit Mode-S hex (e.g. aa3487).' },
+      }, []),
+      invoke: (a) => c.aircraft.lookup(a as never),
+    },
+    {
       name: 'airport.lookup',
       description: 'Look up an airport by IATA (3-letter) or ICAO (4-letter) code. ~85k airports (CC0 — OurAirports).',
       inputSchema: s('Airport lookup', {

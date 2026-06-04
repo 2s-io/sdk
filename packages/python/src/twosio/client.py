@@ -488,6 +488,22 @@ class _Geocode(_Group):
         return self._c.request("GET", "/api/geocode/reverse", endpoint="geocode.reverse", query={"lat": lat, "lon": lon})
 
 
+class _Aircraft(_Group):
+    def lookup(self, *, tail: Optional[str] = None, icao24: Optional[str] = None) -> CallResult:
+        """US-registered aircraft by tail (N-number) or icao24 Mode-S hex.
+
+        Pass exactly one of tail / icao24. Returns make/model/owner/operator
+        + the icao24 that links to live ADS-B flight-tracking. ~307k airframes
+        (OpenSky Network, CC-BY-SA).
+        """
+        q: dict[str, Any] = {}
+        if tail is not None:
+            q["tail"] = tail
+        if icao24 is not None:
+            q["icao24"] = icao24
+        return self._c.request("GET", "/api/aircraft/lookup", endpoint="aircraft.lookup", query=q)
+
+
 class _Airport(_Group):
     def lookup(self, *, code: str) -> CallResult:
         """Look up an airport by IATA (3-letter) or ICAO (4-letter) code."""
@@ -1954,6 +1970,7 @@ class TwoS:
         self.law = _Law(self)
         self.finance = _Finance(self)
         self.geocode = _Geocode(self)
+        self.aircraft = _Aircraft(self)
         self.airport = _Airport(self)
         self.weather = _Weather(self)
         self.dns = _Dns(self)

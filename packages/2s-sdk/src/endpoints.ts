@@ -87,6 +87,10 @@ export interface Endpoints {
       blockAds?: boolean
     }): R<AiScreenshotResponse>
   }
+  aircraft: {
+    /** US aircraft by tail (N-number) or icao24 Mode-S hex. Pass exactly one. */
+    lookup(input: { tail?: string; icao24?: string }): R<unknown>
+  }
   airport: {
     /** Look up by IATA (3-letter) or ICAO (4-letter) code. */
     lookup(input: { code: string }): R<AirportLookupResponse>
@@ -765,6 +769,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       extract: (i) => post('ai.extract', '/api/ai/extract', i),
       describeImage: (i) => post('ai.describe-image', '/api/ai/describe-image', i),
       screenshot: (i) => post('ai.screenshot', '/api/ai/screenshot', i),
+    },
+    aircraft: {
+      lookup: (i) => get('aircraft.lookup', '/api/aircraft/lookup', i),
     },
     airport: {
       lookup: (i) => get('airport.lookup', '/api/airport/lookup', i),
