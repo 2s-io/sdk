@@ -598,6 +598,29 @@ class _Url(_Group):
             q["format"] = format
         return self._c.request("GET", "/api/url/clean", endpoint="url.clean", query=q)
 
+    def render(
+        self,
+        *,
+        url: str,
+        format: Optional[str] = None,
+        wait_until: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+    ) -> CallResult:
+        """Like clean() but renders the page in a real headless browser (JS run).
+
+        For client-rendered / SPA pages where clean()'s raw fetch sees an empty
+        shell. Tier 2 (~10x clean()). Same formats. Server params: url, format,
+        waitUntil (load|domcontentloaded|networkidle0|networkidle2), timeoutMs.
+        """
+        q: dict[str, Any] = {"url": url}
+        if format is not None:
+            q["format"] = format
+        if wait_until is not None:
+            q["waitUntil"] = wait_until
+        if timeout_ms is not None:
+            q["timeoutMs"] = timeout_ms
+        return self._c.request("GET", "/api/url/render", endpoint="url.render", query=q)
+
 
 class _Wikipedia(_Group):
     def summary(self, *, title: str, lang: Optional[str] = None) -> CallResult:

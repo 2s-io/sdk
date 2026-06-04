@@ -403,6 +403,18 @@ export interface Endpoints {
      * self-contained reader page / typeset PDF respectively).
      */
     clean(input: { url: string; format?: 'markdown' | 'text' | 'both' | 'html' | 'pdf' }): R<UrlCleanResponse | Uint8Array>
+    /**
+     * Like {@link clean} but renders the page in a real headless browser (JS
+     * executed) — for client-rendered / SPA pages where `clean`'s raw fetch
+     * sees an empty shell. Tier 2 (~10× the price of clean). Same formats &
+     * return shape (JSON envelope, or `Uint8Array` for html/pdf).
+     */
+    render(input: {
+      url: string
+      format?: 'markdown' | 'text' | 'both' | 'html' | 'pdf'
+      waitUntil?: 'load' | 'domcontentloaded' | 'networkidle0' | 'networkidle2'
+      timeoutMs?: number
+    }): R<UrlCleanResponse | Uint8Array>
   }
   weather: {
     zip(input: { zip: string }): R<WeatherZipResponse>
@@ -860,6 +872,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     url: {
       unfurl: (i) => get('url.unfurl', '/api/url/unfurl', i),
       clean: (i) => get('url.clean', '/api/url/clean', i),
+      render: (i) => get('url.render', '/api/url/render', i),
     },
     weather: {
       zip: (i) => get('weather.zip', '/api/weather/zip', i),

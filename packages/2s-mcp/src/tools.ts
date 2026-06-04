@@ -481,6 +481,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.url.clean(a as never),
     },
     {
+      name: 'url.render',
+      description: 'Like url.clean but renders the page in a real headless browser (JS executed) — for client-rendered / SPA pages where a raw fetch sees an empty shell. Same formats (markdown/text/both/html/pdf). Tier 2 (~10× url.clean). Use url.clean for server-rendered pages.',
+      inputSchema: s('URL render', {
+        url: { type: 'string', format: 'uri' },
+        format: { type: 'string', enum: ['markdown', 'text', 'both', 'html', 'pdf'], default: 'markdown' },
+        waitUntil: { type: 'string', enum: ['load', 'domcontentloaded', 'networkidle0', 'networkidle2'], default: 'networkidle2' },
+        timeoutMs: { type: 'integer', minimum: 1000, maximum: 15000, default: 12000 },
+      }, ['url']),
+      invoke: (a) => c.url.render(a as never),
+    },
+    {
       name: 'wikipedia.summary',
       description: 'Wikipedia article summary with thumbnail URL.',
       inputSchema: s('Wikipedia summary', {
