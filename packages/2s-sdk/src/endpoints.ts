@@ -382,6 +382,10 @@ export interface Endpoints {
   tides: {
     now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<TidesNowResponse>
   }
+  medical: {
+    /** Verify an ICD-10-CM diagnosis code or keyword-search the official US code set. */
+    icd10(input: { code?: string; q?: string; billable_only?: boolean; limit?: number }): R<unknown>
+  }
   timezone: {
     /** Resolve a coordinate to its IANA timezone + current local wall time. */
     lookup(input: { lat: number; lon: number; at?: string }): R<unknown>
@@ -833,6 +837,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     tides: {
       now: (i) => get('tides.now', '/api/tides/now', i),
+    },
+    medical: {
+      icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
     },
     timezone: {
       lookup: (i) => get('timezone.lookup', '/api/timezone/lookup', i),

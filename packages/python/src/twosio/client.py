@@ -691,6 +691,35 @@ class _Tides(_Group):
         return self._c.request("GET", "/api/tides/now", endpoint="tides.now", query=q)
 
 
+class _Medical(_Group):
+    def icd10(
+        self,
+        *,
+        code: Optional[str] = None,
+        q: Optional[str] = None,
+        billable_only: Optional[bool] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Verify an ICD-10-CM diagnosis code or keyword-search the official US set.
+
+        Provide exactly one of code (e.g. "E11.9" or "E119" — verifies the
+        code and lists more-specific child codes) or q (keyword search over
+        official descriptions). billable_only restricts results to codes
+        valid for claim submission; limit caps results (1-50, default 10).
+        CMS/NCHS public-domain data, refreshed each US fiscal year.
+        """
+        query: dict[str, Any] = {}
+        if code is not None:
+            query["code"] = code
+        if q is not None:
+            query["q"] = q
+        if billable_only is not None:
+            query["billable_only"] = billable_only
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/medical/icd10", endpoint="medical.icd10", query=query)
+
+
 class _Timezone(_Group):
     def lookup(
         self,
@@ -1936,6 +1965,7 @@ class TwoS:
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)
+        self.medical = _Medical(self)
         self.timezone = _Timezone(self)
         self.earth = _Earth(self)
         self.climate = _Climate(self)

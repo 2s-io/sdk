@@ -330,6 +330,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.tides.now(a as never),
     },
     {
+      name: 'medical.icd10',
+      description: 'Verify an ICD-10-CM diagnosis code (with or without the dot, e.g. E11.9) or keyword-search the official US code set (FY2026, ~98k entries). Returns a verified flag, the exact match, more-specific child codes, billable status, and short/long descriptions. CMS/NCHS public-domain data, refreshed each US fiscal year. Provide exactly one of code or q.',
+      inputSchema: s('ICD-10-CM verify/search', {
+        code: { type: 'string', description: 'ICD-10-CM code to verify, e.g. E11.9 or E119. Provide code or q, not both.' },
+        q: { type: 'string', description: 'Keyword search over official code descriptions, e.g. "type 2 diabetes neuropathy".' },
+        billable_only: { type: 'boolean', description: 'When true, only codes valid for claim submission.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, []),
+      invoke: (a) => c.medical.icd10(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {
