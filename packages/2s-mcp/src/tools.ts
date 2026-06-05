@@ -253,6 +253,22 @@ export function buildToolList(c: TwoS): ToolDef[] {
       inputSchema: s('Exoplanet system', { hostStar: { type: 'string', description: 'Host star name.' } }, ['hostStar']),
       invoke: (a) => c.space.system(a as never),
     },
+    {
+      name: 'space.observe',
+      description: 'Where is an asteroid/comet in the sky and can you see it? Propagates JPL orbital elements (validated vs Horizons to <0.1 arcmin) to give geocentric RA/Dec, constellation, distance, phase angle, and apparent magnitude. With observer lat/lon: altitude/azimuth, visible-now flag, and the best dark-sky viewing window in the next 24h.',
+      inputSchema: s('Observe body', {
+        body: { type: 'string', description: 'Asteroid/comet designation, number, or name.' },
+        lat: { type: 'number', minimum: -90, maximum: 90 }, lon: { type: 'number', minimum: -180, maximum: 180 },
+        altKm: { type: 'number' }, at: { type: 'string', format: 'date-time' },
+      }, ['body']),
+      invoke: (a) => c.space.observe(a as never),
+    },
+    {
+      name: 'bio.protein',
+      description: 'Full UniProtKB protein entry by accession (e.g. P04637): names, gene, organism, sequence length + molecular weight, function, subcellular locations, GO terms, PDB structures, keywords. Protein-centric sibling to bio.gene.',
+      inputSchema: s('Protein', { accession: { type: 'string', description: 'UniProtKB accession, e.g. "P04637".' } }, ['accession']),
+      invoke: (a) => c.bio.protein(a as never),
+    },
     // ── Law ──────────────────────────────────────────────────────────
     {
       name: 'law.docket-search',

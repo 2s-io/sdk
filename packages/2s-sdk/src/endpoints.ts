@@ -482,12 +482,16 @@ export interface Endpoints {
     skywatch(input: { lat: number; lon: number; altitudeM?: number }): R<unknown>
     /** Synthesis: a host star's planetary system + computed habitable zone. */
     system(input: { hostStar: string }): R<unknown>
+    /** Where is an asteroid/comet in the sky + can you see it tonight (computed ephemeris). */
+    observe(input: { body: string; lat?: number; lon?: number; altKm?: number; at?: string }): R<unknown>
   }
   bio: {
     /** Resolve a species to the GBIF taxonomic backbone (lineage, vernacular, occurrences). */
     species(input: { name: string }): R<unknown>
     /** Gene identity (NCBI) joined with its reviewed protein (UniProt). */
     gene(input: { symbol: string; taxid?: number }): R<unknown>
+    /** Full UniProtKB protein entry by accession (function, GO, PDB, subcellular). */
+    protein(input: { accession: string }): R<unknown>
   }
   vehicle: {
     /** Vehicle 360 by VIN — decode + this vehicle's recalls + complaints merged in one call. */
@@ -970,10 +974,12 @@ export function createEndpoints(client: TwoS): Endpoints {
       exoplanet: (i) => get('space.exoplanet', '/api/space/exoplanet', i ?? {}),
       skywatch: (i) => get('space.skywatch', '/api/space/skywatch', i),
       system: (i) => get('space.system', '/api/space/system', i),
+      observe: (i) => get('space.observe', '/api/space/observe', i),
     },
     bio: {
       species: (i) => get('bio.species', '/api/bio/species', i),
       gene: (i) => get('bio.gene', '/api/bio/gene', i),
+      protein: (i) => get('bio.protein', '/api/bio/protein', i),
     },
     vehicle: {
       vinDecode: (i) => get('vehicle.vin-decode', '/api/vehicle/vin-decode', i),

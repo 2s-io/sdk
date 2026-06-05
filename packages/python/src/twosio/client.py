@@ -1096,6 +1096,10 @@ class _Bio(_Group):
             q["taxid"] = taxid
         return self._c.request("GET", "/api/bio/gene", endpoint="bio.gene", query=q)
 
+    def protein(self, *, accession: str) -> CallResult:
+        """Full UniProtKB protein entry by accession. Param: accession."""
+        return self._c.request("GET", "/api/bio/protein", endpoint="bio.protein", query={"accession": accession})
+
 
 class _Space(_Group):
     def weather(self) -> CallResult:
@@ -1174,6 +1178,18 @@ class _Space(_Group):
     def system(self, *, host_star: str) -> CallResult:
         """Synthesis: a host star's planetary system + computed habitable zone. Param: hostStar."""
         return self._c.request("GET", "/api/space/system", endpoint="space.system", query={"hostStar": host_star})
+
+    def observe(
+        self, *, body: str, lat: Optional[float] = None, lon: Optional[float] = None,
+        alt_km: Optional[float] = None, at: Optional[str] = None,
+    ) -> CallResult:
+        """Asteroid/comet sky position + observability (computed). Params: body, lat, lon, altKm, at."""
+        q: dict[str, Any] = {"body": body}
+        if lat is not None: q["lat"] = lat
+        if lon is not None: q["lon"] = lon
+        if alt_km is not None: q["altKm"] = alt_km
+        if at is not None: q["at"] = at
+        return self._c.request("GET", "/api/space/observe", endpoint="space.observe", query=q)
 
 
 class _Vehicle(_Group):
