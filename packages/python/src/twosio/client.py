@@ -910,6 +910,26 @@ class _Tides(_Group):
 
 
 class _Medical(_Group):
+    def rxnorm(
+        self,
+        *,
+        term: Optional[str] = None,
+        rxcui: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Normalize/verify drug names against RxNorm (NIH).
+
+        Exactly one of term (free text, ranked candidates) or rxcui
+        (canonical concept + ingredients/brands/dose forms).
+        """
+        if (term is None) == (rxcui is None):
+            raise ValueError("rxnorm() requires exactly one of term or rxcui.")
+        q: dict[str, Any] = {}
+        if term is not None: q["term"] = term
+        if rxcui is not None: q["rxcui"] = rxcui
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/rxnorm", endpoint="medical.rxnorm", query=q)
+
     def icd10(
         self,
         *,
@@ -2663,6 +2683,25 @@ class _Transcribe(_Group):
 
 
 class _Nonprofit(_Group):
+    def screen(
+        self,
+        *,
+        q: Optional[str] = None,
+        ein: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Nonprofit lookup + per-org OFAC sanctions screen.
+
+        Exactly one of q (name search) or ein (9 digits).
+        """
+        if (q is None) == (ein is None):
+            raise ValueError("screen() requires exactly one of q or ein.")
+        query: dict[str, Any] = {}
+        if q is not None: query["q"] = q
+        if ein is not None: query["ein"] = ein
+        if limit is not None: query["limit"] = limit
+        return self._c.request("GET", "/api/nonprofit/screen", endpoint="nonprofit.screen", query=query)
+
     def search(
         self,
         *,

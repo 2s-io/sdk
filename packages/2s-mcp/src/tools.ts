@@ -678,6 +678,28 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['lat', 'lon']),
       invoke: (a) => c.geo.nearby(a as never),
     },
+    {
+      name: 'medical.rxnorm',
+      description:
+        'Normalize and verify drug names against RxNorm, the canonical US drug vocabulary (NIH). term="tylenol 500mg" returns ranked RxCUI candidates with normalized names (typos tolerated); rxcui=… returns the canonical concept plus related ingredients, brand names, and dose forms. Verify drugs exist and get stable identifiers instead of trusting model memory. Sibling of medical.icd10.',
+      inputSchema: s('RxNorm lookup', {
+        term: { type: 'string', minLength: 2, maxLength: 200, description: 'Free-text drug name (XOR with rxcui).' },
+        rxcui: { type: 'string', description: 'RxNorm concept id (XOR with term).' },
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      }),
+      invoke: (a) => c.medical.rxnorm(a as never),
+    },
+    {
+      name: 'nonprofit.screen',
+      description:
+        'Look up US 501(c) nonprofits and screen each against the OFAC sanctions list in one call: registry record (EIN, name, location, NTEE) + per-org sanctions block (flagged, match count, SDN matches with confidence). Grant-making due diligence and donation compliance.',
+      inputSchema: s('Nonprofit screen', {
+        q: { type: 'string', minLength: 2, maxLength: 120, description: 'Organization name (XOR with ein).' },
+        ein: { type: 'string', description: '9-digit EIN (XOR with q).' },
+        limit: { type: 'integer', minimum: 1, maximum: 10, default: 5 },
+      }),
+      invoke: (a) => c.nonprofit.screen(a as never),
+    },
 
     // ── Finance (SEC EDGAR) ──────────────────────────────────────────
     {

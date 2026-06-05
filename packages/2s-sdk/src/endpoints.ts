@@ -16,11 +16,6 @@ import type {
   AiExtractResponse,
   AiDescribeImageResponse,
   AiScreenshotResponse,
-  LawCaseSearchResponse,
-  LawCaseVerifyResponse,
-  LawSanctionsCheckResponse,
-  LawFederalRegisterResponse,
-  LawOpinionResponse,
   AirportLookupResponse,
   AirportNearResponse,
   WeatherZipResponse,
@@ -42,15 +37,23 @@ import type {
   IpinfoBulkResponse,
   HashComputeResponse,
   AccountBalanceResponse,
-  FinanceSecFilingsResponse,
-  FinanceCompanyFactsResponse,
-  FinanceInsiderTradesResponse,
-  FinanceThirteenFResponse,
-  LawAttorneyLookupResponse,
-  LawJudgeLookupResponse,
 } from './types.js'
 
 type R<T> = Promise<CallResult<T>>
+
+/**
+ * Catalog-wide normalized response envelope (migration in progress —
+ * endpoints advertising `responseShape: 'normalized'` in /api/directory
+ * return this shape; legacy endpoints keep their per-endpoint shapes).
+ */
+export interface Normalized<T = Record<string, unknown>, M = Record<string, unknown>> {
+  ok: true
+  items: T[]
+  total: number | null
+  page?: { number: number; size: number; pages: number | null }
+  source: { provider: string; url: string; license: string }
+  meta?: M
+}
 
 export interface Endpoints {
   account: {
@@ -188,25 +191,25 @@ export interface Endpoints {
       ticker: string
       formType?: string
       limit?: number
-    }): R<FinanceSecFilingsResponse>
+    }): R<Normalized>
     /** Curated XBRL financial metrics (revenue, net income, EPS, etc.) by ticker. */
     companyFacts(input: {
       ticker: string
       metrics?: string
       annualLimit?: number
       quarterlyLimit?: number
-    }): R<FinanceCompanyFactsResponse>
+    }): R<Normalized>
     /** Recent SEC Form 4 insider transactions by ticker. */
     insiderTrades(input: {
       ticker: string
       limit?: number
-    }): R<FinanceInsiderTradesResponse>
+    }): R<Normalized>
     /** Parsed institutional holdings (13F-HR) for an investment manager by CIK. */
     thirteenF(input: {
       managerCik: string
       formType?: string
       limit?: number
-    }): R<FinanceThirteenFResponse>
+    }): R<Normalized>
     /** Company 360 by ticker — SEC filings + XBRL fundamentals + insider trades merged in one call. */
     companyProfile(input: { ticker: string; formType?: string; limit?: number }): R<unknown>
   }
@@ -267,16 +270,16 @@ export interface Endpoints {
       filedBefore?: string
       order?: 'relevance' | 'dateFiled-desc' | 'dateFiled-asc' | 'citeCount-desc'
       limit?: number
-    }): R<LawCaseSearchResponse>
+    }): R<Normalized>
     /** POST { text } — finds + verifies citations inside a passage. */
-    caseVerify(input: { text: string }): R<LawCaseVerifyResponse>
+    caseVerify(input: { text: string }): R<Normalized>
     /** POST { query, threshold?, limit?, sourceList? } — OFAC SDN fuzzy match. */
     sanctionsCheck(input: {
       query: string
       threshold?: number
       limit?: number
       sourceList?: string
-    }): R<LawSanctionsCheckResponse>
+    }): R<Normalized>
     /** Server params: q, type (RULE|PRORULE|NOTICE|PRESDOCU), agency (slug), since/until (yyyy-mm-dd), limit. */
     federalRegister(input: {
       q: string
@@ -285,22 +288,22 @@ export interface Endpoints {
       since?: string
       until?: string
       limit?: number
-    }): R<LawFederalRegisterResponse>
+    }): R<Normalized>
     /** Full text of a CFR section by title (1-50) + section ("1026.43"); optional point-in-time date (yyyy-mm-dd, back to 2017). */
     cfrSection(input: { title: number; section: string; date?: string }): R<unknown>
     /** POST — supply exactly one of `opinionId` or `citation`. */
-    opinion(input: { opinionId: number } | { citation: string }): R<LawOpinionResponse>
+    opinion(input: { opinionId: number } | { citation: string }): R<Normalized>
     /** CourtListener attorney search by name and/or firm. */
     attorneyLookup(input: {
       name?: string
       firmName?: string
       limit?: number
-    }): R<LawAttorneyLookupResponse>
+    }): R<Normalized>
     /** CourtListener federal judge lookup by name. */
     judgeLookup(input: {
       name: string
       limit?: number
-    }): R<LawJudgeLookupResponse>
+    }): R<Normalized>
     /** Full current text of a US Code section by title (1-54) + section ("107", "1395w-4"). */
     uscSection(input: { title: number; section: string; includeNotes?: boolean }): R<unknown>
     /** US trademark status by 8-digit serial number OR registration number (exactly one). */
@@ -475,6 +478,8 @@ export interface Endpoints {
   medical: {
     /** Verify an ICD-10-CM diagnosis code or keyword-search the official US code set. */
     icd10(input: { code?: string; q?: string; billable_only?: boolean; limit?: number }): R<unknown>
+    /** Normalize/verify drug names against RxNorm: term=… for candidates, rxcui=… for canonical concept + ingredients/brands/dose forms. */
+    rxnorm(input: { term?: string; rxcui?: string; limit?: number }): R<unknown>
   }
   timezone: {
     /** Resolve a coordinate to its IANA timezone + current local wall time. */
@@ -776,6 +781,8 @@ export interface Endpoints {
       subsectionCode?: number
       page?: number
     }): R<unknown>
+    /** Nonprofit lookup + OFAC sanctions screen per organization in one call. */
+    screen(input: { q?: string; ein?: string; limit?: number }): R<unknown>
   }
   gov: {
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
@@ -1039,6 +1046,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     medical: {
       icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
+      rxnorm: (i) => get('medical.rxnorm', '/api/medical/rxnorm', i),
     },
     timezone: {
       lookup: (i) => get('timezone.lookup', '/api/timezone/lookup', i),
@@ -1177,6 +1185,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     nonprofit: {
       search: (i) => get('nonprofit.search', '/api/nonprofit/search', i),
+      screen: (i) => get('nonprofit.screen', '/api/nonprofit/screen', i),
     },
     gov: {
       congressBill: (i) => get('gov.congress-bill', '/api/gov/congress-bill', i ?? {}),
