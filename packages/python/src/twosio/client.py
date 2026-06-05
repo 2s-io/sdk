@@ -1164,6 +1164,17 @@ class _Space(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/space/exoplanet", endpoint="space.exoplanet", query=q)
 
+    def skywatch(self, *, lat: float, lon: float, altitude_m: Optional[float] = None) -> CallResult:
+        """Synthesis: what's notable in your sky now — almanac + close approaches + ISS. Params: lat, lon, altitudeM."""
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if altitude_m is not None:
+            q["altitudeM"] = altitude_m
+        return self._c.request("GET", "/api/space/skywatch", endpoint="space.skywatch", query=q)
+
+    def system(self, *, host_star: str) -> CallResult:
+        """Synthesis: a host star's planetary system + computed habitable zone. Param: hostStar."""
+        return self._c.request("GET", "/api/space/system", endpoint="space.system", query={"hostStar": host_star})
+
 
 class _Vehicle(_Group):
     def profile(

@@ -478,6 +478,10 @@ export interface Endpoints {
     skyTonight(input: { lat: number; lon: number; altitudeM?: number; at?: string }): R<unknown>
     /** Confirmed exoplanets from the NASA Exoplanet Archive. */
     exoplanet(input?: { name?: string; hostStar?: string; discoveryYear?: number; method?: string; limit?: number }): R<unknown>
+    /** Synthesis: what's notable in your sky now — almanac + close approaches + ISS. */
+    skywatch(input: { lat: number; lon: number; altitudeM?: number }): R<unknown>
+    /** Synthesis: a host star's planetary system + computed habitable zone. */
+    system(input: { hostStar: string }): R<unknown>
   }
   bio: {
     /** Resolve a species to the GBIF taxonomic backbone (lineage, vernacular, occurrences). */
@@ -964,6 +968,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       launches: (i) => get('space.launches', '/api/space/launches', i ?? {}),
       skyTonight: (i) => get('space.sky-tonight', '/api/space/sky-tonight', i),
       exoplanet: (i) => get('space.exoplanet', '/api/space/exoplanet', i ?? {}),
+      skywatch: (i) => get('space.skywatch', '/api/space/skywatch', i),
+      system: (i) => get('space.system', '/api/space/system', i),
     },
     bio: {
       species: (i) => get('bio.species', '/api/bio/species', i),

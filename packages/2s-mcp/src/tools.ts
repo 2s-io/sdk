@@ -238,6 +238,21 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['symbol']),
       invoke: (a) => c.bio.gene(a as never),
     },
+    {
+      name: 'space.skywatch',
+      description: 'Synthesis — what is notable in YOUR sky right now (lat/lon): the live almanac (sun, moon phase, planets above your horizon), near-Earth asteroid close approaches this week, and the ISS (position + whether it is above your horizon now). One call, three sources, per-section found/error.',
+      inputSchema: s('Skywatch', {
+        lat: { type: 'number', minimum: -90, maximum: 90 }, lon: { type: 'number', minimum: -180, maximum: 180 },
+        altitudeM: { type: 'number' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.space.skywatch(a as never),
+    },
+    {
+      name: 'space.system',
+      description: 'Synthesis — profile a confirmed exoplanetary system by host-star name (e.g. "TRAPPIST-1"). Groups the star\'s planets, summarizes the host star, and COMPUTES the habitable zone (inner/outer AU from stellar luminosity), flagging which planets fall in it.',
+      inputSchema: s('Exoplanet system', { hostStar: { type: 'string', description: 'Host star name.' } }, ['hostStar']),
+      invoke: (a) => c.space.system(a as never),
+    },
     // ── Law ──────────────────────────────────────────────────────────
     {
       name: 'law.docket-search',
