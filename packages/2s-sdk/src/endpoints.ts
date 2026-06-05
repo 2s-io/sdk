@@ -90,6 +90,8 @@ export interface Endpoints {
   aircraft: {
     /** US aircraft by tail (N-number) or icao24 Mode-S hex. Pass exactly one. */
     lookup(input: { tail?: string; icao24?: string }): R<unknown>
+    /** Aircraft identity + OFAC sanctions screen of owner/operator in one call. */
+    profile(input: { tail?: string; icao24?: string; threshold?: number }): R<unknown>
   }
   airport: {
     /** Look up by IATA (3-letter) or ICAO (4-letter) code. */
@@ -140,6 +142,8 @@ export interface Endpoints {
       address: string
     }): R<CryptoAddressValidateResponse>
     gasOracle(input?: { chain?: string }): R<CryptoGasOracleResponse>
+    /** ENS forward + reverse resolution on Ethereum mainnet (live RPC). */
+    ensResolve(input: { query: string }): R<unknown>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -228,9 +232,19 @@ export interface Endpoints {
   ipinfo: {
     bulk(input: { ips: string[] }): R<IpinfoBulkResponse>
   }
+  html: {
+    /** Convert caller-supplied HTML to clean reading markdown (POST, no fetch). */
+    toMarkdown(input: { html: string }): R<unknown>
+  }
+  tls: {
+    /** Live TLS handshake → server certificate detail (issuer, validity, SANs, fingerprint). */
+    certInfo(input: { host: string; port?: number }): R<unknown>
+  }
   business: {
     /** State Secretary-of-State business registry search, normalized (NY, CO). */
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
+    /** Registry lookup + OFAC sanctions screen of the entity + its agent in one call. */
+    entityScreen(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; threshold?: number; limit?: number }): R<unknown>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -855,6 +869,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     aircraft: {
       lookup: (i) => get('aircraft.lookup', '/api/aircraft/lookup', i),
+      profile: (i) => get('aircraft.profile', '/api/aircraft/profile', i),
     },
     airport: {
       lookup: (i) => get('airport.lookup', '/api/airport/lookup', i),
@@ -875,6 +890,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     crypto: {
       addressValidate: (i) => get('crypto.address-validate', '/api/crypto/address-validate', i),
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
+      ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),
@@ -911,6 +927,13 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     business: {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
+      entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
+    },
+    html: {
+      toMarkdown: (i) => post('html.to-markdown', '/api/html/to-markdown', i),
+    },
+    tls: {
+      certInfo: (i) => get('tls.cert-info', '/api/tls/cert-info', i),
     },
     law: {
       docketSearch: (i) => get('law.docket-search', '/api/law/docket-search', i),

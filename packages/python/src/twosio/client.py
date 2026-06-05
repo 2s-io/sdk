@@ -100,6 +100,11 @@ class _Patents(_Group):
 
 
 class _Crypto(_Group):
+
+    def ens_resolve(self, *, query: str) -> CallResult:
+        """ENS forward+reverse resolution on Ethereum mainnet (live RPC). Param: query."""
+        return self._c.request("GET", "/api/crypto/ens-resolve", endpoint="crypto.ens-resolve", query={"query": query})
+
     def address_validate(self, *, chain: str, address: str) -> CallResult:
         return self._c.request(
             "GET", "/api/crypto/address-validate",
@@ -554,6 +559,17 @@ class _Geocode(_Group):
 
 
 class _Aircraft(_Group):
+
+    def profile(
+        self, *, tail: Optional[str] = None, icao24: Optional[str] = None, threshold: Optional[float] = None,
+    ) -> CallResult:
+        """Aircraft identity + OFAC sanctions screen of owner/operator. Params: tail, icao24, threshold."""
+        q: dict[str, Any] = {}
+        if tail is not None: q["tail"] = tail
+        if icao24 is not None: q["icao24"] = icao24
+        if threshold is not None: q["threshold"] = threshold
+        return self._c.request("GET", "/api/aircraft/profile", endpoint="aircraft.profile", query=q)
+
     def lookup(self, *, tail: Optional[str] = None, icao24: Optional[str] = None) -> CallResult:
         """US-registered aircraft by tail (N-number) or icao24 Mode-S hex.
 
@@ -1279,7 +1295,36 @@ class _Vehicle(_Group):
 
 
 
+
+class _Html(_Group):
+    def to_markdown(self, *, html: str) -> CallResult:
+        """Convert supplied HTML to clean reading markdown (no fetch). Param: html."""
+        return self._c.request("POST", "/api/html/to-markdown", endpoint="html.to-markdown", body={"html": html})
+
+
+class _Tls(_Group):
+    def cert_info(self, *, host: str, port: Optional[int] = None) -> CallResult:
+        """Live TLS handshake -> server certificate detail. Params: host, port."""
+        q: dict[str, Any] = {"host": host}
+        if port is not None:
+            q["port"] = port
+        return self._c.request("GET", "/api/tls/cert-info", endpoint="tls.cert-info", query=q)
+
+
 class _Business(_Group):
+
+    def entity_screen(
+        self, *, state: str, name: Optional[str] = None, entity_id: Optional[str] = None,
+        threshold: Optional[float] = None, limit: Optional[int] = None,
+    ) -> CallResult:
+        """Registry lookup + OFAC sanctions screen of entity + agent. Params: state, name, entityId, threshold, limit."""
+        q: dict[str, Any] = {"state": state}
+        if name is not None: q["name"] = name
+        if entity_id is not None: q["entityId"] = entity_id
+        if threshold is not None: q["threshold"] = threshold
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/business/entity-screen", endpoint="business.entity-screen", query=q)
+
     def sos_search(
         self,
         *,
@@ -2506,6 +2551,8 @@ class TwoS:
         self.bio = _Bio(self)
         self.space = _Space(self)
         self.vehicle = _Vehicle(self)
+        self.html = _Html(self)
+        self.tls = _Tls(self)
         self.business = _Business(self)
         self.gov = _Gov(self)
         self.agent = _Agent(self)

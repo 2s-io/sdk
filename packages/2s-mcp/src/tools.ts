@@ -269,6 +269,48 @@ export function buildToolList(c: TwoS): ToolDef[] {
       inputSchema: s('Protein', { accession: { type: 'string', description: 'UniProtKB accession, e.g. "P04637".' } }, ['accession']),
       invoke: (a) => c.bio.protein(a as never),
     },
+    {
+      name: 'aircraft.profile',
+      description: 'Identify a US-registered aircraft by tail (N-number) or icao24, AND screen its owner + operator against OFAC sanctions in one call. Returns the aircraft record + per-name sanctions screen with confidence + flagged. OSINT / asset-tracing / sanctions-evasion. Name-based screening is probabilistic.',
+      inputSchema: s('Aircraft profile', {
+        tail: { type: 'string', description: 'Tail / N-number.' },
+        icao24: { type: 'string', description: '24-bit Mode-S hex.' },
+        threshold: { type: 'number', minimum: 0.1, maximum: 1, default: 0.5 },
+      }),
+      invoke: (a) => c.aircraft.profile(a as never),
+    },
+    {
+      name: 'business.entity-screen',
+      description: 'KYC in one call: look up a business in a US state registry (NY/CO/CT) AND screen it + its registered agent against OFAC sanctions. Returns matched entities each with a sanctions screen (confidence + flagged). Counterparty due-diligence, AML. Probabilistic name match.',
+      inputSchema: s('Entity screen', {
+        state: { type: 'string', enum: ['NY', 'CO', 'CT'] },
+        name: { type: 'string' }, entityId: { type: 'string' },
+        threshold: { type: 'number', minimum: 0.1, maximum: 1, default: 0.5 },
+        limit: { type: 'integer', minimum: 1, maximum: 10, default: 5 },
+      }, ['state']),
+      invoke: (a) => c.business.entityScreen(a as never),
+    },
+    {
+      name: 'crypto.ens-resolve',
+      description: 'Resolve ENS live on Ethereum mainnet: pass an ENS name (e.g. "vitalik.eth") to get its address, or a 0x address to get its primary ENS name (reverse). Also returns avatar, email, url, twitter, github, description text records. On-chain lookup agents can\'t do from a sandbox.',
+      inputSchema: s('ENS resolve', { query: { type: 'string', description: 'ENS name or 0x address.' } }, ['query']),
+      invoke: (a) => c.crypto.ensResolve(a as never),
+    },
+    {
+      name: 'html.to-markdown',
+      description: 'Convert raw HTML you already have into clean reading markdown (no URL fetch). POST { html }. Strips scripts/nav/ads, extracts main content, preserves headings/links/lists. For fetching a live URL use url.clean instead.',
+      inputSchema: s('HTML to markdown', { html: { type: 'string', description: 'Raw HTML (<=2MB).' } }, ['html']),
+      invoke: (a) => c.html.toMarkdown(a as never),
+    },
+    {
+      name: 'tls.cert-info',
+      description: 'Open a live TLS connection to a host and return its certificate: protocol + cipher, chain validity, leaf subject + issuer, valid-from/to, days-until-expiry, serial, SHA-256 fingerprint, SANs, chain length. Active probe; SSRF-guarded. Cert-expiry monitoring, TLS audits.',
+      inputSchema: s('TLS cert info', {
+        host: { type: 'string', description: 'Hostname or IP.' },
+        port: { type: 'integer', minimum: 1, maximum: 65535, default: 443 },
+      }, ['host']),
+      invoke: (a) => c.tls.certInfo(a as never),
+    },
     // ── Law ──────────────────────────────────────────────────────────
     {
       name: 'law.docket-search',
