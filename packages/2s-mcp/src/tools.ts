@@ -141,6 +141,33 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.ai.screenshot(a as never),
     },
 
+    {
+      name: 'health.provider-profile',
+      description: 'Provider 360 by NPI — merges NPPES identity (name, specialty, address, licenses) + CMS Open Payments (industry payments) + CMS Medicare billing in one call. Each section reports found/error independently. KYC, healthcare-fraud, provider due diligence.',
+      inputSchema: s('Provider profile', {
+        npi: { type: 'string', description: '10-digit National Provider Identifier.' },
+      }, ['npi']),
+      invoke: (a) => c.health.providerProfile(a as never),
+    },
+    {
+      name: 'vehicle.profile',
+      description: 'Vehicle 360 by VIN — decodes the VIN (make/model/year/trim/engine, NHTSA vPIC) then returns THAT vehicle\'s open safety recalls and owner complaints, keyed to the decoded make/model/year. Used-car due diligence, fleet safety, insurance.',
+      inputSchema: s('Vehicle profile', {
+        vin: { type: 'string', description: '17-character Vehicle Identification Number.' },
+        modelYear: { type: 'integer', minimum: 1949, maximum: 2099, description: 'Optional — disambiguates older VINs.' },
+      }, ['vin']),
+      invoke: (a) => c.vehicle.profile(a as never),
+    },
+    {
+      name: 'finance.company-profile',
+      description: 'Company 360 by ticker — merges recent SEC filings + curated XBRL fundamentals (revenue, net income, EPS, assets) + recent insider (Form 4) transactions in one call. Equity research, due diligence, monitoring.',
+      inputSchema: s('Company profile', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        formType: { type: 'string', description: 'Optional filings filter, e.g. "10-K".' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['ticker']),
+      invoke: (a) => c.finance.companyProfile(a as never),
+    },
     // ── Law ──────────────────────────────────────────────────────────
     {
       name: 'law.docket-search',

@@ -399,6 +399,24 @@ class _Law(_Group):
 
 
 class _Finance(_Group):
+    def company_profile(
+        self,
+        *,
+        ticker: str,
+        form_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Company 360 by ticker — SEC filings + XBRL fundamentals + insider trades, merged.
+
+        Server params: ticker, formType, limit.
+        """
+        q: dict[str, Any] = {"ticker": ticker}
+        if form_type is not None:
+            q["formType"] = form_type
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/finance/company-profile", endpoint="finance.company-profile", query=q)
+
     def sec_filings(
         self,
         *,
@@ -1054,6 +1072,21 @@ class _Space(_Group):
 
 
 class _Vehicle(_Group):
+    def profile(
+        self,
+        *,
+        vin: str,
+        model_year: Optional[int] = None,
+    ) -> CallResult:
+        """Vehicle 360 by VIN — decode + this vehicle's recalls + complaints, merged.
+
+        Server params: vin (17 chars), modelYear.
+        """
+        q: dict[str, Any] = {"vin": vin}
+        if model_year is not None:
+            q["modelYear"] = model_year
+        return self._c.request("GET", "/api/vehicle/profile", endpoint="vehicle.profile", query=q)
+
     def vin_decode(self, *, vin: str, model_year: Optional[int] = None) -> CallResult:
         """Decode a 17-char VIN via NHTSA vPIC."""
         q: dict[str, Any] = {"vin": vin}
@@ -1731,6 +1764,13 @@ class _License(_Group):
 
 
 class _Health(_Group):
+    def provider_profile(self, *, npi: str) -> CallResult:
+        """Provider 360 by NPI — NPPES identity + Open Payments + Medicare billing, merged.
+
+        Server param: npi (10 digits).
+        """
+        return self._c.request("GET", "/api/health/provider-profile", endpoint="health.provider-profile", query={"npi": npi})
+
     def hospital_quality(
         self,
         *,

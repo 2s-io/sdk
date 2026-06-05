@@ -194,6 +194,8 @@ export interface Endpoints {
       formType?: string
       limit?: number
     }): R<FinanceThirteenFResponse>
+    /** Company 360 by ticker — SEC filings + XBRL fundamentals + insider trades merged in one call. */
+    companyProfile(input: { ticker: string; formType?: string; limit?: number }): R<unknown>
   }
   geo: {
     ip(input: { ip: string }): R<GeoIpResponse>
@@ -464,6 +466,8 @@ export interface Endpoints {
     weather(input?: Record<string, never>): R<unknown>
   }
   vehicle: {
+    /** Vehicle 360 by VIN — decode + this vehicle's recalls + complaints merged in one call. */
+    profile(input: { vin: string; modelYear?: number }): R<unknown>
     /** Decode a VIN via NHTSA vPIC. */
     vinDecode(input: { vin: string; modelYear?: number }): R<unknown>
     /** NHTSA recall lookup by VIN, by make/model/year, or by campaign ID. */
@@ -609,6 +613,8 @@ export interface Endpoints {
     medicareProvider(input: { npi?: string; lastName?: string; state?: string; limit?: number; offset?: number }): R<unknown>
     /** US mortality statistics (CDC NCHS: leading causes 1999-2017, weekly counts 2020-2023). */
     mortalityStats(input?: { dataset?: 'leading-causes' | 'weekly-counts'; state?: string; year?: number; cause?: string; limit?: number; offset?: number }): R<unknown>
+    /** Provider 360 by NPI — NPPES identity + Open Payments + Medicare billing merged in one call. */
+    providerProfile(input: { npi: string }): R<unknown>
   }
   worldbank: {
     /** World Bank Open Data indicator time series. */
@@ -857,6 +863,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
       thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
+      companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
     },
     geo: {
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
@@ -933,6 +940,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     vehicle: {
       vinDecode: (i) => get('vehicle.vin-decode', '/api/vehicle/vin-decode', i),
+      profile: (i) => get('vehicle.profile', '/api/vehicle/profile', i),
       recalls: (i) => get('vehicle.recalls', '/api/vehicle/recalls', i),
       complaints: (i) => get('vehicle.complaints', '/api/vehicle/complaints', i),
       investigations: (i) => get('vehicle.investigations', '/api/vehicle/investigations', i),
@@ -973,6 +981,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       hospitalQuality: (i) => get('health.hospital-quality', '/api/health/hospital-quality', i),
       medicareProvider: (i) => get('health.medicare-provider', '/api/health/medicare-provider', i),
       mortalityStats: (i) => get('health.mortality-stats', '/api/health/mortality-stats', i ?? {}),
+      providerProfile: (i) => get('health.provider-profile', '/api/health/provider-profile', i),
     },
     worldbank: {
       indicator: (i) => get('worldbank.indicator', '/api/worldbank/indicator', i),
