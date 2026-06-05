@@ -151,6 +151,8 @@ export interface Endpoints {
     gasOracle(input?: { chain?: string }): R<CryptoGasOracleResponse>
     /** ENS forward + reverse resolution on Ethereum mainnet (live RPC). */
     ensResolve(input: { query: string }): R<unknown>
+    /** Spot price + market data by CoinGecko asset ids (comma-separated, lowercase). */
+    tokenPrice(input: { ids: string; vs?: string }): R<unknown>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -351,6 +353,30 @@ export interface Endpoints {
     hnTop(input?: { kind?: 'top' | 'new' | 'best' | 'ask' | 'show' | 'job'; limit?: number }): R<unknown>
     /** Hacker News item lookup by ID. */
     hnItem(input: { id: number }): R<unknown>
+    /** Live news search: headlines with source, age, breaking flag. freshness: pd|pw|pm|py. */
+    search(input: { q: string; count?: number; offset?: number; country?: string; freshness?: 'pd' | 'pw' | 'pm' | 'py' }): R<unknown>
+  }
+  /** Live web search. */
+  search: {
+    /** Ranked web results with title, url, snippet, site, age. freshness: pd|pw|pm|py or YYYY-MM-DDtoYYYY-MM-DD. */
+    web(input: {
+      q: string
+      count?: number
+      offset?: number
+      country?: string
+      freshness?: string
+      safesearch?: 'off' | 'moderate' | 'strict'
+    }): R<unknown>
+  }
+  /** Live flight tracking. */
+  flight: {
+    /** Recent + upcoming instances of a flight with live times, delays, progress. */
+    status(input: { ident: string; identType?: 'designator' | 'registration' | 'fa_flight_id'; limit?: number }): R<unknown>
+  }
+  /** Speech-to-text. */
+  transcribe: {
+    /** POST — transcribe an audio URL (≤15 MB, ≤15 min). diarize=true adds speaker turns. */
+    audio(input: { url: string; language?: string; diarize?: boolean }): R<unknown>
   }
   food: {
     /** Food product lookup by UPC/EAN barcode (Open Food Facts, CC0). */
@@ -917,6 +943,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       addressValidate: (i) => get('crypto.address-validate', '/api/crypto/address-validate', i),
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
+      tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),
@@ -1116,6 +1143,16 @@ export function createEndpoints(client: TwoS): Endpoints {
     news: {
       hnTop: (i) => get('news.hn-top', '/api/news/hn-top', i),
       hnItem: (i) => get('news.hn-item', '/api/news/hn-item', i),
+      search: (i) => get('news.search', '/api/news/search', i),
+    },
+    search: {
+      web: (i) => get('search.web', '/api/search/web', i),
+    },
+    flight: {
+      status: (i) => get('flight.status', '/api/flight/status', i),
+    },
+    transcribe: {
+      audio: (i) => post('transcribe.audio', '/api/transcribe/audio', i),
     },
     food: {
       barcodeLookup: (i) => get('food.barcode-lookup', '/api/food/barcode-lookup', i),

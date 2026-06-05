@@ -587,6 +587,65 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['station', 'startDate', 'endDate']),
       invoke: (a) => c.climate.stationHistory(a as never),
     },
+    {
+      name: 'search.web',
+      description:
+        'Live web search: ranked results with title, URL, snippet, site name, and page age — fresh information past any training cutoff. Supports paging (count/offset), country, freshness (pd/pw/pm/py or date range), safesearch. Use for current events, fact verification, documentation, research.',
+      inputSchema: s('Web search', {
+        q: { type: 'string', minLength: 1, maxLength: 400, description: 'Search query.' },
+        count: { type: 'integer', minimum: 1, maximum: 20, default: 10 },
+        offset: { type: 'integer', minimum: 0, maximum: 9, default: 0 },
+        country: { type: 'string', description: '2-letter country code.' },
+        freshness: { type: 'string', description: 'pd | pw | pm | py | YYYY-MM-DDtoYYYY-MM-DD.' },
+        safesearch: { type: 'string', enum: ['off', 'moderate', 'strict'], default: 'moderate' },
+      }, ['q']),
+      invoke: (a) => c.search.web(a as never),
+    },
+    {
+      name: 'news.search',
+      description:
+        'Live news search: recent headlines with publisher source, relative age, and breaking flag. freshness narrows recency (pd=past day, pw, pm, py). Use for current events and monitoring.',
+      inputSchema: s('News search', {
+        q: { type: 'string', minLength: 1, maxLength: 400, description: 'News query.' },
+        count: { type: 'integer', minimum: 1, maximum: 20, default: 10 },
+        offset: { type: 'integer', minimum: 0, maximum: 9, default: 0 },
+        country: { type: 'string', description: '2-letter country code.' },
+        freshness: { type: 'string', enum: ['pd', 'pw', 'pm', 'py'] },
+      }, ['q']),
+      invoke: (a) => c.news.search(a as never),
+    },
+    {
+      name: 'crypto.token-price',
+      description:
+        'Current spot price, market cap, 24h volume and 24h change for crypto assets by CoinGecko asset id (lowercase, e.g. "bitcoin,ethereum,solana" — not ticker symbols). vs sets quote currencies (default usd). Price data by CoinGecko.',
+      inputSchema: s('Token price', {
+        ids: { type: 'string', description: 'Comma-separated CoinGecko asset ids, max 25.' },
+        vs: { type: 'string', description: 'Comma-separated quote currencies, default "usd".' },
+      }, ['ids']),
+      invoke: (a) => c.crypto.tokenPrice(a as never),
+    },
+    {
+      name: 'flight.status',
+      description:
+        'Live flight status by flight designator (UAL1 / UA1) or tail number: origin/destination airports, status, cancellation/diversion, scheduled vs estimated vs actual gate + runway times, delays, progress percent, aircraft type and registration. Answers "where is this flight, is it delayed, when does it land".',
+      inputSchema: s('Flight status', {
+        ident: { type: 'string', minLength: 2, maxLength: 12, description: 'Flight designator or tail number.' },
+        identType: { type: 'string', enum: ['designator', 'registration', 'fa_flight_id'] },
+        limit: { type: 'integer', minimum: 1, maximum: 15, default: 5 },
+      }, ['ident']),
+      invoke: (a) => c.flight.status(a as never),
+    },
+    {
+      name: 'transcribe.audio',
+      description:
+        'Transcribe an audio file URL to text (wav, mp3, m4a, ogg/opus, flac, webm; ≤15 MB, ≤15 minutes — split longer recordings). Returns punctuated transcript, confidence, duration, detected language, word-level timestamps, and (diarize=true) speaker-segmented utterances.',
+      inputSchema: s('Transcribe audio', {
+        url: { type: 'string', description: 'Public audio file URL.' },
+        language: { type: 'string', description: 'BCP-47 hint, e.g. "en"; auto-detected when omitted.' },
+        diarize: { type: 'boolean', default: false, description: 'Label speakers + return utterances.' },
+      }, ['url']),
+      invoke: (a) => c.transcribe.audio(a as never),
+    },
 
     // ── Finance (SEC EDGAR) ──────────────────────────────────────────
     {

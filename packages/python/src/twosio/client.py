@@ -119,6 +119,17 @@ class _Crypto(_Group):
             query={"chain": chain},
         )
 
+    def token_price(self, *, ids: str, vs: Optional[str] = None) -> CallResult:
+        """Spot price + market data by CoinGecko asset ids.
+
+        ids: comma-separated lowercase CoinGecko ids ("bitcoin,ethereum"),
+        NOT ticker symbols. vs: quote currencies, default "usd".
+        """
+        q: dict[str, Any] = {"ids": ids}
+        if vs is not None:
+            q["vs"] = vs
+        return self._c.request("GET", "/api/crypto/token-price", endpoint="crypto.token-price", query=q)
+
 
 class _Ai(_Group):
     def summarize(self, *, url: str, instruction: Optional[str] = None) -> CallResult:
@@ -2522,6 +2533,88 @@ class _News(_Group):
             query={"id": id},
         )
 
+    def search(
+        self,
+        *,
+        q: str,
+        count: Optional[int] = None,
+        offset: Optional[int] = None,
+        country: Optional[str] = None,
+        freshness: Optional[str] = None,
+    ) -> CallResult:
+        """Live news search: headlines with source, age, breaking flag.
+
+        freshness: pd (past day) | pw | pm | py.
+        """
+        query: dict[str, Any] = {"q": q}
+        if count is not None: query["count"] = count
+        if offset is not None: query["offset"] = offset
+        if country is not None: query["country"] = country
+        if freshness is not None: query["freshness"] = freshness
+        return self._c.request("GET", "/api/news/search", endpoint="news.search", query=query)
+
+
+class _Search(_Group):
+    def web(
+        self,
+        *,
+        q: str,
+        count: Optional[int] = None,
+        offset: Optional[int] = None,
+        country: Optional[str] = None,
+        freshness: Optional[str] = None,
+        safesearch: Optional[str] = None,
+    ) -> CallResult:
+        """Live web search: ranked results with title, url, snippet, site, age.
+
+        freshness: pd | pw | pm | py | YYYY-MM-DDtoYYYY-MM-DD.
+        safesearch: off | moderate | strict.
+        """
+        query: dict[str, Any] = {"q": q}
+        if count is not None: query["count"] = count
+        if offset is not None: query["offset"] = offset
+        if country is not None: query["country"] = country
+        if freshness is not None: query["freshness"] = freshness
+        if safesearch is not None: query["safesearch"] = safesearch
+        return self._c.request("GET", "/api/search/web", endpoint="search.web", query=query)
+
+
+class _Flight(_Group):
+    def status(
+        self,
+        *,
+        ident: str,
+        ident_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Live flight status by designator (UAL1 / UA1) or tail number.
+
+        ident_type: designator | registration | fa_flight_id.
+        """
+        q: dict[str, Any] = {"ident": ident}
+        if ident_type is not None: q["identType"] = ident_type
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/flight/status", endpoint="flight.status", query=q)
+
+
+class _Transcribe(_Group):
+    def audio(
+        self,
+        *,
+        url: str,
+        language: Optional[str] = None,
+        diarize: Optional[bool] = None,
+    ) -> CallResult:
+        """Transcribe an audio file URL (<=15 MB, <=15 min).
+
+        Returns transcript, confidence, duration, language, word timestamps,
+        and speaker utterances when diarize=True.
+        """
+        body: dict[str, Any] = {"url": url}
+        if language is not None: body["language"] = language
+        if diarize is not None: body["diarize"] = diarize
+        return self._c.request("POST", "/api/transcribe/audio", endpoint="transcribe.audio", body=body)
+
 
 class _Nonprofit(_Group):
     def search(
@@ -2657,6 +2750,9 @@ class TwoS:
         self.bls = _Bls(self)
         self.country = _Country(self)
         self.news = _News(self)
+        self.search = _Search(self)
+        self.flight = _Flight(self)
+        self.transcribe = _Transcribe(self)
         self.food = _Food(self)
         self.word = _Word(self)
         self.edu = _Edu(self)
