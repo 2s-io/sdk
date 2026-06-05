@@ -156,6 +156,7 @@ export class TwoS {
   public readonly flight: Endpoints['flight']
   public readonly transcribe: Endpoints['transcribe']
   public readonly nutrition: Endpoints['nutrition']
+  public readonly person: Endpoints['person']
   public readonly tld: Endpoints['tld']
   public readonly papers: Endpoints['papers']
   public readonly patents: Endpoints['patents']
@@ -253,6 +254,7 @@ export class TwoS {
     this.flight = this.endpoints.flight
     this.transcribe = this.endpoints.transcribe
     this.nutrition = this.endpoints.nutrition
+    this.person = this.endpoints.person
     this.tld = this.endpoints.tld
     this.papers = this.endpoints.papers
     this.patents = this.endpoints.patents

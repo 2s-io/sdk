@@ -811,6 +811,34 @@ class _Geo(_Group):
     def ip(self, *, ip: str) -> CallResult:
         return self._c.request("GET", "/api/geo/ip", endpoint="geo.ip", query={"ip": ip})
 
+    def nearby(
+        self,
+        *,
+        lat: float,
+        lon: float,
+        radius_km: Optional[float] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Airports + schools + climate stations + recent quakes around a coordinate.
+
+        Per-category found/error blocks with distances. radius_km default 25 (max 200).
+        """
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if radius_km is not None: q["radiusKm"] = radius_km
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/geo/nearby", endpoint="geo.nearby", query=q)
+
+
+class _Person(_Group):
+    def cross_registry(self, *, name: str, limit: Optional[int] = None) -> CallResult:
+        """Name sweep across FINRA brokers, attorneys, inmates, TX trades + real-estate.
+
+        Name-matched CANDIDATES, not identity-resolved.
+        """
+        q: dict[str, Any] = {"name": name}
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/person/cross-registry", endpoint="person.cross-registry", query=q)
+
 
 class _Ipinfo(_Group):
     def bulk(self, *, ips: list[str]) -> CallResult:
@@ -2667,6 +2695,12 @@ class TwoS:
         signer: Pre-built ``eth_account.LocalAccount`` for x402 payment signing.
             Use this if you already have a signer (e.g. from a custodial KMS
             wrapper). Mutually exclusive with ``private_key``.
+        solana_private_key: Base58-encoded Solana keypair secret (the 64-byte
+            ``solana-keygen`` format, base58 string) for paying on the Solana
+            USDC rail instead of (or in addition to) Base. Requires the svm
+            extra: ``pip install '2sio[svm]'``. When both EVM and Solana keys
+            are configured the client pays with whichever rail the endpoint's
+            402 envelope lists first (Base today).
         api_key: Internal-only bearer API key. The public 2s.io surface is
             x402-only; we do NOT advertise bearer auth. Reserved for internal
             use until deposit detection is wired up.
@@ -2680,6 +2714,7 @@ class TwoS:
         *,
         private_key: Optional[str] = None,
         signer: Any = None,
+        solana_private_key: Optional[str] = None,
         api_key: Optional[str] = None,
         base_url: str = DEFAULT_BASE,
         max_price_usd: float = DEFAULT_MAX_PRICE_USD,
@@ -2698,11 +2733,12 @@ class TwoS:
             # Normalize so callers can pass either '0x...' or bare hex.
             key = private_key if private_key.startswith("0x") else "0x" + private_key
             signer = Account.from_key(key)
-        if signer is None and not api_key:
+        if signer is None and solana_private_key is None and not api_key:
             raise ValueError(
-                "TwoS requires either private_key='0x...' (recommended) or a pre-built signer=... ."
+                "TwoS requires private_key='0x...' (Base), solana_private_key='...' (Solana), or a pre-built signer=... ."
             )
         self.signer = signer
+        self._solana_private_key = solana_private_key
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.max_price_usd = max_price_usd
@@ -2736,6 +2772,7 @@ class TwoS:
         self.earth = _Earth(self)
         self.climate = _Climate(self)
         self.nutrition = _Nutrition(self)
+        self.person = _Person(self)
         self.tld = _Tld(self)
         self.census = _Census(self)
         self.account = _Account(self)
@@ -2789,15 +2826,29 @@ class TwoS:
     def _get_x402_client(self):
         if self._x402_client is not None:
             return self._x402_client
-        if self.signer is None:
+        if self.signer is None and self._solana_private_key is None:
             raise RuntimeError("x402 call attempted but no signer was configured.")
-        # Lazy import — only paying users need the x402 dep loaded.
+        # Lazy imports — only paying users need the x402 dep loaded, and
+        # EVM-only users never load the Solana stack (and vice versa).
         from x402 import x402Client  # type: ignore
-        from x402.mechanisms.evm import EthAccountSigner  # type: ignore
-        from x402.mechanisms.evm.exact.register import register_exact_evm_client  # type: ignore
 
         c = x402Client()
-        register_exact_evm_client(c, EthAccountSigner(self.signer))
+        if self.signer is not None:
+            from x402.mechanisms.evm import EthAccountSigner  # type: ignore
+            from x402.mechanisms.evm.exact.register import register_exact_evm_client  # type: ignore
+
+            register_exact_evm_client(c, EthAccountSigner(self.signer))
+        if self._solana_private_key is not None:
+            try:
+                from solders.keypair import Keypair  # type: ignore
+                from x402.mechanisms.svm import KeypairSigner  # type: ignore
+                from x402.mechanisms.svm.exact.register import register_exact_svm_client  # type: ignore
+            except ImportError as e:
+                raise ImportError(
+                    "TwoS(solana_private_key=...) requires the Solana extras. Install: pip install '2sio[svm]'"
+                ) from e
+            keypair = Keypair.from_base58_string(self._solana_private_key)
+            register_exact_svm_client(c, KeypairSigner(keypair))
         self._x402_client = c
         return c
 

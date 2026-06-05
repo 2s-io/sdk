@@ -1,7 +1,7 @@
 [project]
 name = "2sio"
-version = "0.30.0"
-description = "Python client for 2s.io — ever-expanding catalog of pay-per-call AI agent APIs on Base via x402."
+version = "0.31.0"
+description = "Python client for 2s.io — ever-expanding catalog of pay-per-call AI agent APIs on Base or Solana via x402."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -37,6 +37,11 @@ dependencies = [
     # x402.mechanisms.evm.signers. We're x402-only, so EVM is mandatory.
     "x402[httpx,evm]>=2.0",
 ]
+
+[project.optional-dependencies]
+# Solana USDC rail: TwoS(solana_private_key=...). Pulls solana/solders via
+# the x402 SDK's svm extra. Optional so EVM-only users skip the heavy deps.
+svm = ["x402[svm]>=2.12"]
 
 [project.urls]
 Homepage = "https://2s.io"

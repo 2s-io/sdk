@@ -212,6 +212,8 @@ export interface Endpoints {
   }
   geo: {
     ip(input: { ip: string }): R<GeoIpResponse>
+    /** Airports + schools + climate stations + recent quakes around a coordinate. */
+    nearby(input: { lat: number; lon: number; radiusKm?: number; limit?: number }): R<unknown>
   }
   geocode: {
     /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
@@ -314,6 +316,11 @@ export interface Endpoints {
       limit?: number
       page?: number
     }): R<unknown>
+  }
+  /** Person-name sweeps across public registries. */
+  person: {
+    /** Name-matched candidates (NOT identity-resolved) across FINRA, attorneys, inmates, TX trades + real-estate. */
+    crossRegistry(input: { name: string; limit?: number }): R<unknown>
   }
   /** TLD registry + Public Suffix List intelligence. */
   tld: {
@@ -966,6 +973,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     geo: {
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
+      nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
+    },
+    person: {
+      crossRegistry: (i) => get('person.cross-registry', '/api/person/cross-registry', i),
     },
     geocode: {
       address: (i) => get('geocode.address', '/api/geocode/address', i),

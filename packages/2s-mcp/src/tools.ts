@@ -656,6 +656,28 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['url']),
       invoke: (a) => c.transcribe.audio(a as never),
     },
+    {
+      name: 'person.cross-registry',
+      description:
+        'Sweep a person name across five US public registries in one call: FINRA brokers, federal-court attorneys, federal inmates (BOP), Texas trade licenses, Texas real-estate licenses. Per-registry found/error blocks with matching records — name-matched CANDIDATES, not identity-resolved (verify with each registry\'s identifier). Due-diligence and background-research triage.',
+      inputSchema: s('Person cross-registry', {
+        name: { type: 'string', minLength: 3, maxLength: 120, description: 'Person full name, "First Last" works best.' },
+        limit: { type: 'integer', minimum: 1, maximum: 10, default: 5, description: 'Max matches per registry.' },
+      }, ['name']),
+      invoke: (a) => c.person.crossRegistry(a as never),
+    },
+    {
+      name: 'geo.nearby',
+      description:
+        'Everything around a coordinate in one call: nearby airports, public K-12 schools, NOAA climate stations, and past-week earthquakes, each with distance and an independent found/error block. radiusKm default 25 (max 200), limit per category. Site assessment, relocation research, risk screening.',
+      inputSchema: s('Geo nearby', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+        radiusKm: { type: 'number', minimum: 1, maximum: 200, default: 25 },
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.geo.nearby(a as never),
+    },
 
     // ── Finance (SEC EDGAR) ──────────────────────────────────────────
     {
