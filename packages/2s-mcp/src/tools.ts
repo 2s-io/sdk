@@ -553,6 +553,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.law.uscSection(a as never),
     },
     {
+      name: 'law.trademark-status',
+      description:
+        'Verify a US trademark by USPTO serial number (8 digits) or registration number: word mark, LIVE/DEAD status with detail and dates, current owner, mark type, and international classes covered. Authoritative real-time USPTO TSDR data — confirm a mark exists and is active instead of trusting model memory. Number lookup only (no text search).',
+      inputSchema: s('Trademark status', {
+        serialNumber: { type: 'string', description: '8-digit application serial number (XOR with registrationNumber).' },
+        registrationNumber: { type: 'string', description: 'US registration number, 6-8 digits (XOR with serialNumber).' },
+      }),
+      invoke: (a) => c.law.trademarkStatus(a as never),
+    },
+    {
       name: 'nutrition.food',
       description:
         'USDA FoodData Central nutrition lookup (~400k foods). Search by name (query=cheddar cheese) for matching foods with fdcId, or fetch one food (fdcId=328637) for its full analyzed nutrient profile — energy, protein, fats, carbs, vitamins, minerals with amounts and units, plus ingredients for branded foods. Real analyzed values instead of model-estimated nutrition facts.',

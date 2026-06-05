@@ -301,6 +301,8 @@ export interface Endpoints {
     }): R<LawJudgeLookupResponse>
     /** Full current text of a US Code section by title (1-54) + section ("107", "1395w-4"). */
     uscSection(input: { title: number; section: string; includeNotes?: boolean }): R<unknown>
+    /** US trademark status by 8-digit serial number OR registration number (exactly one). */
+    trademarkStatus(input: { serialNumber: string } | { registrationNumber: string }): R<unknown>
   }
   /** USDA FoodData Central nutrition data. */
   nutrition: {
@@ -999,6 +1001,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       attorneyLookup: (i) => get('law.attorney-lookup', '/api/law/attorney-lookup', i),
       judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),
       uscSection: (i) => get('law.usc-section', '/api/law/usc-section', i),
+      trademarkStatus: (i) => get('law.trademark-status', '/api/law/trademark-status', i),
     },
     nutrition: {
       food: (i) => get('nutrition.food', '/api/nutrition/food', i),

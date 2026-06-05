@@ -383,6 +383,24 @@ class _Law(_Group):
             query["includeNotes"] = "true" if include_notes else "false"
         return self._c.request("GET", "/api/law/usc-section", endpoint="law.usc-section", query=query)
 
+    def trademark_status(
+        self,
+        *,
+        serial_number: Optional[str] = None,
+        registration_number: Optional[str] = None,
+    ) -> CallResult:
+        """US trademark status via USPTO TSDR.
+
+        Exactly one of serial_number (8 digits) or registration_number.
+        Returns mark, LIVE/DEAD status, owner, dates, classes.
+        """
+        if (serial_number is None) == (registration_number is None):
+            raise ValueError("trademark_status() requires exactly one of serial_number or registration_number.")
+        q: dict[str, Any] = {}
+        if serial_number is not None: q["serialNumber"] = serial_number
+        if registration_number is not None: q["registrationNumber"] = registration_number
+        return self._c.request("GET", "/api/law/trademark-status", endpoint="law.trademark-status", query=q)
+
     def opinion(
         self,
         *,
