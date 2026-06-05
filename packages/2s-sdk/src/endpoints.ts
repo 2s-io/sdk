@@ -464,6 +464,24 @@ export interface Endpoints {
   space: {
     /** Current NOAA space-weather Kp/solar-flux/aurora snapshot. */
     weather(input?: Record<string, never>): R<unknown>
+    /** Asteroid/comet physical + orbital params from JPL Small-Body Database. */
+    body(input: { q: string }): R<unknown>
+    /** Near-Earth-object close approaches in a date + distance window (JPL CAD). */
+    closeApproaches(input?: { dateMin?: string; dateMax?: string; distMaxAu?: number; limit?: number }): R<unknown>
+    /** Current position of any cataloged satellite (Celestrak + SGP4). */
+    satellite(input: { noradId: number; lat?: number; lon?: number; altKm?: number; at?: string }): R<unknown>
+    /** Upcoming/recent orbital rocket launches (Launch Library 2). */
+    launches(input?: { when?: 'upcoming' | 'previous'; search?: string; limit?: number; offset?: number }): R<unknown>
+    /** Observer-local sky almanac — sun/moon rise-set, moon phase, planet positions (computed). */
+    skyTonight(input: { lat: number; lon: number; altitudeM?: number; at?: string }): R<unknown>
+    /** Confirmed exoplanets from the NASA Exoplanet Archive. */
+    exoplanet(input?: { name?: string; hostStar?: string; discoveryYear?: number; method?: string; limit?: number }): R<unknown>
+  }
+  bio: {
+    /** Resolve a species to the GBIF taxonomic backbone (lineage, vernacular, occurrences). */
+    species(input: { name: string }): R<unknown>
+    /** Gene identity (NCBI) joined with its reviewed protein (UniProt). */
+    gene(input: { symbol: string; taxid?: number }): R<unknown>
   }
   vehicle: {
     /** Vehicle 360 by VIN — decode + this vehicle's recalls + complaints merged in one call. */
@@ -937,6 +955,16 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     space: {
       weather: (i) => get('space.weather', '/api/space/weather', i),
+      body: (i) => get('space.body', '/api/space/body', i),
+      closeApproaches: (i) => get('space.close-approaches', '/api/space/close-approaches', i ?? {}),
+      satellite: (i) => get('space.satellite', '/api/space/satellite', i),
+      launches: (i) => get('space.launches', '/api/space/launches', i ?? {}),
+      skyTonight: (i) => get('space.sky-tonight', '/api/space/sky-tonight', i),
+      exoplanet: (i) => get('space.exoplanet', '/api/space/exoplanet', i ?? {}),
+    },
+    bio: {
+      species: (i) => get('bio.species', '/api/bio/species', i),
+      gene: (i) => get('bio.gene', '/api/bio/gene', i),
     },
     vehicle: {
       vinDecode: (i) => get('vehicle.vin-decode', '/api/vehicle/vin-decode', i),

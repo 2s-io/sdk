@@ -163,6 +163,7 @@ export class TwoS {
   public readonly poi: Endpoints['poi']
   public readonly phone: Endpoints['phone']
   public readonly space: Endpoints['space']
+  public readonly bio: Endpoints['bio']
   public readonly vehicle: Endpoints['vehicle']
   public readonly gov: Endpoints['gov']
   public readonly agent: Endpoints['agent']
@@ -252,6 +253,7 @@ export class TwoS {
     this.poi = this.endpoints.poi
     this.phone = this.endpoints.phone
     this.space = this.endpoints.space
+    this.bio = this.endpoints.bio
     this.vehicle = this.endpoints.vehicle
     this.gov = this.endpoints.gov
     this.agent = this.endpoints.agent

@@ -168,6 +168,76 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['ticker']),
       invoke: (a) => c.finance.companyProfile(a as never),
     },
+    {
+      name: 'space.body',
+      description: 'Asteroid/comet physical + orbital parameters from NASA JPL Small-Body Database by designation, number, or name (e.g. "433 Eros", "1P/Halley", "2024 YR4"). NEO/PHA flags, diameter, albedo, orbit class, eccentricity, period, Earth MOID.',
+      inputSchema: s('Small body', { q: { type: 'string', description: 'Asteroid/comet designation, number, or name.' } }, ['q']),
+      invoke: (a) => c.space.body(a as never),
+    },
+    {
+      name: 'space.close-approaches',
+      description: 'Near-Earth asteroid/comet close approaches to Earth in a date window + max distance (NASA JPL CAD). Returns designation, date, distance (AU + lunar distances), relative velocity, magnitude. Sorted nearest-first.',
+      inputSchema: s('Close approaches', {
+        dateMin: { type: 'string', format: 'date' }, dateMax: { type: 'string', format: 'date' },
+        distMaxAu: { type: 'number', minimum: 0.0001, maximum: 1, default: 0.05 },
+        limit: { type: 'integer', minimum: 1, maximum: 200, default: 50 },
+      }),
+      invoke: (a) => c.space.closeApproaches(a as never),
+    },
+    {
+      name: 'space.satellite',
+      description: 'Current position of any cataloged satellite by NORAD number (e.g. 25544=ISS) via fresh Celestrak elements + SGP4. Returns sub-point lat/lon/altitude + speed; pass observer lat/lon for azimuth/elevation/range look angles.',
+      inputSchema: s('Satellite position', {
+        noradId: { type: 'integer', minimum: 1, maximum: 999999 },
+        lat: { type: 'number', minimum: -90, maximum: 90 }, lon: { type: 'number', minimum: -180, maximum: 180 },
+        altKm: { type: 'number' }, at: { type: 'string', format: 'date-time' },
+      }, ['noradId']),
+      invoke: (a) => c.space.satellite(a as never),
+    },
+    {
+      name: 'space.launches',
+      description: 'Upcoming or recent orbital rocket launches (Launch Library 2). when=upcoming|previous, optional search by rocket/provider/mission. Returns name, status, launch time + window, provider, rocket, pad, mission, webcast.',
+      inputSchema: s('Launches', {
+        when: { type: 'string', enum: ['upcoming', 'previous'], default: 'upcoming' },
+        search: { type: 'string' }, limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }),
+      invoke: (a) => c.space.launches(a as never),
+    },
+    {
+      name: 'space.sky-tonight',
+      description: 'Observer-local sky almanac for a lat/lon + time (computed, no upstream): sun & moon rise/set + current alt/az, moon phase + illumination + next quarter, and all 7 naked-eye planets (alt/az, RA/dec, magnitude, above-horizon). Stargazing, astrophotography.',
+      inputSchema: s('Sky tonight', {
+        lat: { type: 'number', minimum: -90, maximum: 90 }, lon: { type: 'number', minimum: -180, maximum: 180 },
+        altitudeM: { type: 'number' }, at: { type: 'string', format: 'date-time' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.space.skyTonight(a as never),
+    },
+    {
+      name: 'space.exoplanet',
+      description: 'Confirmed exoplanets from the NASA Exoplanet Archive (~6k, weekly). Filter by name, hostStar, discoveryYear, or method. Returns orbital period, radius/mass (Earth units), equilibrium temp, host-star params, distance (parsecs + light-years).',
+      inputSchema: s('Exoplanet', {
+        name: { type: 'string' }, hostStar: { type: 'string' },
+        discoveryYear: { type: 'integer', minimum: 1989, maximum: 2030 }, method: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.space.exoplanet(a as never),
+    },
+    {
+      name: 'bio.species',
+      description: 'Resolve any organism (scientific or common name) to the GBIF taxonomic backbone: accepted name, full lineage (kingdom→species), vernacular names, global occurrence count, GBIF link. Fuzzy-matches misspellings.',
+      inputSchema: s('Species', { name: { type: 'string', description: 'Scientific or common species name.' } }, ['name']),
+      invoke: (a) => c.bio.species(a as never),
+    },
+    {
+      name: 'bio.gene',
+      description: 'Gene lookup by symbol + organism (taxid, default 9606=human): NCBI Gene identity (description, chromosome, map location, aliases, RefSeq summary) joined with UniProt protein (accession, name, length, function).',
+      inputSchema: s('Gene', {
+        symbol: { type: 'string', description: 'Official gene symbol, e.g. "TP53".' },
+        taxid: { type: 'integer', default: 9606 },
+      }, ['symbol']),
+      invoke: (a) => c.bio.gene(a as never),
+    },
     // ── Law ──────────────────────────────────────────────────────────
     {
       name: 'law.docket-search',

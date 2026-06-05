@@ -1065,10 +1065,86 @@ class _Phone(_Group):
         return self._c.request("GET", "/api/phone/normalize", endpoint="phone.normalize", query=q)
 
 
+
+class _Bio(_Group):
+    def species(self, *, name: str) -> CallResult:
+        """Resolve a species to the GBIF taxonomic backbone. Server param: name."""
+        return self._c.request("GET", "/api/bio/species", endpoint="bio.species", query={"name": name})
+
+    def gene(self, *, symbol: str, taxid: Optional[int] = None) -> CallResult:
+        """Gene identity (NCBI) + reviewed protein (UniProt). Server params: symbol, taxid (default 9606)."""
+        q: dict[str, Any] = {"symbol": symbol}
+        if taxid is not None:
+            q["taxid"] = taxid
+        return self._c.request("GET", "/api/bio/gene", endpoint="bio.gene", query=q)
+
+
 class _Space(_Group):
     def weather(self) -> CallResult:
         """Current NOAA space-weather snapshot (Kp index, solar flux, aurora)."""
         return self._c.request("GET", "/api/space/weather", endpoint="space.weather")
+
+    def body(self, *, q: str) -> CallResult:
+        """Asteroid/comet physical + orbital params from JPL Small-Body Database. Server param: q."""
+        return self._c.request("GET", "/api/space/body", endpoint="space.body", query={"q": q})
+
+    def close_approaches(
+        self, *, date_min: Optional[str] = None, date_max: Optional[str] = None,
+        dist_max_au: Optional[float] = None, limit: Optional[int] = None,
+    ) -> CallResult:
+        """Near-Earth-object close approaches (JPL CAD). Server params: dateMin, dateMax, distMaxAu, limit."""
+        q: dict[str, Any] = {}
+        if date_min is not None: q["dateMin"] = date_min
+        if date_max is not None: q["dateMax"] = date_max
+        if dist_max_au is not None: q["distMaxAu"] = dist_max_au
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/space/close-approaches", endpoint="space.close-approaches", query=q)
+
+    def satellite(
+        self, *, norad_id: int, lat: Optional[float] = None, lon: Optional[float] = None,
+        alt_km: Optional[float] = None, at: Optional[str] = None,
+    ) -> CallResult:
+        """Current satellite position via Celestrak + SGP4. Server params: noradId, lat, lon, altKm, at."""
+        q: dict[str, Any] = {"noradId": norad_id}
+        if lat is not None: q["lat"] = lat
+        if lon is not None: q["lon"] = lon
+        if alt_km is not None: q["altKm"] = alt_km
+        if at is not None: q["at"] = at
+        return self._c.request("GET", "/api/space/satellite", endpoint="space.satellite", query=q)
+
+    def launches(
+        self, *, when: Optional[str] = None, search: Optional[str] = None,
+        limit: Optional[int] = None, offset: Optional[int] = None,
+    ) -> CallResult:
+        """Upcoming/recent orbital launches (Launch Library 2). Server params: when, search, limit, offset."""
+        q: dict[str, Any] = {}
+        if when is not None: q["when"] = when
+        if search is not None: q["search"] = search
+        if limit is not None: q["limit"] = limit
+        if offset is not None: q["offset"] = offset
+        return self._c.request("GET", "/api/space/launches", endpoint="space.launches", query=q)
+
+    def sky_tonight(
+        self, *, lat: float, lon: float, altitude_m: Optional[float] = None, at: Optional[str] = None,
+    ) -> CallResult:
+        """Observer-local sky almanac (computed). Server params: lat, lon, altitudeM, at."""
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if altitude_m is not None: q["altitudeM"] = altitude_m
+        if at is not None: q["at"] = at
+        return self._c.request("GET", "/api/space/sky-tonight", endpoint="space.sky-tonight", query=q)
+
+    def exoplanet(
+        self, *, name: Optional[str] = None, host_star: Optional[str] = None,
+        discovery_year: Optional[int] = None, method: Optional[str] = None, limit: Optional[int] = None,
+    ) -> CallResult:
+        """Confirmed exoplanets (NASA Exoplanet Archive). Server params: name, hostStar, discoveryYear, method, limit."""
+        q: dict[str, Any] = {}
+        if name is not None: q["name"] = name
+        if host_star is not None: q["hostStar"] = host_star
+        if discovery_year is not None: q["discoveryYear"] = discovery_year
+        if method is not None: q["method"] = method
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/space/exoplanet", endpoint="space.exoplanet", query=q)
 
 
 class _Vehicle(_Group):
@@ -2382,6 +2458,7 @@ class TwoS:
         self.countdown = _Countdown(self)
         self.image = _Image(self)
         self.phone = _Phone(self)
+        self.bio = _Bio(self)
         self.space = _Space(self)
         self.vehicle = _Vehicle(self)
         self.business = _Business(self)
