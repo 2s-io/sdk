@@ -332,6 +332,24 @@ class _Law(_Group):
             query["limit"] = limit
         return self._c.request("GET", "/api/law/federal-register", endpoint="law.federal-register", query=query)
 
+    def cfr_section(
+        self,
+        *,
+        title: int,
+        section: str,
+        date: Optional[str] = None,
+    ) -> CallResult:
+        """Fetch the full text of a US CFR section by title + section number.
+
+        Server params: title (1-50), section ("part.section", e.g. "1026.43"
+        or "240.10b-5"), optional date (yyyy-mm-dd, point-in-time back to
+        2017-01-03; defaults to the latest available text).
+        """
+        query: dict[str, Any] = {"title": title, "section": section}
+        if date is not None:
+            query["date"] = date
+        return self._c.request("GET", "/api/law/cfr-section", endpoint="law.cfr-section", query=query)
+
     def opinion(
         self,
         *,

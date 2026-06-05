@@ -427,6 +427,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.law.federalRegister(a as never),
     },
     {
+      name: 'law.cfr-section',
+      description:
+        'Fetch the authoritative full text of a US Code of Federal Regulations section by title + section number (e.g. title 17, section 240.10b-5). Optional date (yyyy-mm-dd, back to 2017) returns the historical text in force on that date. Returns citation, heading, plain text, Federal Register source credit, and official eCFR link. Public-domain, updated daily.',
+      inputSchema: s('CFR section input', {
+        title: { type: 'integer', minimum: 1, maximum: 50, description: 'CFR title number, 1-50.' },
+        section: { type: 'string', description: 'Section as "part.section", e.g. "1026.43" or "240.10b-5".' },
+        date: { type: 'string', format: 'date', description: 'Optional point-in-time date (yyyy-mm-dd, coverage starts 2017-01-03).' },
+      }, ['title', 'section']),
+      invoke: (a) => c.law.cfrSection(a as never),
+    },
+    {
       name: 'law.opinion',
       description:
         'Fetch the full text of a US court opinion by CourtListener opinion ID OR by citation. Returns plain text + case metadata. Supply exactly one of opinionId or citation.',

@@ -261,6 +261,8 @@ export interface Endpoints {
       until?: string
       limit?: number
     }): R<LawFederalRegisterResponse>
+    /** Full text of a CFR section by title (1-50) + section ("1026.43"); optional point-in-time date (yyyy-mm-dd, back to 2017). */
+    cfrSection(input: { title: number; section: string; date?: string }): R<unknown>
     /** POST — supply exactly one of `opinionId` or `citation`. */
     opinion(input: { opinionId: number } | { citation: string }): R<LawOpinionResponse>
     /** CourtListener attorney search by name and/or firm. */
@@ -908,6 +910,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       caseVerify: (i) => post('law.case-verify', '/api/law/case-verify', i),
       sanctionsCheck: (i) => post('law.sanctions-check', '/api/law/sanctions-check', i),
       federalRegister: (i) => get('law.federal-register', '/api/law/federal-register', i),
+      cfrSection: (i) => get('law.cfr-section', '/api/law/cfr-section', i),
       opinion: (i) => post('law.opinion', '/api/law/opinion', i),
       attorneyLookup: (i) => get('law.attorney-lookup', '/api/law/attorney-lookup', i),
       judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),

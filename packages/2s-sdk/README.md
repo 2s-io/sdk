@@ -36,7 +36,7 @@ An ever-expanding catalog of endpoints, currently spanning:
 
 - **AI** — summarize, translate, extract, describe-image, screenshot
 - **Patents** — search, detail, documents (USPTO Open Data Portal)
-- **Law** — case-search, case-verify, sanctions-check, federal-register, opinion, attorney-lookup, judge-lookup (CourtListener / Free Law Project)
+- **Law** — case-search, case-verify, sanctions-check, federal-register, cfr-section, opinion, attorney-lookup, judge-lookup (CourtListener / Free Law Project)
 - **Finance** — sec-filings, company-facts (XBRL), insider-trades (Form 4), 13F holdings (SEC EDGAR)
 - **Geocoding** — forward, reverse (LocationIQ + US Census)
 - **Weather / earth** — weather.zip, climate.station-near, tides.now, sunrise.compute, earth.now, quakes.recent, space.weather
