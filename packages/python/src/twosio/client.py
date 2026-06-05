@@ -355,6 +355,23 @@ class _Law(_Group):
             query["date"] = date
         return self._c.request("GET", "/api/law/cfr-section", endpoint="law.cfr-section", query=query)
 
+    def usc_section(
+        self,
+        *,
+        title: int,
+        section: str,
+        include_notes: Optional[bool] = None,
+    ) -> CallResult:
+        """Fetch the current text of a United States Code section.
+
+        Server params: title (1-54), section ("107", "78j", "1395w-4"),
+        optional includeNotes (adds amendment history / editorial notes).
+        """
+        query: dict[str, Any] = {"title": title, "section": section}
+        if include_notes is not None:
+            query["includeNotes"] = "true" if include_notes else "false"
+        return self._c.request("GET", "/api/law/usc-section", endpoint="law.usc-section", query=query)
+
     def opinion(
         self,
         *,
@@ -950,6 +967,72 @@ class _Climate(_Group):
         if limit is not None:
             q["limit"] = limit
         return self._c.request("GET", "/api/climate/station-near", endpoint="climate.station-near", query=q)
+
+    def station_history(
+        self,
+        *,
+        station: str,
+        start_date: str,
+        end_date: str,
+        data_types: Optional[str] = None,
+    ) -> CallResult:
+        """Daily observed weather (NOAA GHCN-Daily) for one station + date range.
+
+        Server params: station (GHCN id, e.g. USW00094728), startDate/endDate
+        (YYYY-MM-DD, <=366 days), dataTypes (comma-separated: TMAX,TMIN,TAVG,
+        PRCP,SNOW,SNWD,AWND,WSF2,WSF5,EVAP; default TMAX,TMIN,PRCP).
+        """
+        q: dict[str, Any] = {"station": station, "startDate": start_date, "endDate": end_date}
+        if data_types is not None:
+            q["dataTypes"] = data_types
+        return self._c.request("GET", "/api/climate/station-history", endpoint="climate.station-history", query=q)
+
+
+class _Nutrition(_Group):
+    def food(
+        self,
+        *,
+        query: Optional[str] = None,
+        fdc_id: Optional[int] = None,
+        data_type: Optional[str] = None,
+        limit: Optional[int] = None,
+        page: Optional[int] = None,
+    ) -> CallResult:
+        """USDA FoodData Central: search foods by name OR fetch one nutrient profile.
+
+        Exactly one of query (search) or fdc_id (detail). data_type filters
+        search: Foundation | SR Legacy | Survey (FNDDS) | Branded.
+        """
+        if (query is None) == (fdc_id is None):
+            raise ValueError("food() requires exactly one of query or fdc_id.")
+        q: dict[str, Any] = {}
+        if query is not None: q["query"] = query
+        if fdc_id is not None: q["fdcId"] = fdc_id
+        if data_type is not None: q["dataType"] = data_type
+        if limit is not None: q["limit"] = limit
+        if page is not None: q["page"] = page
+        return self._c.request("GET", "/api/nutrition/food", endpoint="nutrition.food", query=q)
+
+
+class _Tld(_Group):
+    def info(
+        self,
+        *,
+        tld: Optional[str] = None,
+        domain: Optional[str] = None,
+    ) -> CallResult:
+        """IANA TLD metadata and/or Public-Suffix-List domain analysis.
+
+        Exactly one of tld ("io") or domain ("shop.example.co.uk"). Domain
+        mode returns publicSuffix, registrableDomain, subdomain, matched PSL
+        rule, and icann/private section.
+        """
+        if (tld is None) == (domain is None):
+            raise ValueError("info() requires exactly one of tld or domain.")
+        q: dict[str, Any] = {}
+        if tld is not None: q["tld"] = tld
+        if domain is not None: q["domain"] = domain
+        return self._c.request("GET", "/api/tld/info", endpoint="tld.info", query=q)
 
 
 class _Census(_Group):
@@ -2541,6 +2624,8 @@ class TwoS:
         self.timezone = _Timezone(self)
         self.earth = _Earth(self)
         self.climate = _Climate(self)
+        self.nutrition = _Nutrition(self)
+        self.tld = _Tld(self)
         self.census = _Census(self)
         self.account = _Account(self)
         self.poi = _Poi(self)

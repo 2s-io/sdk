@@ -123,6 +123,13 @@ export interface Endpoints {
       radius_km?: number
       limit?: number
     }): R<ClimateStationNearResponse>
+    /** Daily observed weather (GHCN-Daily) for one station over a date range (≤366 days). */
+    stationHistory(input: {
+      station: string
+      startDate: string
+      endDate: string
+      dataTypes?: string
+    }): R<unknown>
   }
   countdown: {
     /** Returns animated GIF bytes — `result.data` is a `Uint8Array`. Server param: endDate (ISO-8601 UTC). */
@@ -290,6 +297,24 @@ export interface Endpoints {
       name: string
       limit?: number
     }): R<LawJudgeLookupResponse>
+    /** Full current text of a US Code section by title (1-54) + section ("107", "1395w-4"). */
+    uscSection(input: { title: number; section: string; includeNotes?: boolean }): R<unknown>
+  }
+  /** USDA FoodData Central nutrition data. */
+  nutrition: {
+    /** Search foods (query=…) or fetch one food's full nutrient profile (fdcId=…). */
+    food(input: {
+      query?: string
+      fdcId?: number
+      dataType?: 'Foundation' | 'SR Legacy' | 'Survey (FNDDS)' | 'Branded'
+      limit?: number
+      page?: number
+    }): R<unknown>
+  }
+  /** TLD registry + Public Suffix List intelligence. */
+  tld: {
+    /** Pass tld=… for IANA metadata, or domain=… for PSL public-suffix/registrable-domain analysis. */
+    info(input: { tld?: string; domain?: string }): R<unknown>
   }
   papers: {
     search(input: {
@@ -883,6 +908,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     climate: {
       stationNear: (i) => get('climate.station-near', '/api/climate/station-near', i),
+      stationHistory: (i) => get('climate.station-history', '/api/climate/station-history', i),
     },
     countdown: {
       gif: (i) => get('countdown.gif', '/api/countdown/gif', i),
@@ -945,6 +971,13 @@ export function createEndpoints(client: TwoS): Endpoints {
       opinion: (i) => post('law.opinion', '/api/law/opinion', i),
       attorneyLookup: (i) => get('law.attorney-lookup', '/api/law/attorney-lookup', i),
       judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),
+      uscSection: (i) => get('law.usc-section', '/api/law/usc-section', i),
+    },
+    nutrition: {
+      food: (i) => get('nutrition.food', '/api/nutrition/food', i),
+    },
+    tld: {
+      info: (i) => get('tld.info', '/api/tld/info', i),
     },
     papers: {
       search: (i) => get('papers.search', '/api/papers/search', i),

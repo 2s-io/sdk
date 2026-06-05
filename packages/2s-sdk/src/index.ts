@@ -152,6 +152,8 @@ export class TwoS {
   public readonly ipinfo: Endpoints['ipinfo']
   public readonly business: Endpoints['business']
   public readonly law: Endpoints['law']
+  public readonly nutrition: Endpoints['nutrition']
+  public readonly tld: Endpoints['tld']
   public readonly papers: Endpoints['papers']
   public readonly patents: Endpoints['patents']
   public readonly quakes: Endpoints['quakes']
@@ -244,6 +246,8 @@ export class TwoS {
     this.ipinfo = this.endpoints.ipinfo
     this.business = this.endpoints.business
     this.law = this.endpoints.law
+    this.nutrition = this.endpoints.nutrition
+    this.tld = this.endpoints.tld
     this.papers = this.endpoints.papers
     this.patents = this.endpoints.patents
     this.quakes = this.endpoints.quakes

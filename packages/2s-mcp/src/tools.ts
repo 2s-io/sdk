@@ -541,6 +541,52 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['name']),
       invoke: (a) => c.law.judgeLookup(a as never),
     },
+    {
+      name: 'law.usc-section',
+      description:
+        'Fetch the authoritative current text of a United States Code section by title + section number (e.g. title 17, section 107 = fair use). Returns citation, heading, hierarchy context, full statutory text, Statutes-at-Large source credit, and the official OLRC link; includeNotes adds amendment history. Handles hyphenated/lettered sections like 1395w-4 or 78j. Verify statutory citations instead of relying on model memory. Public-domain.',
+      inputSchema: s('USC section input', {
+        title: { type: 'integer', minimum: 1, maximum: 54, description: 'USC title number, 1-54.' },
+        section: { type: 'string', description: 'Section number, e.g. "107", "78j", "1395w-4".' },
+        includeNotes: { type: 'boolean', default: false, description: 'Include editorial notes (amendment history, effective dates).' },
+      }, ['title', 'section']),
+      invoke: (a) => c.law.uscSection(a as never),
+    },
+    {
+      name: 'nutrition.food',
+      description:
+        'USDA FoodData Central nutrition lookup (~400k foods). Search by name (query=cheddar cheese) for matching foods with fdcId, or fetch one food (fdcId=328637) for its full analyzed nutrient profile — energy, protein, fats, carbs, vitamins, minerals with amounts and units, plus ingredients for branded foods. Real analyzed values instead of model-estimated nutrition facts.',
+      inputSchema: s('Food lookup', {
+        query: { type: 'string', minLength: 2, maxLength: 120, description: 'Food name to search (XOR with fdcId).' },
+        fdcId: { type: 'integer', minimum: 1, description: 'FDC food id for the full nutrient profile (XOR with query).' },
+        dataType: { type: 'string', enum: ['Foundation', 'SR Legacy', 'Survey (FNDDS)', 'Branded'], description: 'Restrict search to one data type.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        page: { type: 'integer', minimum: 1, default: 1 },
+      }),
+      invoke: (a) => c.nutrition.food(a as never),
+    },
+    {
+      name: 'tld.info',
+      description:
+        'TLD registry + Public Suffix List intelligence. tld=io returns IANA root-zone metadata (type, managing organization, unicode form). domain=shop.example.co.uk runs the full PSL algorithm: effective public suffix, registrable domain, subdomain, matched rule, and whether the suffix is ICANN or private/corporate (github.io, s3.amazonaws.com). For cookie scoping, per-registrant rate limiting, URL dedup, and abuse analysis.',
+      inputSchema: s('TLD info', {
+        tld: { type: 'string', minLength: 2, maxLength: 64, description: 'TLD label, e.g. "io" (XOR with domain).' },
+        domain: { type: 'string', minLength: 3, maxLength: 253, description: 'Domain to analyze, e.g. "shop.example.co.uk" (XOR with tld).' },
+      }),
+      invoke: (a) => c.tld.info(a as never),
+    },
+    {
+      name: 'climate.station-history',
+      description:
+        'Historical daily weather observations (NOAA GHCN-Daily) for one station + date range (≤366 days): max/min/avg temperature °C, precipitation/snow mm, wind m/s. Records back to the 1800s — actual measured values for "what was the weather on this date". Find a station id with climate.station-near first.',
+      inputSchema: s('Station history', {
+        station: { type: 'string', description: 'GHCN station id (11 chars), e.g. USW00094728.' },
+        startDate: { type: 'string', format: 'date', description: 'Range start, YYYY-MM-DD.' },
+        endDate: { type: 'string', format: 'date', description: 'Range end, YYYY-MM-DD.' },
+        dataTypes: { type: 'string', description: 'Comma-separated element codes (TMAX,TMIN,TAVG,PRCP,SNOW,SNWD,AWND,WSF2,WSF5,EVAP). Default TMAX,TMIN,PRCP.' },
+      }, ['station', 'startDate', 'endDate']),
+      invoke: (a) => c.climate.stationHistory(a as never),
+    },
 
     // ── Finance (SEC EDGAR) ──────────────────────────────────────────
     {
