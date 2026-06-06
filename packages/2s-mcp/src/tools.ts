@@ -800,6 +800,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.weather.zip(a as never),
     },
     {
+      name: 'weather.alerts',
+      description:
+        'Live US National Weather Service active alerts (watches/warnings/advisories) for a point ("lat,lon") OR an area (2-letter US state or marine code). Real-time severe-weather data. Optional severity/urgency filter; sorted most-severe first.',
+      inputSchema: s('Active weather alerts', {
+        point: { type: 'string', description: 'Location as "lat,lon" decimal degrees, e.g. "25.7617,-80.1918". Provide point OR area.' },
+        area: { type: 'string', description: '2-letter US state/territory or NWS marine area code, e.g. "FL". Provide point OR area.' },
+        severity: { type: 'string', enum: ['Extreme', 'Severe', 'Moderate', 'Minor', 'Unknown'], description: 'Filter to a single severity level.' },
+        urgency: { type: 'string', enum: ['Immediate', 'Expected', 'Future', 'Past', 'Unknown'], description: 'Filter to a single urgency level.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Max alerts (1-100, default 20).' },
+      }),
+      invoke: (a) => c.weather.alerts(a as never),
+    },
+    {
       name: 'climate.station-near',
       description:
         'Find NOAA GHCN-Daily climate stations near a coordinate. Useful for long-term climate-history lookups.',

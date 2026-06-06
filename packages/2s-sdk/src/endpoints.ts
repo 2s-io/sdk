@@ -502,6 +502,14 @@ export interface Endpoints {
   }
   weather: {
     zip(input: { zip: string }): R<Normalized>
+    /** Live US National Weather Service active alerts by point ("lat,lon") or area (2-letter state/marine code). */
+    alerts(input: {
+      point?: string
+      area?: string
+      severity?: 'Extreme' | 'Severe' | 'Moderate' | 'Minor' | 'Unknown'
+      urgency?: 'Immediate' | 'Expected' | 'Future' | 'Past' | 'Unknown'
+      limit?: number
+    }): R<Normalized>
   }
   wikipedia: {
     summary(input: { title: string; lang?: string }): R<Normalized>
@@ -1037,6 +1045,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     weather: {
       zip: (i) => get('weather.zip', '/api/weather/zip', i),
+      alerts: (i) => get('weather.alerts', '/api/weather/alerts', i),
     },
     wikipedia: {
       summary: (i) => get('wikipedia.summary', '/api/wikipedia/summary', i),

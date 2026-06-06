@@ -676,6 +676,33 @@ class _Weather(_Group):
     def zip(self, *, zip: str) -> CallResult:
         return self._c.request("GET", "/api/weather/zip", endpoint="weather.zip", query={"zip": zip})
 
+    def alerts(
+        self,
+        *,
+        point: Optional[str] = None,
+        area: Optional[str] = None,
+        severity: Optional[str] = None,
+        urgency: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Live US National Weather Service active alerts.
+
+        Provide exactly one of `point` ("lat,lon") or `area` (2-letter US
+        state / marine code). Optional severity/urgency filter.
+        """
+        q: dict[str, Any] = {}
+        if point is not None:
+            q["point"] = point
+        if area is not None:
+            q["area"] = area
+        if severity is not None:
+            q["severity"] = severity
+        if urgency is not None:
+            q["urgency"] = urgency
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/weather/alerts", endpoint="weather.alerts", query=q)
+
 
 class _Dns(_Group):
     def lookup(
