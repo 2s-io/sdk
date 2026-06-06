@@ -679,6 +679,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.geo.nearby(a as never),
     },
     {
+      name: 'stocks.quote',
+      description:
+        'Latest daily stock quote for a US-listed ticker (e.g. AAPL, MSFT, BRK.B): open/high/low/close, volume, VWAP, trade count, change and percent change vs the prior session, plus company name, exchange, security type, and market cap. NOTE: end-of-day / delayed data (response flags delayed=true) — for daily snapshots and post-close analysis, not real-time trading. Market data by Massive (formerly Polygon.io).',
+      inputSchema: s('Stock quote', {
+        ticker: { type: 'string', minLength: 1, maxLength: 12, description: 'US ticker symbol, e.g. AAPL.' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.quote(a as never),
+    },
+    {
       name: 'medical.rxnorm',
       description:
         'Normalize and verify drug names against RxNorm, the canonical US drug vocabulary (NIH). term="tylenol 500mg" returns ranked RxCUI candidates with normalized names (typos tolerated); rxcui=… returns the canonical concept plus related ingredients, brand names, and dose forms. Verify drugs exist and get stable identifiers instead of trusting model memory. Sibling of medical.icd10.',

@@ -380,6 +380,11 @@ export interface Endpoints {
       safesearch?: 'off' | 'moderate' | 'strict'
     }): R<unknown>
   }
+  /** Stock market data (Massive / formerly Polygon.io). */
+  stocks: {
+    /** Latest daily quote for a US ticker (EOD/delayed): OHLCV, VWAP, change vs prior session, company metadata. */
+    quote(input: { ticker: string }): R<unknown>
+  }
   /** Live flight tracking. */
   flight: {
     /** Recent + upcoming instances of a flight with live times, delays, progress. */
@@ -1172,6 +1177,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     flight: {
       status: (i) => get('flight.status', '/api/flight/status', i),
+    },
+    stocks: {
+      quote: (i) => get('stocks.quote', '/api/stocks/quote', i),
     },
     transcribe: {
       audio: (i) => post('transcribe.audio', '/api/transcribe/audio', i),

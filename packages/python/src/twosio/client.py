@@ -1065,6 +1065,15 @@ class _Climate(_Group):
         return self._c.request("GET", "/api/climate/station-history", endpoint="climate.station-history", query=q)
 
 
+class _Stocks(_Group):
+    def quote(self, *, ticker: str) -> CallResult:
+        """Latest daily stock quote for a US ticker (Massive / formerly Polygon.io).
+
+        EOD/delayed: OHLCV, VWAP, change vs prior session, company metadata.
+        """
+        return self._c.request("GET", "/api/stocks/quote", endpoint="stocks.quote", query={"ticker": ticker})
+
+
 class _Nutrition(_Group):
     def food(
         self,
@@ -2810,6 +2819,7 @@ class TwoS:
         self.timezone = _Timezone(self)
         self.earth = _Earth(self)
         self.climate = _Climate(self)
+        self.stocks = _Stocks(self)
         self.nutrition = _Nutrition(self)
         self.person = _Person(self)
         self.tld = _Tld(self)

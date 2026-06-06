@@ -154,6 +154,7 @@ export class TwoS {
   public readonly law: Endpoints['law']
   public readonly search: Endpoints['search']
   public readonly flight: Endpoints['flight']
+  public readonly stocks: Endpoints['stocks']
   public readonly transcribe: Endpoints['transcribe']
   public readonly nutrition: Endpoints['nutrition']
   public readonly person: Endpoints['person']
@@ -252,6 +253,7 @@ export class TwoS {
     this.law = this.endpoints.law
     this.search = this.endpoints.search
     this.flight = this.endpoints.flight
+    this.stocks = this.endpoints.stocks
     this.transcribe = this.endpoints.transcribe
     this.nutrition = this.endpoints.nutrition
     this.person = this.endpoints.person
