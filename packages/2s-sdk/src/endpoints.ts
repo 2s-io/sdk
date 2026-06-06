@@ -5,37 +5,10 @@
 
 import type { TwoS, CallResult } from './index.js'
 import type {
-  PatentsSearchResponse,
-  PatentsDetailResponse,
-  PatentsDocumentsResponse,
-  CryptoAddressValidateResponse,
   CryptoChain,
-  CryptoGasOracleResponse,
-  AiSummarizeResponse,
-  AiTranslateResponse,
-  AiExtractResponse,
-  AiDescribeImageResponse,
   AiScreenshotResponse,
-  AirportLookupResponse,
-  AirportNearResponse,
-  WeatherZipResponse,
-  GeocodeAddressResponse,
-  GeocodeReverseResponse,
-  DnsLookupResponse,
-  DomainWhoisResponse,
   UrlUnfurlResponse,
   UrlCleanResponse,
-  WikipediaSummaryResponse,
-  PapersSearchResponse,
-  CensusZipcodeResponse,
-  ClimateStationNearResponse,
-  TidesNowResponse,
-  SunriseComputeResponse,
-  EarthNowResponse,
-  QuakesRecentResponse,
-  GeoIpResponse,
-  IpinfoBulkResponse,
-  HashComputeResponse,
   AccountBalanceResponse,
 } from './types.js'
 
@@ -60,23 +33,23 @@ export interface Endpoints {
     balance(): R<AccountBalanceResponse>
   }
   ai: {
-    summarize(input: { url: string; instruction?: string }): R<AiSummarizeResponse>
+    summarize(input: { url: string; instruction?: string }): R<Normalized>
     /** POST — server param names: text, targetLanguage, sourceLanguage. */
     translate(input: {
       text: string
       targetLanguage: string
       sourceLanguage?: string
-    }): R<AiTranslateResponse>
+    }): R<Normalized>
     extract<T = unknown>(input: {
       url: string
       schema: Record<string, unknown>
       instruction?: string
-    }): R<AiExtractResponse<T>>
+    }): R<Normalized<T>>
     /** POST — server param name: imageUrl (HTTPS URL of a JPEG/PNG/GIF/WebP image ≤1MB). */
     describeImage(input: {
       imageUrl: string
       instruction?: string
-    }): R<AiDescribeImageResponse>
+    }): R<Normalized>
     screenshot(input: {
       url: string
       width?: number
@@ -98,7 +71,7 @@ export interface Endpoints {
   }
   airport: {
     /** Look up by IATA (3-letter) or ICAO (4-letter) code. */
-    lookup(input: { code: string }): R<AirportLookupResponse>
+    lookup(input: { code: string }): R<Normalized>
     near(input: {
       lat: number
       lon: number
@@ -107,7 +80,7 @@ export interface Endpoints {
       type?: 'large_airport' | 'medium_airport' | 'small_airport' | 'heliport' | 'seaplane_base' | 'balloonport' | 'closed'
       country?: string
       scheduled_service?: boolean
-    }): R<AirportNearResponse>
+    }): R<Normalized>
   }
   barcode: {
     /** Returns raw image bytes — `result.data` is a `Uint8Array`. */
@@ -117,7 +90,7 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   census: {
-    zipcode(input: { zip: string }): R<CensusZipcodeResponse>
+    zipcode(input: { zip: string }): R<Normalized>
   }
   climate: {
     stationNear(input: {
@@ -125,7 +98,7 @@ export interface Endpoints {
       lon: number
       radius_km?: number
       limit?: number
-    }): R<ClimateStationNearResponse>
+    }): R<Normalized>
     /** Daily observed weather (GHCN-Daily) for one station over a date range (≤366 days). */
     stationHistory(input: {
       station: string
@@ -150,8 +123,8 @@ export interface Endpoints {
     addressValidate(input: {
       chain: CryptoChain
       address: string
-    }): R<CryptoAddressValidateResponse>
-    gasOracle(input?: { chain?: string }): R<CryptoGasOracleResponse>
+    }): R<Normalized>
+    gasOracle(input?: { chain?: string }): R<Normalized>
     /** ENS forward + reverse resolution on Ethereum mainnet (live RPC). */
     ensResolve(input: { query: string }): R<unknown>
     /** Spot price + market data by CoinGecko asset ids (comma-separated, lowercase). */
@@ -163,10 +136,10 @@ export interface Endpoints {
       host: string
       types?: string
       resolver?: 'cloudflare' | 'google' | 'quad9' | 'opendns'
-    }): R<DnsLookupResponse>
+    }): R<Normalized>
   }
   domain: {
-    whois(input: { domain: string }): R<DomainWhoisResponse>
+    whois(input: { domain: string }): R<Normalized>
   }
   earth: {
     now(input: {
@@ -175,7 +148,7 @@ export interface Endpoints {
       radius_km?: number
       hours?: number
       min_magnitude?: number
-    }): R<EarthNowResponse>
+    }): R<Normalized>
     /** Global natural-events feed (wildfires, storms, volcanoes, floods) via NASA EONET v3. */
     events(input?: {
       status?: 'open' | 'closed' | 'all'
@@ -214,14 +187,14 @@ export interface Endpoints {
     companyProfile(input: { ticker: string; formType?: string; limit?: number }): R<unknown>
   }
   geo: {
-    ip(input: { ip: string }): R<GeoIpResponse>
+    ip(input: { ip: string }): R<Normalized>
     /** Airports + schools + climate stations + recent quakes around a coordinate. */
     nearby(input: { lat: number; lon: number; radiusKm?: number; limit?: number }): R<unknown>
   }
   geocode: {
     /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
-    address(input: { q: string; limit?: number; country?: string }): R<GeocodeAddressResponse>
-    reverse(input: { lat: number; lon: number }): R<GeocodeReverseResponse>
+    address(input: { q: string; limit?: number; country?: string }): R<Normalized>
+    reverse(input: { lat: number; lon: number }): R<Normalized>
   }
   hash: {
     compute(input: {
@@ -230,7 +203,7 @@ export interface Endpoints {
       algorithms?: string[]
       algorithm?: string
       outputEncoding?: 'hex' | 'base64'
-    }): R<HashComputeResponse>
+    }): R<Normalized>
   }
   image: {
     /** Returns compressed image bytes — `result.data` is a `Uint8Array`. Provide exactly one of url | imageBase64. */
@@ -244,7 +217,7 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   ipinfo: {
-    bulk(input: { ips: string[] }): R<IpinfoBulkResponse>
+    bulk(input: { ips: string[] }): R<Normalized>
   }
   html: {
     /** Convert caller-supplied HTML to clean reading markdown (POST, no fetch). */
@@ -336,7 +309,7 @@ export interface Endpoints {
       limit?: number
       since?: string
       sources?: string
-    }): R<PapersSearchResponse>
+    }): R<Normalized>
   }
   paper: {
     /** Crossref DOI bibliographic metadata lookup. */
@@ -459,9 +432,9 @@ export interface Endpoints {
       applicationType?: 'Utility' | 'Design' | 'Plant' | 'Reissue'
       limit?: number
       offset?: number
-    }): R<PatentsSearchResponse>
-    detail(input: { applicationNumber: string }): R<PatentsDetailResponse>
-    documents(input: { applicationNumber: string }): R<PatentsDocumentsResponse>
+    }): R<Normalized>
+    detail(input: { applicationNumber: string }): R<Normalized>
+    documents(input: { applicationNumber: string }): R<Normalized>
   }
   quakes: {
     /** Server requires lat + lon. Optional: radius_km, hours, min_magnitude. */
@@ -471,14 +444,14 @@ export interface Endpoints {
       radius_km?: number
       hours?: number
       min_magnitude?: number
-    }): R<QuakesRecentResponse>
+    }): R<Normalized>
   }
   sunrise: {
     /** Server requires lat + lon + date (yyyy-mm-dd). */
-    compute(input: { lat: number; lon: number; date: string }): R<SunriseComputeResponse>
+    compute(input: { lat: number; lon: number; date: string }): R<Normalized>
   }
   tides: {
-    now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<TidesNowResponse>
+    now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<Normalized>
   }
   medical: {
     /** Verify an ICD-10-CM diagnosis code or keyword-search the official US code set. */
@@ -528,10 +501,10 @@ export interface Endpoints {
     }>
   }
   weather: {
-    zip(input: { zip: string }): R<WeatherZipResponse>
+    zip(input: { zip: string }): R<Normalized>
   }
   wikipedia: {
-    summary(input: { title: string; lang?: string }): R<WikipediaSummaryResponse>
+    summary(input: { title: string; lang?: string }): R<Normalized>
   }
   poi: {
     /** Find POIs near a coord — OpenStreetMap-backed via Overpass. */

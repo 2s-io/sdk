@@ -489,5 +489,5 @@ export class TwoS {
   }
 }
 
-export type { Endpoints } from './endpoints.js'
+export type { Endpoints, Normalized } from './endpoints.js'
 export * from './types.js'

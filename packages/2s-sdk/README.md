@@ -38,6 +38,10 @@ Most endpoints return the **normalized envelope** — a consistent wrapper so yo
 
 A handful of endpoints keep a custom shape by design and advertise `responseShape: "legacy"` in `/api/directory` and `x-2s-response-shape` in the OpenAPI spec: the **enrichment** endpoints (e.g. `person.crossRegistry`, `geo.nearby`, `*.profile`, `*.screen`) return per-source `{ found, error, ... }` blocks rather than a flat `items` array, and the **binary** endpoints (`barcode.generate`, `countdown.gif`, `image.compress`, `ai.screenshot`) return raw bytes (`result.data` is a `Uint8Array`). The `Normalized<T>` type is exported for the normalized ones.
 
+## v1.0 (breaking)
+
+`1.0` makes the normalized envelope the stable, advertised contract. **Breaking change:** the per-endpoint `*Response` types (`PatentsSearchResponse`, `DnsLookupResponse`, etc.) have been removed — those endpoints now return `Normalized` (their typed methods return `R<Normalized>` / `R<Normalized<T>>`). If you imported one of those types, switch to `Normalized` from `@2sio/sdk` and read `result.data.items`. Legacy-shape endpoints (enrichment per-source blocks, binary `Uint8Array` responses, `account.balance`, `url.*`) keep their existing types and are flagged `responseShape: "legacy"` on the discovery surfaces. No runtime behavior changed — this is a types-only cut.
+
 If you'd rather build the signer yourself (e.g. for a custodial KMS-backed wallet), pass `signer` directly:
 
 ```ts
@@ -90,7 +94,7 @@ Every call returns `{ data, settlement?, costUsd, endpoint }`. `settlement` carr
 
 ```ts
 const result = await client.law.sanctionsCheck({ query: 'John Doe' })
-console.log(result.data.matches)         // typed
+console.log(result.data.items)         // typed
 console.log(result.settlement?.txHash)   // basescan tx
 console.log(result.costUsd)              // 0.0048
 ```
