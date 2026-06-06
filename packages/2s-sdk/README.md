@@ -18,8 +18,25 @@ const client = new TwoS({
 })
 
 const { data } = await client.patents.search({ q: 'neural network', limit: 5 })
-console.log(data.hits[0].title)
+console.log(data.items[0].title) // normalized envelope: { ok, items, total, source, meta? }
 ```
+
+### Response shape
+
+Most endpoints return the **normalized envelope** — a consistent wrapper so you don't learn a different shape per endpoint:
+
+```ts
+{
+  ok: true,
+  items: T[],          // results — always an array (single-result lookups return a 1-element array)
+  total: number | null, // total matching rows upstream, or null when the upstream doesn't report one
+  page?: { number, size, pages },
+  source: { provider, url, license },
+  meta?: { ... }        // endpoint-specific extras (mode flags, query echoes, etc.)
+}
+```
+
+A handful of endpoints keep a custom shape by design and advertise `responseShape: "legacy"` in `/api/directory` and `x-2s-response-shape` in the OpenAPI spec: the **enrichment** endpoints (e.g. `person.crossRegistry`, `geo.nearby`, `*.profile`, `*.screen`) return per-source `{ found, error, ... }` blocks rather than a flat `items` array, and the **binary** endpoints (`barcode.generate`, `countdown.gif`, `image.compress`, `ai.screenshot`) return raw bytes (`result.data` is a `Uint8Array`). The `Normalized<T>` type is exported for the normalized ones.
 
 If you'd rather build the signer yourself (e.g. for a custodial KMS-backed wallet), pass `signer` directly:
 

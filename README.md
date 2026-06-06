@@ -29,7 +29,7 @@ import { privateKeyToAccount } from 'viem/accounts'
 const client = new TwoS({ signer: privateKeyToAccount(process.env.EVM_PRIVATE_KEY as `0x${string}`) })
 
 const { data } = await client.patents.search({ q: 'neural network', limit: 5 })
-console.log(data.hits[0].title)
+console.log(data.items[0].title) // normalized envelope: { ok, items, total, source, meta? }
 ```
 
 **Python:**
