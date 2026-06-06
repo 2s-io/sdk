@@ -281,6 +281,17 @@ export interface Endpoints {
     uscSection(input: { title: number; section: string; includeNotes?: boolean }): R<unknown>
     /** US trademark status by 8-digit serial number OR registration number (exactly one). */
     trademarkStatus(input: { serialNumber: string } | { registrationNumber: string }): R<unknown>
+    /** Full-text search of US trademarks by wordmark / owner / goods (or exact serial / registration number). */
+    trademarkSearch(input: {
+      query?: string
+      serial?: string
+      registrationNumber?: string
+      field?: 'mark' | 'owner' | 'all'
+      status?: 'live' | 'all'
+      intlClass?: string
+      limit?: number
+      offset?: number
+    }): R<unknown>
   }
   /** USDA FoodData Central nutrition data. */
   nutrition: {
@@ -1006,6 +1017,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),
       uscSection: (i) => get('law.usc-section', '/api/law/usc-section', i),
       trademarkStatus: (i) => get('law.trademark-status', '/api/law/trademark-status', i),
+      trademarkSearch: (i) => get('law.trademark-search', '/api/law/trademark-search', i),
     },
     nutrition: {
       food: (i) => get('nutrition.food', '/api/nutrition/food', i),

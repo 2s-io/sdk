@@ -401,6 +401,37 @@ class _Law(_Group):
         if registration_number is not None: q["registrationNumber"] = registration_number
         return self._c.request("GET", "/api/law/trademark-status", endpoint="law.trademark-status", query=q)
 
+    def trademark_search(
+        self,
+        *,
+        query: Optional[str] = None,
+        serial: Optional[str] = None,
+        registration_number: Optional[str] = None,
+        field: Optional[str] = None,
+        status: Optional[str] = None,
+        intl_class: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """Full-text search of US trademarks (USPTO bulk corpus).
+
+        Pass query for wordmark/owner/goods search, or serial /
+        registration_number for an exact record. field=mark|owner|all,
+        status=live|all (default live), intl_class=Nice class.
+        """
+        if query is None and serial is None and registration_number is None:
+            raise ValueError("trademark_search() requires one of query, serial, or registration_number.")
+        q: dict[str, Any] = {}
+        if query is not None: q["query"] = query
+        if serial is not None: q["serial"] = serial
+        if registration_number is not None: q["registrationNumber"] = registration_number
+        if field is not None: q["field"] = field
+        if status is not None: q["status"] = status
+        if intl_class is not None: q["intlClass"] = intl_class
+        if limit is not None: q["limit"] = limit
+        if offset is not None: q["offset"] = offset
+        return self._c.request("GET", "/api/law/trademark-search", endpoint="law.trademark-search", query=q)
+
     def opinion(
         self,
         *,
