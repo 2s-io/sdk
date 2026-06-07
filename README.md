@@ -1,6 +1,7 @@
 # 2s.io SDK
 
 [![smithery badge](https://smithery.ai/badge/twosio/mcp)](https://smithery.ai/servers/twosio/mcp)
+[![2s-io/sdk MCP server](https://glama.ai/mcp/servers/2s-io/sdk/badges/score.svg)](https://glama.ai/mcp/servers/2s-io/sdk)
 
 **Client SDK + MCP server for [2s.io](https://2s.io) — a unified JSON REST API for AI agents, paid per call in USDC on Base or Solana via [x402](https://x402.org).**
 
@@ -61,12 +62,12 @@ Restart Claude. The model can now call patents.search, law.sanctions-check, ai.s
 
 ## What's behind the API
 
-130+ endpoints (live count in the [directory](https://2s.io/api/directory)) across:
+180+ endpoints (live count in the [directory](https://2s.io/api/directory)) across:
 
 - **AI:** webpage summarization, translation, typed extraction, image description, screenshots
 - **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y")
 - **Patents:** USPTO Open Data Portal search + full file-wrapper detail + document list
-- **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, opinions
+- **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, opinions, US trademark full-text search + status (USPTO)
 - **Government:** Congress bills/votes/members, FEC campaign finance, FDA drug/device/food events + recalls, OSHA/MSHA, USAspending, EPA facilities, USGS water
 - **Finance:** SEC EDGAR company facts, filings, insider trades, 13F holdings; US Treasury debt + cash
 - **Vehicles:** VIN decode, recalls, complaints, investigations (NHTSA)
