@@ -148,6 +148,7 @@ export class TwoS {
   public readonly geo: Endpoints['geo']
   public readonly geocode: Endpoints['geocode']
   public readonly hash: Endpoints['hash']
+  public readonly validate: Endpoints['validate']
   public readonly image: Endpoints['image']
   public readonly ipinfo: Endpoints['ipinfo']
   public readonly business: Endpoints['business']
@@ -247,6 +248,7 @@ export class TwoS {
     this.geo = this.endpoints.geo
     this.geocode = this.endpoints.geocode
     this.hash = this.endpoints.hash
+    this.validate = this.endpoints.validate
     this.image = this.endpoints.image
     this.ipinfo = this.endpoints.ipinfo
     this.business = this.endpoints.business

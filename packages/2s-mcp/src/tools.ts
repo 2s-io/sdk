@@ -73,6 +73,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.crypto.addressValidate(a as never),
     },
     {
+      name: 'validate.iban',
+      description:
+        'Validate an IBAN (International Bank Account Number) with full ISO 13616 checks: country-specific length + ISO 7064 mod-97 checksum, not just regex. Returns valid flag, normalized + 4-char-grouped form, country, check digits, and BBAN. Deterministic, ~85 countries — validate AND canonicalize bank details in one call instead of doing checksum math in an LLM.',
+      inputSchema: s('IBAN validation input', {
+        iban: { type: 'string', description: 'IBAN to validate (spaces/hyphens allowed, case-insensitive).' },
+      }, ['iban']),
+      invoke: (a) => c.validate.iban(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',

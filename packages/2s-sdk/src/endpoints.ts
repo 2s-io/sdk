@@ -130,6 +130,11 @@ export interface Endpoints {
     /** Spot price + market data by CoinGecko asset ids (comma-separated, lowercase). */
     tokenPrice(input: { ids: string; vs?: string }): R<unknown>
   }
+  /** Deterministic validation/normalization primitives (no upstream). */
+  validate: {
+    /** IBAN structural + ISO 7064 mod-97 checksum validation + canonical form (~85 countries). */
+    iban(input: { iban: string }): R<Normalized>
+  }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
     lookup(input: {
@@ -957,6 +962,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
       tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
+    },
+    validate: {
+      iban: (i) => get('validate.iban', '/api/validate/iban', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),

@@ -908,6 +908,12 @@ class _Hash(_Group):
         return self._c.request("POST", "/api/hash/compute", endpoint="hash.compute", body=kwargs)
 
 
+class _Validate(_Group):
+    def iban(self, *, iban: str) -> CallResult:
+        """Validate an IBAN (ISO 13616 length + mod-97 checksum); returns valid flag + canonical form."""
+        return self._c.request("GET", "/api/validate/iban", endpoint="validate.iban", query={"iban": iban})
+
+
 class _Quakes(_Group):
     def recent(
         self,
@@ -2870,6 +2876,7 @@ class TwoS:
         self.geo = _Geo(self)
         self.ipinfo = _Ipinfo(self)
         self.hash = _Hash(self)
+        self.validate = _Validate(self)
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)
