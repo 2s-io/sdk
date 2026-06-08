@@ -913,6 +913,18 @@ class _Validate(_Group):
         """Validate an IBAN (ISO 13616 length + mod-97 checksum); returns valid flag + canonical form."""
         return self._c.request("GET", "/api/validate/iban", endpoint="validate.iban", query={"iban": iban})
 
+    def gtin(self, *, gtin: str) -> CallResult:
+        """Validate a GTIN/UPC/EAN/ISBN check digit; normalizes to canonical GTIN-14."""
+        return self._c.request("GET", "/api/validate/gtin", endpoint="validate.gtin", query={"gtin": gtin})
+
+    def aba(self, *, routing_number: str) -> CallResult:
+        """Validate a US ABA routing number (Federal Reserve weighted mod-10 checksum)."""
+        return self._c.request("GET", "/api/validate/aba", endpoint="validate.aba", query={"routingNumber": routing_number})
+
+    def lei(self, *, lei: str) -> CallResult:
+        """Validate a Legal Entity Identifier (LEI, ISO 17442 mod-97-10 check digits)."""
+        return self._c.request("GET", "/api/validate/lei", endpoint="validate.lei", query={"lei": lei})
+
 
 class _Quakes(_Group):
     def recent(

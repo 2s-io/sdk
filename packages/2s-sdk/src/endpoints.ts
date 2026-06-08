@@ -134,6 +134,12 @@ export interface Endpoints {
   validate: {
     /** IBAN structural + ISO 7064 mod-97 checksum validation + canonical form (~85 countries). */
     iban(input: { iban: string }): R<Normalized>
+    /** GTIN/UPC/EAN/ISBN check-digit validation; normalizes to canonical GTIN-14. */
+    gtin(input: { gtin: string }): R<Normalized>
+    /** US ABA routing-number Federal Reserve weighted mod-10 checksum. */
+    aba(input: { routingNumber: string }): R<Normalized>
+    /** Legal Entity Identifier (LEI, ISO 17442) mod-97-10 check-digit validation. */
+    lei(input: { lei: string }): R<Normalized>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -965,6 +971,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     validate: {
       iban: (i) => get('validate.iban', '/api/validate/iban', i),
+      gtin: (i) => get('validate.gtin', '/api/validate/gtin', i),
+      aba: (i) => get('validate.aba', '/api/validate/aba', i),
+      lei: (i) => get('validate.lei', '/api/validate/lei', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),

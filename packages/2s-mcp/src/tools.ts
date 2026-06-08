@@ -82,6 +82,33 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.validate.iban(a as never),
     },
     {
+      name: 'validate.gtin',
+      description:
+        'Validate a product barcode (GTIN-8/12/13/14, UPC-A, EAN-13, ISBN-10/13) with the GS1 mod-10 / ISBN mod-11 check digit. Returns valid, type, and the canonical GTIN-14 key for product-master dedup. Deterministic — no checksum math in the LLM.',
+      inputSchema: s('GTIN validation input', {
+        gtin: { type: 'string', description: 'Barcode/identifier (spaces/hyphens allowed).' },
+      }, ['gtin']),
+      invoke: (a) => c.validate.gtin(a as never),
+    },
+    {
+      name: 'validate.aba',
+      description:
+        'Validate a US bank ABA routing number with the Federal Reserve weighted mod-10 (3-7-1) checksum, not just a regex. Returns valid, routingNumber, and routing-symbol district. Catches transposed digits in ACH/wire setup.',
+      inputSchema: s('ABA validation input', {
+        routingNumber: { type: 'string', description: '9-digit ABA routing number.' },
+      }, ['routingNumber']),
+      invoke: (a) => c.validate.aba(a as never),
+    },
+    {
+      name: 'validate.lei',
+      description:
+        'Validate a Legal Entity Identifier (LEI, ISO 17442) with the ISO 7064 mod-97-10 check digits. Returns valid, normalized LEI, and the issuing LOU prefix. Confirms a counterparty/vendor LEI is well-formed before GLEIF lookup.',
+      inputSchema: s('LEI validation input', {
+        lei: { type: 'string', description: '20-character LEI (case-insensitive).' },
+      }, ['lei']),
+      invoke: (a) => c.validate.lei(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',
