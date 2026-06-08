@@ -959,6 +959,12 @@ class _Validate(_Group):
         """Validate a CUSIP (US/Canada securities identifier, mod-10 check digit)."""
         return self._c.request("GET", "/api/validate/cusip", endpoint="validate.cusip", query={"cusip": cusip})
 
+    def batch(self, *, items: list[dict]) -> CallResult:
+        """Validate up to 100 mixed identifiers in one call. items=[{"type","value"}];
+        type is one of iban, gtin, aba, lei, bic, gln, sscc, isin, cusip. One bad item
+        degrades to its own valid:false and never fails the batch."""
+        return self._c.request("POST", "/api/validate/batch", endpoint="validate.batch", body={"items": items})
+
 
 class _Convert(_Group):
     def unit(self, *, value: float, from_: str, to: str) -> CallResult:

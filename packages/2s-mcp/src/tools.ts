@@ -154,6 +154,28 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.validate.cusip(a as never),
     },
     {
+      name: 'validate.batch',
+      description:
+        'Validate up to 100 mixed identifiers in one deterministic call. Pass items=[{type,value}] with type one of iban, gtin, aba, lei, bic, gln, sscc, isin, cusip. Each result (in input order, with index + type) carries valid/reason plus the same type-specific fields the single endpoints return. One bad value or unsupported type degrades to that item only. Collapses a whole record of checksum checks into one round-trip.',
+      inputSchema: s('Batch validation input', {
+        items: {
+          type: 'array',
+          description: 'Identifiers to validate; each {type, value}.',
+          items: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', description: 'iban | gtin | aba | lei | bic | gln | sscc | isin | cusip' },
+              value: { type: 'string', description: 'Raw identifier (spaces/hyphens allowed).' },
+            },
+            required: ['type', 'value'],
+          },
+          minItems: 1,
+          maxItems: 100,
+        },
+      }, ['items']),
+      invoke: (a) => c.validate.batch(a as never),
+    },
+    {
       name: 'convert.unit',
       description:
         'Deterministic unit-of-measure conversion: mass (g/kg/lb/oz/t…), length (m/km/in/ft/mi…), volume (l/ml/gal/qt/cup…), area (m2/ft2/acre/ha), temperature (C/F/K). Case-insensitive with aliases (kg/kilogram). Returns the exact result + dimension. Cross-dimension (kg→m) is rejected. Ground-truth factors instead of an LLM approximation.',

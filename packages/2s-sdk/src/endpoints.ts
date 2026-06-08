@@ -152,6 +152,8 @@ export interface Endpoints {
     isin(input: { isin: string }): R<Normalized>
     /** CUSIP (US/Canada securities identifier) mod-10 check-digit validation. */
     cusip(input: { cusip: string }): R<Normalized>
+    /** Batch-validate up to 100 mixed identifiers ({type,value}) in one deterministic call. */
+    batch(input: { items: Array<{ type: string; value: string }> }): R<Normalized>
   }
   /** Deterministic conversion primitives (no upstream). */
   convert: {
@@ -1004,6 +1006,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       sscc: (i) => get('validate.sscc', '/api/validate/sscc', i),
       isin: (i) => get('validate.isin', '/api/validate/isin', i),
       cusip: (i) => get('validate.cusip', '/api/validate/cusip', i),
+      batch: (i) => post('validate.batch', '/api/validate/batch', i),
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),
