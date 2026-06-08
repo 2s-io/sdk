@@ -149,6 +149,11 @@ export interface Endpoints {
     /** GS1 Serial Shipping Container Code (18-digit mod-10) validation. */
     sscc(input: { sscc: string }): R<Normalized>
   }
+  /** Deterministic conversion primitives (no upstream). */
+  convert: {
+    /** Unit-of-measure conversion: mass, length, volume, area, temperature. */
+    unit(input: { value: number; from: string; to: string }): R<Normalized>
+  }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
     lookup(input: {
@@ -986,6 +991,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       bic: (i) => get('validate.bic', '/api/validate/bic', i),
       gln: (i) => get('validate.gln', '/api/validate/gln', i),
       sscc: (i) => get('validate.sscc', '/api/validate/sscc', i),
+    },
+    convert: {
+      unit: (i) => get('convert.unit', '/api/convert/unit', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),

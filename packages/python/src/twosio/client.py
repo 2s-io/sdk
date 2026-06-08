@@ -946,6 +946,13 @@ class _Validate(_Group):
         return self._c.request("GET", "/api/validate/sscc", endpoint="validate.sscc", query={"sscc": sscc})
 
 
+class _Convert(_Group):
+    def unit(self, *, value: float, from_: str, to: str) -> CallResult:
+        """Convert a value between units of measure (mass/length/volume/area/temperature)."""
+        return self._c.request("GET", "/api/convert/unit", endpoint="convert.unit",
+                                query={"value": value, "from": from_, "to": to})
+
+
 class _Quakes(_Group):
     def recent(
         self,
@@ -2909,6 +2916,7 @@ class TwoS:
         self.ipinfo = _Ipinfo(self)
         self.hash = _Hash(self)
         self.validate = _Validate(self)
+        self.convert = _Convert(self)
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)

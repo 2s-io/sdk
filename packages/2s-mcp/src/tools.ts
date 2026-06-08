@@ -140,6 +140,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.validate.sscc(a as never),
     },
     {
+      name: 'convert.unit',
+      description:
+        'Deterministic unit-of-measure conversion: mass (g/kg/lb/oz/t…), length (m/km/in/ft/mi…), volume (l/ml/gal/qt/cup…), area (m2/ft2/acre/ha), temperature (C/F/K). Case-insensitive with aliases (kg/kilogram). Returns the exact result + dimension. Cross-dimension (kg→m) is rejected. Ground-truth factors instead of an LLM approximation.',
+      inputSchema: s('Unit conversion input', {
+        value: { type: 'number', description: 'Value to convert.' },
+        from: { type: 'string', description: 'Source unit (alias-tolerant).' },
+        to: { type: 'string', description: 'Target unit (same dimension).' },
+      }, ['value', 'from', 'to']),
+      invoke: (a) => c.convert.unit(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',
