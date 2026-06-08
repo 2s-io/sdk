@@ -119,6 +119,27 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.validate.lei(a as never),
     },
     {
+      name: 'validate.bic',
+      description:
+        'Validate a SWIFT/BIC code (ISO 9362): 8 or 11 chars = institution + ISO country + location + optional branch, with the country checked against ISO 3166. Returns parsed parts. Structure only, not a directory lookup.',
+      inputSchema: s('BIC validation input', { bic: { type: 'string', description: '8 or 11-char BIC/SWIFT.' } }, ['bic']),
+      invoke: (a) => c.validate.bic(a as never),
+    },
+    {
+      name: 'validate.gln',
+      description:
+        'Validate a GS1 GLN (Global Location Number), 13 digits with the GS1 mod-10 check digit. GLNs identify trading parties + physical locations in CPG supply chains / EDI. Deterministic.',
+      inputSchema: s('GLN validation input', { gln: { type: 'string', description: '13-digit GLN.' } }, ['gln']),
+      invoke: (a) => c.validate.gln(a as never),
+    },
+    {
+      name: 'validate.sscc',
+      description:
+        'Validate a GS1 SSCC (Serial Shipping Container Code), 18 digits with the GS1 mod-10 check digit. SSCCs identify logistic units (pallets/cases) — the key field in shipping/ASN (EDI 856). Deterministic.',
+      inputSchema: s('SSCC validation input', { sscc: { type: 'string', description: '18-digit SSCC.' } }, ['sscc']),
+      invoke: (a) => c.validate.sscc(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',

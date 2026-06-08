@@ -933,6 +933,18 @@ class _Validate(_Group):
         """Validate a Legal Entity Identifier (LEI, ISO 17442 mod-97-10 check digits)."""
         return self._c.request("GET", "/api/validate/lei", endpoint="validate.lei", query={"lei": lei})
 
+    def bic(self, *, bic: str) -> CallResult:
+        """Validate a SWIFT/BIC code (ISO 9362 structure + ISO country)."""
+        return self._c.request("GET", "/api/validate/bic", endpoint="validate.bic", query={"bic": bic})
+
+    def gln(self, *, gln: str) -> CallResult:
+        """Validate a GS1 GLN (Global Location Number, 13-digit mod-10)."""
+        return self._c.request("GET", "/api/validate/gln", endpoint="validate.gln", query={"gln": gln})
+
+    def sscc(self, *, sscc: str) -> CallResult:
+        """Validate a GS1 SSCC (Serial Shipping Container Code, 18-digit mod-10)."""
+        return self._c.request("GET", "/api/validate/sscc", endpoint="validate.sscc", query={"sscc": sscc})
+
 
 class _Quakes(_Group):
     def recent(

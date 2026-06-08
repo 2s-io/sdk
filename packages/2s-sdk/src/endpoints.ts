@@ -142,6 +142,12 @@ export interface Endpoints {
     aba(input: { routingNumber: string }): R<Normalized>
     /** Legal Entity Identifier (LEI, ISO 17442) mod-97-10 check-digit validation. */
     lei(input: { lei: string }): R<Normalized>
+    /** SWIFT/BIC (ISO 9362) structure validation incl. ISO country position. */
+    bic(input: { bic: string }): R<Normalized>
+    /** GS1 Global Location Number (13-digit mod-10) validation. */
+    gln(input: { gln: string }): R<Normalized>
+    /** GS1 Serial Shipping Container Code (18-digit mod-10) validation. */
+    sscc(input: { sscc: string }): R<Normalized>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -977,6 +983,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       gtin: (i) => get('validate.gtin', '/api/validate/gtin', i),
       aba: (i) => get('validate.aba', '/api/validate/aba', i),
       lei: (i) => get('validate.lei', '/api/validate/lei', i),
+      bic: (i) => get('validate.bic', '/api/validate/bic', i),
+      gln: (i) => get('validate.gln', '/api/validate/gln', i),
+      sscc: (i) => get('validate.sscc', '/api/validate/sscc', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),
