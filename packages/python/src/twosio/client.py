@@ -953,6 +953,18 @@ class _Convert(_Group):
                                 query={"value": value, "from": from_, "to": to})
 
 
+class _Trade(_Group):
+    def tariff(self, *, code: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """US Harmonized Tariff Schedule: exact code lookup or free-text search → HS codes + duty rates."""
+        if code is None and query is None:
+            raise ValueError("tariff() requires one of code or query.")
+        q: dict[str, Any] = {}
+        if code is not None: q["code"] = code
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/trade/tariff", endpoint="trade.tariff", query=q)
+
+
 class _Quakes(_Group):
     def recent(
         self,
@@ -2917,6 +2929,7 @@ class TwoS:
         self.hash = _Hash(self)
         self.validate = _Validate(self)
         self.convert = _Convert(self)
+        self.trade = _Trade(self)
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)

@@ -154,6 +154,11 @@ export interface Endpoints {
     /** Unit-of-measure conversion: mass, length, volume, area, temperature. */
     unit(input: { value: number; from: string; to: string }): R<Normalized>
   }
+  /** Trade / customs reference data. */
+  trade: {
+    /** US Harmonized Tariff Schedule: exact `code` lookup or free-text `query` → candidate HS codes + duty rates. */
+    tariff(input: { code?: string; query?: string; limit?: number }): R<Normalized>
+  }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
     lookup(input: {
@@ -994,6 +999,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),
+    },
+    trade: {
+      tariff: (i) => get('trade.tariff', '/api/trade/tariff', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),

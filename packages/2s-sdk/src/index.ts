@@ -150,6 +150,7 @@ export class TwoS {
   public readonly hash: Endpoints['hash']
   public readonly validate: Endpoints['validate']
   public readonly convert: Endpoints['convert']
+  public readonly trade: Endpoints['trade']
   public readonly image: Endpoints['image']
   public readonly ipinfo: Endpoints['ipinfo']
   public readonly business: Endpoints['business']
@@ -251,6 +252,7 @@ export class TwoS {
     this.hash = this.endpoints.hash
     this.validate = this.endpoints.validate
     this.convert = this.endpoints.convert
+    this.trade = this.endpoints.trade
     this.image = this.endpoints.image
     this.ipinfo = this.endpoints.ipinfo
     this.business = this.endpoints.business

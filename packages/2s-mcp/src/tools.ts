@@ -151,6 +151,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.convert.unit(a as never),
     },
     {
+      name: 'trade.tariff',
+      description:
+        'Look up or search the US Harmonized Tariff Schedule (HTS / HS codes). Pass code for an exact HTS number (returns the line + 10-digit stat suffixes with duty rates), or query for free-text → ranked candidate HS codes by hierarchical heading. ~29.6k public-domain USITC lines. The deterministic backbone for tariff classification.',
+      inputSchema: s('Tariff lookup input', {
+        code: { type: 'string', description: 'Exact HTS number (dots optional).' },
+        query: { type: 'string', description: 'Free-text product description.' },
+        limit: { type: 'integer', description: '1-50, default 20.' },
+      }),
+      invoke: (a) => c.trade.tariff(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',
