@@ -140,6 +140,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.validate.sscc(a as never),
     },
     {
+      name: 'validate.isin',
+      description:
+        'Validate an ISIN (ISO 6166 securities identifier): 2-letter country + 9-char NSIN + Luhn check digit. Returns valid, country, nsin, and the embedded CUSIP for US/CA issues. Catches transposed chars in security master data.',
+      inputSchema: s('ISIN validation input', { isin: { type: 'string', description: '12-character ISIN.' } }, ['isin']),
+      invoke: (a) => c.validate.isin(a as never),
+    },
+    {
+      name: 'validate.cusip',
+      description:
+        'Validate a CUSIP (9-character US/Canada securities identifier) with its mod-10 weighted check digit. Returns valid + check digit. Deterministic security-master validation.',
+      inputSchema: s('CUSIP validation input', { cusip: { type: 'string', description: '9-character CUSIP.' } }, ['cusip']),
+      invoke: (a) => c.validate.cusip(a as never),
+    },
+    {
       name: 'convert.unit',
       description:
         'Deterministic unit-of-measure conversion: mass (g/kg/lb/oz/t…), length (m/km/in/ft/mi…), volume (l/ml/gal/qt/cup…), area (m2/ft2/acre/ha), temperature (C/F/K). Case-insensitive with aliases (kg/kilogram). Returns the exact result + dimension. Cross-dimension (kg→m) is rejected. Ground-truth factors instead of an LLM approximation.',

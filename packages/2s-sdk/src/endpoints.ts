@@ -148,6 +148,10 @@ export interface Endpoints {
     gln(input: { gln: string }): R<Normalized>
     /** GS1 Serial Shipping Container Code (18-digit mod-10) validation. */
     sscc(input: { sscc: string }): R<Normalized>
+    /** ISIN (ISO 6166) securities identifier — country + NSIN + Luhn check (+ embedded CUSIP for US/CA). */
+    isin(input: { isin: string }): R<Normalized>
+    /** CUSIP (US/Canada securities identifier) mod-10 check-digit validation. */
+    cusip(input: { cusip: string }): R<Normalized>
   }
   /** Deterministic conversion primitives (no upstream). */
   convert: {
@@ -998,6 +1002,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       bic: (i) => get('validate.bic', '/api/validate/bic', i),
       gln: (i) => get('validate.gln', '/api/validate/gln', i),
       sscc: (i) => get('validate.sscc', '/api/validate/sscc', i),
+      isin: (i) => get('validate.isin', '/api/validate/isin', i),
+      cusip: (i) => get('validate.cusip', '/api/validate/cusip', i),
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),

@@ -951,6 +951,14 @@ class _Validate(_Group):
         """Validate a GS1 SSCC (Serial Shipping Container Code, 18-digit mod-10)."""
         return self._c.request("GET", "/api/validate/sscc", endpoint="validate.sscc", query={"sscc": sscc})
 
+    def isin(self, *, isin: str) -> CallResult:
+        """Validate an ISIN (ISO 6166 securities identifier); returns country, NSIN, embedded CUSIP (US/CA)."""
+        return self._c.request("GET", "/api/validate/isin", endpoint="validate.isin", query={"isin": isin})
+
+    def cusip(self, *, cusip: str) -> CallResult:
+        """Validate a CUSIP (US/Canada securities identifier, mod-10 check digit)."""
+        return self._c.request("GET", "/api/validate/cusip", endpoint="validate.cusip", query={"cusip": cusip})
+
 
 class _Convert(_Group):
     def unit(self, *, value: float, from_: str, to: str) -> CallResult:
