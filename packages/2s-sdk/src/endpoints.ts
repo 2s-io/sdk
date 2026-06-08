@@ -129,6 +129,8 @@ export interface Endpoints {
     ensResolve(input: { query: string }): R<unknown>
     /** Spot price + market data by CoinGecko asset ids (comma-separated, lowercase). */
     tokenPrice(input: { ids: string; vs?: string }): R<unknown>
+    /** Live EVM transaction status + receipt by hash. Chains: base, ethereum, polygon, arbitrum, optimism. */
+    tx(input: { chain: 'base' | 'ethereum' | 'polygon' | 'arbitrum' | 'optimism'; hash: string }): R<Normalized>
   }
   /** Deterministic validation/normalization primitives (no upstream). */
   validate: {
@@ -968,6 +970,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
       tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
+      tx: (i) => get('crypto.tx', '/api/crypto/tx', i),
     },
     validate: {
       iban: (i) => get('validate.iban', '/api/validate/iban', i),

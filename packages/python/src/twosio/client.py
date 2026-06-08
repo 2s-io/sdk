@@ -112,6 +112,14 @@ class _Crypto(_Group):
             query={"chain": chain, "address": address},
         )
 
+    def tx(self, *, chain: str, hash: str) -> CallResult:
+        """Live EVM transaction status + receipt by hash. Chains: base, ethereum, polygon, arbitrum, optimism."""
+        return self._c.request(
+            "GET", "/api/crypto/tx",
+            endpoint="crypto.tx",
+            query={"chain": chain, "hash": hash},
+        )
+
     def gas_oracle(self, *, chain: str = "base") -> CallResult:
         return self._c.request(
             "GET", "/api/crypto/gas-oracle",

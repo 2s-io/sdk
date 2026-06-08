@@ -73,6 +73,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.crypto.addressValidate(a as never),
     },
     {
+      name: 'crypto.tx',
+      description:
+        'Live EVM transaction status + receipt by hash: mined/reverted/pending, block, confirmations, timestamp, from/to, value, gas used, effective gas price, total fee, contract created, log count. Chains: base, ethereum, polygon, arbitrum, optimism. Confirm a payment settled or a tx reverted before acting. 404 if unknown.',
+      inputSchema: s('Transaction lookup input', {
+        chain: { type: 'string', enum: ['base', 'ethereum', 'polygon', 'arbitrum', 'optimism'] },
+        hash: { type: 'string', description: '0x-prefixed 32-byte transaction hash.' },
+      }, ['chain', 'hash']),
+      invoke: (a) => c.crypto.tx(a as never),
+    },
+    {
       name: 'validate.iban',
       description:
         'Validate an IBAN (International Bank Account Number) with full ISO 13616 checks: country-specific length + ISO 7064 mod-97 checksum, not just regex. Returns valid flag, normalized + 4-char-grouped form, country, check digits, and BBAN. Deterministic, ~85 countries — validate AND canonicalize bank details in one call instead of doing checksum math in an LLM.',
