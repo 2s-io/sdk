@@ -219,6 +219,8 @@ export interface Endpoints {
     ip(input: { ip: string }): R<Normalized>
     /** Airports + schools + climate stations + recent quakes around a coordinate. */
     nearby(input: { lat: number; lon: number; radiusKm?: number; limit?: number }): R<unknown>
+    /** Postal/ZIP code → place + admin divisions + coordinates (international). */
+    postal(input: { postalCode: string; country?: string }): R<Normalized>
   }
   geocode: {
     /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
@@ -1023,6 +1025,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     geo: {
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
       nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
+      postal: (i) => get('geo.postal', '/api/geo/postal', i),
     },
     person: {
       crossRegistry: (i) => get('person.cross-registry', '/api/person/cross-registry', i),

@@ -877,6 +877,12 @@ class _Geo(_Group):
     def ip(self, *, ip: str) -> CallResult:
         return self._c.request("GET", "/api/geo/ip", endpoint="geo.ip", query={"ip": ip})
 
+    def postal(self, *, postal_code: str, country: Optional[str] = None) -> CallResult:
+        """Postal/ZIP code → place + admin divisions + coordinates (international, default US)."""
+        q: dict[str, Any] = {"postalCode": postal_code}
+        if country is not None: q["country"] = country
+        return self._c.request("GET", "/api/geo/postal", endpoint="geo.postal", query=q)
+
     def nearby(
         self,
         *,

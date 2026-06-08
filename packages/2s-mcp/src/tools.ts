@@ -1035,6 +1035,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.geo.ip(a as never),
     },
     {
+      name: 'geo.postal',
+      description:
+        'Resolve a postal/ZIP code to place name(s), administrative divisions (state/province, county/district), and coordinates. Pass postalCode + 2-letter country (default US). International — major markets (US, GB, CA, DE, FR, AU, NL, ES, IT, CH, SE, MX). Normalize + enrich addresses or derive state/county for a ZIP.',
+      inputSchema: s('Postal lookup input', {
+        postalCode: { type: 'string', description: 'Postal / ZIP code.' },
+        country: { type: 'string', description: '2-letter ISO country (default US).' },
+      }, ['postalCode']),
+      invoke: (a) => c.geo.postal(a as never),
+    },
+    {
       name: 'ipinfo.bulk',
       description: 'Bulk geolocate up to 100 IPs in one call.',
       inputSchema: s('IPinfo bulk', {
