@@ -27,19 +27,25 @@ jobs:
   ts-mcp:
     name: '@2sio/mcp (typecheck + build)'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: packages/2s-mcp
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-          cache-dependency-path: packages/2s-mcp/package.json
+      # Build the SIBLING SDK from source and link it locally, so the MCP
+      # typechecks against THIS repo's @2sio/sdk — not the last npm-published
+      # version. Without this, any release that adds an SDK API the MCP uses
+      # flashes a false CI failure until the SDK happens to publish first.
+      - run: npm install --no-package-lock && npm run build
+        working-directory: packages/2s-sdk
       - run: npm install --no-package-lock
+        working-directory: packages/2s-mcp
+      - run: npm install ../2s-sdk --no-save --no-package-lock
+        working-directory: packages/2s-mcp
       - run: npm run typecheck
+        working-directory: packages/2s-mcp
       - run: npm run build
+        working-directory: packages/2s-mcp
 
   python:
     name: '2sio (Python build + import)'
