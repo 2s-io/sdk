@@ -240,9 +240,9 @@ export class TwoS {
     }
     this.config = { ...config, signer }
     this._solanaSecretBytes = solanaSecretBytes
-    if (!signer && !solanaSecretBytes && !config.apiKey) {
+    if (!signer && !solanaSecretBytes && !config.apiKey && !config.trial) {
       throw new Error(
-        "@2sio/sdk: TwoS requires `privateKey: '0x...'` (recommended), `solanaPrivateKey`, or a pre-built `signer`.",
+        "@2sio/sdk: TwoS requires `privateKey: '0x...'` (recommended), `solanaPrivateKey`, a pre-built `signer`, or `trial: true` for free try-before-you-buy calls.",
       )
     }
     this.endpoints = createEndpoints(this)
