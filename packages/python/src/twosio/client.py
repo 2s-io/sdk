@@ -966,6 +966,21 @@ class _Validate(_Group):
         return self._c.request("POST", "/api/validate/batch", endpoint="validate.batch", body={"items": items})
 
 
+class _Tax(_Group):
+    def vat(self, *, vat: str | None = None, country: str | None = None, number: str | None = None) -> CallResult:
+        """Validate an EU VAT number against the live VIES register. Pass vat (full
+        identifier like 'DE811569869') OR country + number. Returns valid, countryCode,
+        vatNumber, and (when disclosed) name + address."""
+        q: dict = {}
+        if vat is not None:
+            q["vat"] = vat
+        if country is not None:
+            q["country"] = country
+        if number is not None:
+            q["number"] = number
+        return self._c.request("GET", "/api/tax/vat", endpoint="tax.vat", query=q)
+
+
 class _Convert(_Group):
     def unit(self, *, value: float, from_: str, to: str) -> CallResult:
         """Convert a value between units of measure (mass/length/volume/area/temperature)."""
@@ -2949,6 +2964,7 @@ class TwoS:
         self.hash = _Hash(self)
         self.validate = _Validate(self)
         self.convert = _Convert(self)
+        self.tax = _Tax(self)
         self.trade = _Trade(self)
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)

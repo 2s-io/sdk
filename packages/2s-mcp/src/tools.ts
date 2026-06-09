@@ -187,6 +187,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.convert.unit(a as never),
     },
     {
+      name: 'tax.vat',
+      description:
+        'Validate an EU VAT number against the official VIES register in real time. Confirms current registration for intra-EU trade and, when the member state discloses it, returns the registered business name + address. Covers the 27 EU states (Greece as EL) plus Northern Ireland (XI); Great Britain (GB) is not in VIES. Pass vat (full identifier like DE811569869) OR country + number. Returns {valid, countryCode, vatNumber, name, address, requestDate, reason}.',
+      inputSchema: s('VAT validation input', {
+        vat: { type: 'string', description: 'Full VAT identifier incl. country prefix, e.g. DE811569869.' },
+        country: { type: 'string', description: '2-letter VAT country prefix (Greece=EL, Northern Ireland=XI). Use with number.' },
+        number: { type: 'string', description: 'VAT number without the country prefix. Use with country.' },
+      }),
+      invoke: (a) => c.tax.vat(a as never),
+    },
+    {
       name: 'trade.tariff',
       description:
         'Look up or search the US Harmonized Tariff Schedule (HTS / HS codes). Pass code for an exact HTS number (returns the line + 10-digit stat suffixes with duty rates), or query for free-text → ranked candidate HS codes by hierarchical heading. ~29.6k public-domain USITC lines. The deterministic backbone for tariff classification.',

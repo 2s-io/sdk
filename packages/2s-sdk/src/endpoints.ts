@@ -160,6 +160,11 @@ export interface Endpoints {
     /** Unit-of-measure conversion: mass, length, volume, area, temperature. */
     unit(input: { value: number; from: string; to: string }): R<Normalized>
   }
+  /** Tax-identifier validation. */
+  tax: {
+    /** Validate an EU VAT number against the live VIES register. Pass `vat` (full id) OR `country`+`number`. */
+    vat(input: { vat?: string; country?: string; number?: string }): R<Normalized>
+  }
   /** Trade / customs reference data. */
   trade: {
     /** US Harmonized Tariff Schedule: exact `code` lookup or free-text `query` → candidate HS codes + duty rates. */
@@ -1007,6 +1012,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       isin: (i) => get('validate.isin', '/api/validate/isin', i),
       cusip: (i) => get('validate.cusip', '/api/validate/cusip', i),
       batch: (i) => post('validate.batch', '/api/validate/batch', i),
+    },
+    tax: {
+      vat: (i) => get('tax.vat', '/api/tax/vat', i),
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),
