@@ -38,6 +38,7 @@ function parseFlags(argv: string[]): {
   signer?: string
   solanaSigner?: string
   maxPriceUsd?: number
+  trial?: boolean
 } {
   const args = argv.slice(2)
   const out: ReturnType<typeof parseFlags> = {}
@@ -46,13 +47,16 @@ function parseFlags(argv: string[]): {
     if (a === '--signer') out.signer = args[++i]
     else if (a === '--solana-signer') out.solanaSigner = args[++i]
     else if (a === '--max-price') out.maxPriceUsd = Number(args[++i])
+    else if (a === '--trial') out.trial = true
     else if (a === '--help' || a === '-h') {
       console.error(
-        'usage: 2sio-mcp [--signer 0x<64hex>] [--solana-signer <base58>] [--max-price 0.10]\n' +
+        'usage: 2sio-mcp [--signer 0x<64hex>] [--solana-signer <base58>] [--max-price 0.10] [--trial]\n' +
           '  Env: EVM_PRIVATE_KEY=0x<64hex>            (Base USDC settlement)\n' +
           '       SOLANA_PRIVATE_KEY=<base58>          (Solana SPL-USDC settlement)\n' +
-          '  Set either or both. 2s.io accepts USDC on Base OR Solana via x402.\n' +
-          '  No API keys.',
+          '       TWOS_TRIAL=1                         (free try-before-you-buy, no key)\n' +
+          '  Set a key to pay per call, or --trial / TWOS_TRIAL=1 to make free trial\n' +
+          '  calls (1 per endpoint per hour) so you can verify tools before paying.\n' +
+          '  2s.io accepts USDC on Base OR Solana via x402. No API keys.',
       )
       process.exit(0)
     }
@@ -102,6 +106,20 @@ async function main() {
       opts.solanaPrivateKey = solanaKey
     }
     const server = createTwoSioMcpServer(opts)
+    await server.connect(new StdioServerTransport())
+    return
+  }
+
+  // Trial mode — no key, but the caller opted into free try-before-you-buy
+  // calls (1 per endpoint per hour). Tools run for real (no payment) so an
+  // agent can verify the catalog works before funding a wallet.
+  const trial = flags.trial || /^(1|true|yes|on)$/i.test(process.env.TWOS_TRIAL ?? '')
+  if (trial) {
+    console.error(
+      '[2sio-mcp] starting in TRIAL mode — free calls, 1 per endpoint per hour.\n' +
+        '  Set EVM_PRIVATE_KEY / SOLANA_PRIVATE_KEY to pay per call for unlimited access.',
+    )
+    const server = createTwoSioMcpServer({ trial: true, maxPriceUsd: flags.maxPriceUsd })
     await server.connect(new StdioServerTransport())
     return
   }

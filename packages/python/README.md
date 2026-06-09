@@ -6,6 +6,20 @@
 pip install 2sio
 ```
 
+## 🎁 Try before you buy — free, no wallet
+
+Verify any endpoint before funding a wallet. `trial=True` makes free calls (one per endpoint per hour, no key, no signup):
+
+```python
+from twosio import TwoS
+
+trial = TwoS(trial=True)
+print(trial.validate.iban(iban="GB82WEST12345698765432").data["items"][0]["valid"])
+# real result; once/hour/endpoint, then raises TwoSError(code="TRIAL_EXHAUSTED")
+```
+
+Pass `private_key=...` (below) to pay per call for unlimited access.
+
 ## Quick start
 
 ```python

@@ -8,6 +8,20 @@ No signup, no API keys, no credit card on file. Sign for whichever rail you hold
 npm install @2sio/sdk
 ```
 
+## 🎁 Try before you buy — free, no wallet
+
+Verify any endpoint works before funding a wallet. `trial: true` makes free calls (one per endpoint per hour, no key, no signup):
+
+```ts
+import { TwoS } from '@2sio/sdk'
+
+const trial = new TwoS({ trial: true })
+const { data } = await trial.validate.iban({ iban: 'GB82WEST12345698765432' })
+console.log(data.items[0].valid) // real result; once/hour/endpoint, then throws TwoSError('TRIAL_EXHAUSTED')
+```
+
+Drop `trial` and pass a `privateKey`/`signer` (below) to pay per call for unlimited access.
+
 ## Quick start
 
 ```ts

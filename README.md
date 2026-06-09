@@ -19,6 +19,33 @@ This repo ships SDKs for every major agent-development language plus an MCP serv
 
 No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization (Base) or an SPL USDC transfer (Solana) on-the-fly, the facilitator verifies + settles in ~2 seconds on mainnet, and the API returns typed data. Prices start at $0.001/call.
 
+## 🎁 Try before you buy — free, no wallet
+
+Want to confirm an endpoint actually works before funding anything? Every endpoint serves **one free real call per endpoint per hour** — no key, no wallet, no signup. Add `?trial=1` (or header `X-2s-Trial: 1`), or flip the SDK into trial mode:
+
+```ts
+import { TwoS } from '@2sio/sdk'
+const trial = new TwoS({ trial: true })            // no key required
+const { data } = await trial.validate.iban({ iban: 'GB82WEST12345698765432' })
+console.log(data.items[0].valid)                    // real result; response meta.trial = { free: true, ... }
+```
+
+```python
+from twosio import TwoS
+trial = TwoS(trial=True)                            # no key required
+print(trial.validate.iban(iban="GB82WEST12345698765432").data["items"][0]["valid"])
+```
+
+```bash
+curl "https://2s.io/api/validate/iban?iban=GB82WEST12345698765432&trial=1"
+```
+
+```bash
+npx -y @2sio/mcp --trial      # MCP host with free trial calls; or set TWOS_TRIAL=1
+```
+
+The trial runs the **real handler** and returns real data. Once the hourly trial is used, the endpoint returns the normal `402` — drop `trial` and pass a `privateKey`/`signer` to pay per call for unlimited access.
+
 ## 30-second demo
 
 **TypeScript:**

@@ -60,6 +60,19 @@ export interface TwoSConfig {
    */
   baseUrl?: string
   /**
+   * Try-before-you-buy mode. When `true`, the client makes a FREE trial call
+   * on every request (no key, no wallet, no payment) so you can verify any
+   * endpoint works before wiring payment. Trials are rate-limited server-side
+   * to 1 call per endpoint per hour per client; once that's used the call
+   * throws `TwoSError` with code `TRIAL_EXHAUSTED`. Drop `trial` and pass a
+   * `privateKey`/`signer` to pay per call for unlimited access.
+   *
+   * Example:
+   *   const trial = new TwoS({ trial: true })
+   *   await trial.validate.iban({ iban: 'GB82WEST12345698765432' }) // free
+   */
+  trial?: boolean
+  /**
    * Maximum payment USD the SDK will silently authorize per call. Calls
    * advertising a higher price are refused locally without signing. Default
    * is `0.10`. Set to `Infinity` to disable the cap.
@@ -367,11 +380,31 @@ export class TwoS {
     if (this.config.apiKey) {
       headers.Authorization = `Bearer ${this.config.apiKey}`
     }
+    // Try-before-you-buy: ask the server for a free trial call. The server
+    // runs the real handler (rate-limited to 1/endpoint/hour/client) and never
+    // settles a payment.
+    if (this.config.trial) {
+      headers['X-2s-Trial'] = '1'
+    }
     init.headers = headers
 
     // Probe — bearer mode succeeds directly; x402 mode gets a 402.
     let res = await fetch(url, init)
     if (res.status !== 402) return this.parseResponse<T>(res, input.endpoint, url)
+
+    // Trial mode never pays: a 402 means the free trial for this endpoint is
+    // exhausted (or it's not trial-eligible). Surface a clear, actionable error
+    // instead of trying to sign a payment we have no key for.
+    if (this.config.trial) {
+      const b = (await res.json().catch(() => ({}))) as { error?: { message?: string } }
+      throw new TwoSError(
+        b.error?.message ??
+          'Free trial unavailable for this endpoint right now (1 call/endpoint/hour). Pass a privateKey or signer to pay per call for unlimited access.',
+        402,
+        'TRIAL_EXHAUSTED',
+        url,
+      )
+    }
 
     // 402 path: parse PaymentRequired, check ceiling, sign, retry.
     const http = await this.getX402Client()

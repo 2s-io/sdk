@@ -2918,6 +2918,7 @@ class TwoS:
         max_price_usd: float = DEFAULT_MAX_PRICE_USD,
         on_payment_requested: Optional[Callable[[dict], bool]] = None,
         timeout: float = 30.0,
+        trial: bool = False,
     ):
         if private_key is not None and signer is not None:
             raise ValueError("TwoS accepts private_key= OR signer=, not both.")
@@ -2931,10 +2932,13 @@ class TwoS:
             # Normalize so callers can pass either '0x...' or bare hex.
             key = private_key if private_key.startswith("0x") else "0x" + private_key
             signer = Account.from_key(key)
-        if signer is None and solana_private_key is None and not api_key:
+        # trial=True is a keyless try-before-you-buy client — no signer needed.
+        if signer is None and solana_private_key is None and not api_key and not trial:
             raise ValueError(
-                "TwoS requires private_key='0x...' (Base), solana_private_key='...' (Solana), or a pre-built signer=... ."
+                "TwoS requires private_key='0x...' (Base), solana_private_key='...' (Solana), a "
+                "pre-built signer=..., or trial=True for free try-before-you-buy calls."
             )
+        self.trial = trial
         self.signer = signer
         self._solana_private_key = solana_private_key
         self.api_key = api_key
@@ -3070,6 +3074,9 @@ class TwoS:
         headers: dict[str, str] = {}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
+        # Try-before-you-buy: free trial call (1/endpoint/hour/client), no payment.
+        if self.trial:
+            headers["X-2s-Trial"] = "1"
 
         http = self._client()
         if body is not None:
@@ -3079,6 +3086,23 @@ class TwoS:
 
         if res.status_code != 402:
             return self._parse(res, endpoint, url)
+
+        # Trial mode never pays: a 402 means the free trial for this endpoint is
+        # exhausted (or it's not trial-eligible). Raise a clear error rather than
+        # trying to sign a payment we have no key for.
+        if self.trial:
+            try:
+                msg = res.json().get("error", {}).get("message")
+            except Exception:
+                msg = None
+            raise TwoSError(
+                msg
+                or "Free trial unavailable for this endpoint right now (1 call/endpoint/hour). "
+                "Pass private_key=... or signer=... to pay per call for unlimited access.",
+                402,
+                "TRIAL_EXHAUSTED",
+                url,
+            )
 
         # 402 — sign and retry via x402 SDK.
         from x402.http import x402HTTPClient  # type: ignore
