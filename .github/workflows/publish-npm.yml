@@ -1,8 +1,9 @@
 name: Publish npm
 
+# workflow_dispatch ONLY — the daily release train dispatches sdk then mcp in
+# order. The old release trigger double-fired once ensureRelease (2026-06-09)
+# started creating a GitHub Release on every mirror push, racing the dispatches.
 on:
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       package:

@@ -1,8 +1,10 @@
 name: Publish PyPI (llama-index-tools-twosio)
 
+# workflow_dispatch ONLY. Was also release-triggered, but since sdk-publish.ts
+# auto-creates a GitHub Release on every mirror push (ensureRelease, 2026-06-09)
+# the release event fired this on pushes where the adapter version was unchanged,
+# so twine failed with "File already exists" — red CI noise on every push.
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 jobs:
