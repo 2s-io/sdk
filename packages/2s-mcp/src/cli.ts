@@ -66,8 +66,21 @@ function parseFlags(argv: string[]): {
 
 async function main() {
   const flags = parseFlags(process.argv)
-  const signerHex = flags.signer ?? process.env.EVM_PRIVATE_KEY
+  let signerHex = flags.signer ?? process.env.EVM_PRIVATE_KEY
   const solanaKey = flags.solanaSigner ?? process.env.SOLANA_PRIVATE_KEY
+
+  // Registry scanners (Glama, Smithery, etc.) probe servers with an
+  // all-zero placeholder key, which is 64 hex but not a valid secp256k1
+  // scalar — privateKeyToAccount would throw fatally. Treat it as "no
+  // key" so the server starts in introspection mode and tool discovery
+  // works, which is exactly what a scanner wants.
+  if (signerHex && /^0x0{64}$/.test(signerHex)) {
+    console.error(
+      '[2sio-mcp] EVM_PRIVATE_KEY is an all-zero placeholder — ignoring it.\n' +
+        '  Set a real key to make paid calls; continuing without one.',
+    )
+    signerHex = undefined
+  }
 
   // Validate input early — common confusion is passing a wallet address
   // (40 hex) instead of a private key (64 hex). The introspection-mode
@@ -100,7 +113,17 @@ async function main() {
       // own copy of viem (e.g. during local file: linking), TypeScript treats
       // the two LocalAccount types as distinct even though they're identical.
       // The cast is harmless at runtime.
-      opts.signer = privateKeyToAccount(signerHex as Hex) as never
+      try {
+        opts.signer = privateKeyToAccount(signerHex as Hex) as never
+      } catch {
+        // 64 hex but not a valid secp256k1 scalar (zero is handled above;
+        // this catches out-of-range values like 0xfff...f).
+        console.error(
+          '[2sio-mcp] error: EVM_PRIVATE_KEY is 64 hex but not a valid\n' +
+            '  secp256k1 private key. Generate a real key and try again.',
+        )
+        process.exit(2)
+      }
     }
     if (solanaKey) {
       opts.solanaPrivateKey = solanaKey
