@@ -148,6 +148,7 @@ export class TwoS {
   public readonly aircraft: Endpoints['aircraft']
   public readonly airport: Endpoints['airport']
   public readonly barcode: Endpoints['barcode']
+  public readonly calendar: Endpoints['calendar']
   public readonly census: Endpoints['census']
   public readonly climate: Endpoints['climate']
   public readonly countdown: Endpoints['countdown']
@@ -251,6 +252,7 @@ export class TwoS {
     this.aircraft = this.endpoints.aircraft
     this.airport = this.endpoints.airport
     this.barcode = this.endpoints.barcode
+    this.calendar = this.endpoints.calendar
     this.census = this.endpoints.census
     this.climate = this.endpoints.climate
     this.countdown = this.endpoints.countdown

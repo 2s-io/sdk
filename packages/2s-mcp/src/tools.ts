@@ -187,6 +187,34 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.convert.unit(a as never),
     },
     {
+      name: 'calendar.holidays',
+      description:
+        'List the official holidays for a country and year with exact observed dates, including substitute days (e.g. a Saturday July 4th observed Friday). 200+ countries, regional subdivisions (US states, German Länder, Canadian provinces…), movable feasts and lunar-calendar holidays computed from maintained rules. Filter by type (public, bank, school, optional, observance) and localize names via lang. Returns {date, name, type, substitute, rule} per holiday.',
+      inputSchema: s('Holiday lookup input', {
+        country: { type: 'string', description: 'ISO 3166-1 alpha-2 country code, e.g. US, DE, JP.' },
+        year: { type: 'number', description: 'Calendar year, e.g. 2026.' },
+        region: { type: 'string', description: 'Optional subdivision code, e.g. CA (US-California), BY (DE-Bavaria).' },
+        types: { type: 'string', description: 'Optional comma-separated filter: public, bank, school, optional, observance.' },
+        lang: { type: 'string', description: 'Optional ISO 639-1 language for holiday names.' },
+      }, ['country', 'year']),
+      invoke: (a) => c.calendar.holidays(a as never),
+    },
+    {
+      name: 'calendar.business-days',
+      description:
+        'Holiday-aware business-day calculator for 200+ countries — the ground-truth answer for payment terms, SLA deadlines, and delivery dates instead of guessing holidays. Three modes: start+addDays shifts a date by N business days (signed); start+end counts business days between two dates (exclusive of start, inclusive of end); start alone checks one date (business day? which holiday? next/previous business day). Custom weekends supported (e.g. fri,sat for the Gulf). Skipped holidays are itemized.',
+      inputSchema: s('Business-day math input', {
+        country: { type: 'string', description: 'ISO 3166-1 alpha-2 country code.' },
+        start: { type: 'string', description: 'Anchor date, YYYY-MM-DD.' },
+        addDays: { type: 'number', description: 'Signed business days to add (XOR with end).' },
+        end: { type: 'string', description: 'End date YYYY-MM-DD to count business days to (XOR with addDays).' },
+        region: { type: 'string', description: 'Optional subdivision code, e.g. CA, BY.' },
+        weekend: { type: 'string', description: 'Optional weekend days, comma-separated. Default sat,sun.' },
+        types: { type: 'string', description: 'Optional holiday types treated as closures. Default public,bank.' },
+      }, ['country', 'start']),
+      invoke: (a) => c.calendar.businessDays(a as never),
+    },
+    {
       name: 'tax.vat',
       description:
         'Validate an EU VAT number against the official VIES register in real time. Confirms current registration for intra-EU trade and, when the member state discloses it, returns the registered business name + address. Covers the 27 EU states (Greece as EL) plus Northern Ireland (XI); Great Britain (GB) is not in VIES. Pass vat (full identifier like DE811569869) OR country + number. Returns {valid, countryCode, vatNumber, name, address, requestDate, reason}.',

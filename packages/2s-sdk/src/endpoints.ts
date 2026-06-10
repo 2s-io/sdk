@@ -89,6 +89,13 @@ export interface Endpoints {
       format?: 'qr' | 'code128' | 'ean13'
     }): R<Uint8Array>
   }
+  /** Official-holiday lookup + holiday-aware business-day math (200+ countries, computed locally). */
+  calendar: {
+    /** List official holidays for a country/region + year, exact observed dates incl. substitute days. */
+    holidays(input: { country: string; year: number | string; region?: string; types?: string; lang?: string }): R<Normalized>
+    /** Holiday-aware business-day math: start+addDays (shift), start+end (count), or start alone (check). */
+    businessDays(input: { country: string; start: string; addDays?: number; end?: string; region?: string; weekend?: string; types?: string }): R<Normalized>
+  }
   census: {
     zipcode(input: { zip: string }): R<Normalized>
   }
@@ -983,6 +990,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     barcode: {
       generate: (i) => post('barcode.generate', '/api/barcode/generate', i),
+    },
+    calendar: {
+      holidays: (i) => get('calendar.holidays', '/api/calendar/holidays', i),
+      businessDays: (i) => get('calendar.business-days', '/api/calendar/business-days', i),
     },
     census: {
       zipcode: (i) => get('census.zipcode', '/api/census/zipcode', i),

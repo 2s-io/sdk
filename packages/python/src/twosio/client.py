@@ -981,6 +981,37 @@ class _Tax(_Group):
         return self._c.request("GET", "/api/tax/vat", endpoint="tax.vat", query=q)
 
 
+class _Calendar(_Group):
+    def holidays(self, *, country: str, year: int, region: Optional[str] = None,
+                 types: Optional[str] = None, lang: Optional[str] = None) -> CallResult:
+        """Official holidays for a country/region + year, exact observed dates incl. substitute days."""
+        q: dict[str, Any] = {"country": country, "year": year}
+        if region is not None:
+            q["region"] = region
+        if types is not None:
+            q["types"] = types
+        if lang is not None:
+            q["lang"] = lang
+        return self._c.request("GET", "/api/calendar/holidays", endpoint="calendar.holidays", query=q)
+
+    def business_days(self, *, country: str, start: str, add_days: Optional[int] = None,
+                      end: Optional[str] = None, region: Optional[str] = None,
+                      weekend: Optional[str] = None, types: Optional[str] = None) -> CallResult:
+        """Holiday-aware business-day math: start+add_days (shift), start+end (count), start alone (check)."""
+        q: dict[str, Any] = {"country": country, "start": start}
+        if add_days is not None:
+            q["addDays"] = add_days
+        if end is not None:
+            q["end"] = end
+        if region is not None:
+            q["region"] = region
+        if weekend is not None:
+            q["weekend"] = weekend
+        if types is not None:
+            q["types"] = types
+        return self._c.request("GET", "/api/calendar/business-days", endpoint="calendar.business-days", query=q)
+
+
 class _Convert(_Group):
     def unit(self, *, value: float, from_: str, to: str) -> CallResult:
         """Convert a value between units of measure (mass/length/volume/area/temperature)."""
@@ -2967,6 +2998,7 @@ class TwoS:
         self.ipinfo = _Ipinfo(self)
         self.hash = _Hash(self)
         self.validate = _Validate(self)
+        self.calendar = _Calendar(self)
         self.convert = _Convert(self)
         self.tax = _Tax(self)
         self.trade = _Trade(self)
