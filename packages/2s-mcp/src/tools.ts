@@ -237,6 +237,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.trade.tariff(a as never),
     },
     {
+      name: 'trade.locode',
+      description:
+        "Look up or search UN/LOCODE — the UN Code for Trade and Transport Locations (~116k locations, all countries). Pass locode for an exact code (e.g. USNYC), or query to search names with optional country (ISO alpha-2) and function (port, rail, road, airport, postal, multimodal, fixed, border) filters. Returns name, subdivision, transport functions, status, IATA code, coordinates. The standard location identifier in shipping, EDI, and customs documents.",
+      inputSchema: s('LOCODE lookup input', {
+        locode: { type: 'string', description: "Exact UN/LOCODE, e.g. USNYC or 'US NYC'." },
+        query: { type: 'string', description: 'Location name to search.' },
+        country: { type: 'string', description: 'ISO 3166 alpha-2 filter (query mode).' },
+        function: { type: 'string', description: 'port | rail | road | airport | postal | multimodal | fixed | border.' },
+        limit: { type: 'integer', description: '1-50, default 10.' },
+      }),
+      invoke: (a) => c.trade.locode(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',

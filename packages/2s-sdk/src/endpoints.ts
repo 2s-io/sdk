@@ -176,6 +176,14 @@ export interface Endpoints {
   trade: {
     /** US Harmonized Tariff Schedule: exact `code` lookup or free-text `query` → candidate HS codes + duty rates. */
     tariff(input: { code?: string; query?: string; limit?: number }): R<Normalized>
+    /** UN/LOCODE: exact `locode` lookup (e.g. USNYC) or name `query` with optional country / function filters. */
+    locode(input: {
+      locode?: string
+      query?: string
+      country?: string
+      function?: 'port' | 'rail' | 'road' | 'airport' | 'postal' | 'multimodal' | 'fixed' | 'border'
+      limit?: number
+    }): R<Normalized>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -1032,6 +1040,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     trade: {
       tariff: (i) => get('trade.tariff', '/api/trade/tariff', i),
+      locode: (i) => get('trade.locode', '/api/trade/locode', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),

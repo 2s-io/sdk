@@ -1030,6 +1030,26 @@ class _Trade(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/trade/tariff", endpoint="trade.tariff", query=q)
 
+    def locode(
+        self,
+        *,
+        locode: Optional[str] = None,
+        query: Optional[str] = None,
+        country: Optional[str] = None,
+        function: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """UN/LOCODE: exact code lookup (e.g. USNYC) or name search with country/function filters."""
+        if locode is None and query is None:
+            raise ValueError("locode() requires one of locode or query.")
+        q: dict[str, Any] = {}
+        if locode is not None: q["locode"] = locode
+        if query is not None: q["query"] = query
+        if country is not None: q["country"] = country
+        if function is not None: q["function"] = function
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/trade/locode", endpoint="trade.locode", query=q)
+
 
 class _Quakes(_Group):
     def recent(
