@@ -1520,6 +1520,29 @@ class _Space(_Group):
         if at is not None: q["at"] = at
         return self._c.request("GET", "/api/space/satellite", endpoint="space.satellite", query=q)
 
+    def satellites(
+        self, *, q: Optional[str] = None, owner: Optional[str] = None, type: Optional[str] = None,
+        norad_id: Optional[int] = None, intl_designator: Optional[str] = None,
+        launch_year_from: Optional[int] = None, launch_year_to: Optional[int] = None,
+        on_orbit: Optional[bool] = None, limit: Optional[int] = None, offset: Optional[int] = None,
+    ) -> CallResult:
+        """Search the satellite catalog (SATCAT, ~69k objects). Filter by q (name), owner
+        (US/PRC/CIS… or a name), type (payload|rocket body|debris|unknown), launch-year range,
+        intl_designator prefix, on_orbit, or norad_id. The envelope total is the full count
+        matching — so on_orbit=True, type='payload' answers 'how many active satellites'."""
+        params: dict[str, Any] = {}
+        if q is not None: params["q"] = q
+        if owner is not None: params["owner"] = owner
+        if type is not None: params["type"] = type
+        if norad_id is not None: params["noradId"] = norad_id
+        if intl_designator is not None: params["intlDesignator"] = intl_designator
+        if launch_year_from is not None: params["launchYearFrom"] = launch_year_from
+        if launch_year_to is not None: params["launchYearTo"] = launch_year_to
+        if on_orbit is not None: params["onOrbit"] = "true" if on_orbit else "false"
+        if limit is not None: params["limit"] = limit
+        if offset is not None: params["offset"] = offset
+        return self._c.request("GET", "/api/space/satellites", endpoint="space.satellites", query=params)
+
     def launches(
         self, *, when: Optional[str] = None, search: Optional[str] = None,
         limit: Optional[int] = None, offset: Optional[int] = None,
@@ -1719,6 +1742,30 @@ class _Business(_Group):
             q["offset"] = offset
         return self._c.request("GET", "/api/business/sos-search", endpoint="business.sos-search", query=q)
 
+    def naics(
+        self,
+        *,
+        code: Optional[str] = None,
+        query: Optional[str] = None,
+        level: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """NAICS 2022 industry-code lookup or free-text industry search (US Census).
+
+        Server params: code (exact 2-6 digit code or sector range like 31-33, XOR with query),
+        query (free-text search), level (2=sector ... 6=national industry, search mode), limit.
+        """
+        q: dict[str, Any] = {}
+        if code is not None:
+            q["code"] = code
+        if query is not None:
+            q["query"] = query
+        if level is not None:
+            q["level"] = level
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/business/naics", endpoint="business.naics", query=q)
+
 
 class _Gov(_Group):
     def inmate_locator(
@@ -1787,6 +1834,49 @@ class _Gov(_Group):
         if page_size is not None:
             q["pageSize"] = page_size
         return self._c.request("GET", "/api/gov/lobbying-filings", endpoint="gov.lobbying-filings", query=q)
+
+    def congress_filings(
+        self, *, q: Optional[str] = None, state: Optional[str] = None, type: Optional[str] = None,
+        chamber: Optional[str] = None, year: Optional[int] = None,
+        date_from: Optional[str] = None, date_to: Optional[str] = None,
+        limit: Optional[int] = None, offset: Optional[int] = None,
+    ) -> CallResult:
+        """US House financial-disclosure filings incl. Periodic Transaction Reports (PTRs,
+        the STOCK Act stock-trade disclosures). Defaults to PTRs; type='annual'|'candidate'|
+        'amendment'|'all' for others. Filter by q (member name), state, year, date range.
+        envelope total = count. 2008->present, refreshed daily (current-to-the-filing)."""
+        params: dict[str, Any] = {}
+        if q is not None: params["q"] = q
+        if state is not None: params["state"] = state
+        if type is not None: params["type"] = type
+        if chamber is not None: params["chamber"] = chamber
+        if year is not None: params["year"] = year
+        if date_from is not None: params["dateFrom"] = date_from
+        if date_to is not None: params["dateTo"] = date_to
+        if limit is not None: params["limit"] = limit
+        if offset is not None: params["offset"] = offset
+        return self._c.request("GET", "/api/gov/congress-filings", endpoint="gov.congress-filings", query=params)
+
+    def congress_trades(
+        self, *, q: Optional[str] = None, ticker: Optional[str] = None, type: Optional[str] = None,
+        chamber: Optional[str] = None, state: Optional[str] = None,
+        date_from: Optional[str] = None, date_to: Optional[str] = None,
+        limit: Optional[int] = None, offset: Optional[int] = None,
+    ) -> CallResult:
+        """US Congress member stock trades parsed from STOCK Act PTRs. Filter by q (member),
+        ticker, type ('purchase'|'sale'|'exchange'), state, chamber, transaction-date range.
+        Amounts are disclosed RANGES (amountMin/amountMax), not exact. envelope total = count."""
+        params: dict[str, Any] = {}
+        if q is not None: params["q"] = q
+        if ticker is not None: params["ticker"] = ticker
+        if type is not None: params["type"] = type
+        if chamber is not None: params["chamber"] = chamber
+        if state is not None: params["state"] = state
+        if date_from is not None: params["dateFrom"] = date_from
+        if date_to is not None: params["dateTo"] = date_to
+        if limit is not None: params["limit"] = limit
+        if offset is not None: params["offset"] = offset
+        return self._c.request("GET", "/api/gov/congress-trades", endpoint="gov.congress-trades", query=params)
 
     def congress_bill(self, **kwargs: Any) -> CallResult:
         """US Congressional bill lookup or filtered list (Library of Congress)."""
@@ -2548,6 +2638,20 @@ class _Fx(_Group):
         if symbols is not None: q["symbols"] = symbols
         if date is not None: q["date"] = date
         return self._c.request("GET", "/api/fx/rates", endpoint="fx.rates", query=q)
+
+    def timeseries(
+        self,
+        *,
+        start: str,
+        base: str = "USD",
+        symbols: Optional[str] = None,
+        end: Optional[str] = None,
+        amount: float = 1.0,
+    ) -> CallResult:
+        q: dict[str, Any] = {"base": base, "start": start, "amount": amount}
+        if symbols is not None: q["symbols"] = symbols
+        if end is not None: q["end"] = end
+        return self._c.request("GET", "/api/fx/timeseries", endpoint="fx.timeseries", query=q)
 
 
 class _Bls(_Group):

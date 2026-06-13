@@ -372,6 +372,22 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.space.satellite(a as never),
     },
     {
+      name: 'space.satellites',
+      description: 'Search the catalog of ~69k cataloged Earth-orbiting objects (CelesTrak SATCAT). Filter by name (q, e.g. "starlink"), owner/launching country (owner = US/PRC/CIS… or a name), object type (payload|rocket body|debris|unknown), launch-year range, intlDesignator prefix, on-orbit vs decayed, or exact noradId. Each row has NORAD id, name, owner+country, launch/decay dates, and orbital params. The envelope total is the full count matching the filter — so onOrbit=true&type=payload answers "how many active satellites".',
+      inputSchema: s('Satellite catalog search', {
+        q: { type: 'string', description: 'Name substring (e.g. "starlink").' },
+        owner: { type: 'string', description: 'Owner code (US, PRC, CIS, ESA…) or country name.' },
+        type: { type: 'string', description: 'payload | rocket body | debris | unknown' },
+        noradId: { type: 'integer', minimum: 1, maximum: 999999 },
+        intlDesignator: { type: 'string', description: 'COSPAR designator prefix (e.g. "2024-").' },
+        launchYearFrom: { type: 'integer' }, launchYearTo: { type: 'integer' },
+        onOrbit: { type: 'string', enum: ['true', 'false'] },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0 },
+      }),
+      invoke: (a) => c.space.satellites(a as never),
+    },
+    {
       name: 'space.launches',
       description: 'Upcoming or recent orbital rocket launches (Launch Library 2). when=upcoming|previous, optional search by rocket/provider/mission. Returns name, status, launch time + window, provider, rocket, pad, mission, webcast.',
       inputSchema: s('Launches', {
@@ -532,6 +548,38 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.lobbyingFilings(a as never),
     },
     {
+      name: 'gov.congress-filings',
+      description: "Track US House members' financial-disclosure filings incl. Periodic Transaction Reports (PTRs — the STOCK Act stock-trade disclosures). Defaults to PTRs; type=annual|candidate|amendment|all for others. Filter by member name (q), state, year, or filing-date range. Returns member, state+district, filing type+label, filing date, and a direct link to the source document. The envelope total answers 'how many PTRs'. 2008→present, refreshed daily. Trades are disclosed up to 45 days after they happen — current-to-the-filing, not real-time.",
+      inputSchema: s('Congress filings', {
+        q: { type: 'string', description: 'Member name substring (e.g. "Pelosi").' },
+        state: { type: 'string', description: '2-letter state.' },
+        type: { type: 'string', description: 'ptr (default) | annual | candidate | amendment | all.' },
+        chamber: { type: 'string', enum: ['house', 'senate'] },
+        year: { type: 'integer', minimum: 2008, maximum: 2100 },
+        dateFrom: { type: 'string', description: 'Filing date >= YYYY-MM-DD.' },
+        dateTo: { type: 'string', description: 'Filing date <= YYYY-MM-DD.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0 },
+      }),
+      invoke: (a) => c.gov.congressFilings(a as never),
+    },
+    {
+      name: 'gov.congress-trades',
+      description: "Search individual US Congress member stock trades parsed from STOCK Act PTRs into clean rows. Filter by member (q), ticker (e.g. NVDA), type (purchase|sale|exchange), state, chamber, or transaction-date range. Each trade: member + state/district, owner (self/spouse/joint), ticker + asset, buy/sell, the disclosed dollar RANGE (amountMin/amountMax — ranges, not exact), transaction + disclosure dates, days-to-disclose, and a link to the source filing. envelope total answers 'how many bought NVDA'. Amounts are ranges; trades disclosed up to 45 days after they happen. Coverage: US House e-filed now, expanding to scanned + Senate.",
+      inputSchema: s('Congress trades', {
+        q: { type: 'string', description: 'Member name substring.' },
+        ticker: { type: 'string', description: 'Stock symbol (e.g. NVDA).' },
+        type: { type: 'string', enum: ['purchase', 'sale', 'exchange'] },
+        chamber: { type: 'string', enum: ['house', 'senate'] },
+        state: { type: 'string', description: '2-letter state.' },
+        dateFrom: { type: 'string', description: 'Transaction date >= YYYY-MM-DD.' },
+        dateTo: { type: 'string', description: 'Transaction date <= YYYY-MM-DD.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+        offset: { type: 'integer', minimum: 0 },
+      }),
+      invoke: (a) => c.gov.congressTrades(a as never),
+    },
+    {
       name: 'health.mortality-stats',
       description: 'US mortality statistics (CDC NCHS). dataset=leading-causes: annual deaths + age-adjusted rate by state and top-10 cause, 1999-2017. dataset=weekly-counts: provisional weekly deaths by jurisdiction + cause, 2020-2023.',
       inputSchema: s('Mortality stats', {
@@ -580,6 +628,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
         offset: { type: 'integer', minimum: 0, default: 0 },
       }, ['state']),
       invoke: (a) => c.business.sosSearch(a as never),
+    },
+    {
+      name: 'business.naics',
+      description:
+        'NAICS 2022 industry classification codes (US Census, public domain). Pass code for an exact NAICS code (2-6 digits, or a sector range like 31-33) → official title, hierarchy path, full description, activity index terms, and direct child codes. Or pass query for free-text search over titles + the official ~20k-entry activity index → ranked candidate codes, optionally filtered by level (2=sector … 6=national industry). Ground truth for industry coding in KYC, registrations, and ERP setup.',
+      inputSchema: s('NAICS lookup/search', {
+        code: { type: 'string', description: 'Exact NAICS code, 2-6 digits (e.g. 513210) or sector range (e.g. 31-33). XOR with query.' },
+        query: { type: 'string', description: 'Free-text industry/activity description to search. XOR with code.' },
+        level: { type: 'integer', minimum: 2, maximum: 6, description: 'Search mode: restrict to one hierarchy level.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+      }),
+      invoke: (a) => c.business.naics(a as never),
     },
     {
       name: 'edu.school-lookup',
@@ -1695,6 +1755,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
         amount: { type: 'number' },
       }),
       invoke: (a) => c.fx.rates(a as never),
+    },
+    {
+      name: 'fx.timeseries',
+      description: 'Historical daily exchange-rate series from the European Central Bank (via Frankfurter) with computed stats. base (default USD), start (YYYY-MM-DD, required), optional end (default latest), symbols (comma-separated target codes), amount. Range capped at 366 days. Returns per-currency first/last/min/max/mean and absolute + % change, plus the full daily series. Business days only.',
+      inputSchema: s('FX timeseries', {
+        base: { type: 'string', description: '3-letter ISO 4217.' },
+        symbols: { type: 'string', description: 'Comma-separated target codes.' },
+        start: { type: 'string', format: 'date', description: 'Inclusive start date YYYY-MM-DD.' },
+        end: { type: 'string', format: 'date', description: 'Inclusive end date YYYY-MM-DD; default latest.' },
+        amount: { type: 'number' },
+      }, ['start']),
+      invoke: (a) => c.fx.timeseries(a as never),
     },
     {
       name: 'bls.series',

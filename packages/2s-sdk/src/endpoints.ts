@@ -289,6 +289,8 @@ export interface Endpoints {
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
     /** Registry lookup + OFAC sanctions screen of the entity + its agent in one call. */
     entityScreen(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; threshold?: number; limit?: number }): R<unknown>
+    /** NAICS 2022 industry-code lookup (exact code + children) or free-text industry search (US Census). */
+    naics(input: { code?: string; query?: string; level?: number; limit?: number }): R<Normalized>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -392,6 +394,8 @@ export interface Endpoints {
   fx: {
     /** ECB daily reference exchange rates via Frankfurter. */
     rates(input?: { base?: string; symbols?: string; date?: string; amount?: number }): R<unknown>
+    /** ECB historical daily rate series + summary stats over a date range. */
+    timeseries(input: { start: string; base?: string; symbols?: string; end?: string; amount?: number }): R<unknown>
   }
   bls: {
     /** US Bureau of Labor Statistics time series. */
@@ -605,6 +609,8 @@ export interface Endpoints {
     closeApproaches(input?: { dateMin?: string; dateMax?: string; distMaxAu?: number; limit?: number }): R<unknown>
     /** Current position of any cataloged satellite (Celestrak + SGP4). */
     satellite(input: { noradId: number; lat?: number; lon?: number; altKm?: number; at?: string }): R<unknown>
+    /** Search the satellite catalog (SATCAT, ~69k objects) by name/owner/type/launch-year/on-orbit; total = full count matching. */
+    satellites(input?: { q?: string; owner?: string; type?: string; noradId?: number; intlDesignator?: string; launchYearFrom?: number; launchYearTo?: number; onOrbit?: 'true' | 'false'; limit?: number; offset?: number }): R<Normalized>
     /** Upcoming/recent orbital rocket launches (Launch Library 2). */
     launches(input?: { when?: 'upcoming' | 'previous'; search?: string; limit?: number; offset?: number }): R<unknown>
     /** Observer-local sky almanac — sun/moon rise-set, moon phase, planet positions (computed). */
@@ -843,6 +849,10 @@ export interface Endpoints {
     inmateLocator(input: { lastName?: string; firstName?: string; middleName?: string; inmateNumber?: string; age?: number; sex?: 'Male' | 'Female'; race?: string }): R<unknown>
     /** US Senate lobbying disclosures (LDA filings) — registrant/client/lobbyist/year. */
     lobbyingFilings(input: { registrant?: string; client?: string; lobbyist?: string; year?: number; period?: string; type?: string; page?: number; pageSize?: number }): R<unknown>
+    /** US House financial-disclosure filings incl. PTR stock-trade reports (STOCK Act). Filter by member/state/type/year/date; total = count. */
+    congressFilings(input?: { q?: string; state?: string; type?: string; chamber?: 'house' | 'senate'; year?: number; dateFrom?: string; dateTo?: string; limit?: number; offset?: number }): R<Normalized>
+    /** US Congress member stock trades parsed from STOCK Act PTRs. Filter by member/ticker/type/state/date; amounts are disclosed ranges; total = count. */
+    congressTrades(input?: { q?: string; ticker?: string; type?: 'purchase' | 'sale' | 'exchange'; chamber?: 'house' | 'senate'; state?: string; dateFrom?: string; dateTo?: string; limit?: number; offset?: number }): R<Normalized>
     /** US Congress bills — lookup by congress+type+number, or list/filter. */
     congressBill(input?: Record<string, unknown>): R<unknown>
     /** Members of US Congress — lookup by bioguide ID or filter. */
@@ -1083,6 +1093,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     business: {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
+      naics: (i) => get('business.naics', '/api/business/naics', i),
     },
     html: {
       toMarkdown: (i) => post('html.to-markdown', '/api/html/to-markdown', i),
@@ -1158,6 +1169,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       body: (i) => get('space.body', '/api/space/body', i),
       closeApproaches: (i) => get('space.close-approaches', '/api/space/close-approaches', i ?? {}),
       satellite: (i) => get('space.satellite', '/api/space/satellite', i),
+      satellites: (i) => get('space.satellites', '/api/space/satellites', i ?? {}),
       launches: (i) => get('space.launches', '/api/space/launches', i ?? {}),
       skyTonight: (i) => get('space.sky-tonight', '/api/space/sky-tonight', i),
       exoplanet: (i) => get('space.exoplanet', '/api/space/exoplanet', i ?? {}),
@@ -1239,6 +1251,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     fx: {
       rates: (i) => get('fx.rates', '/api/fx/rates', i),
+      timeseries: (i) => get('fx.timeseries', '/api/fx/timeseries', i),
     },
     bls: {
       series: (i) => get('bls.series', '/api/bls/series', i),
@@ -1275,6 +1288,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       screen: (i) => get('nonprofit.screen', '/api/nonprofit/screen', i),
     },
     gov: {
+      congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
+      congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),
       congressBill: (i) => get('gov.congress-bill', '/api/gov/congress-bill', i ?? {}),
       congressMember: (i) => get('gov.congress-member', '/api/gov/congress-member', i ?? {}),
       fecCandidate: (i) => get('gov.fec-candidate', '/api/gov/fec-candidate', i ?? {}),
