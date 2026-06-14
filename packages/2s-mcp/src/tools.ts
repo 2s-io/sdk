@@ -403,6 +403,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.trade.locode(a as never),
     },
     {
+      name: 'trade.flows',
+      description:
+        "Annual international merchandise-trade flows from UN Comtrade (HS classification). reporter = country whose trade you want (ISO-2/ISO-3 'US'/'USA', UN M49 number, or 'World'); optional partner (default World); year (YYYY); flow (export|import); commodity = 'TOTAL' (default), a specific HS code ('27','8703'), or 'AG2'/'AG4'/'AG6' for a top-commodity breakdown. Returns trade value (USD), net weight, quantity, HS commodity, sorted by value.",
+      inputSchema: s('UN Comtrade trade flows', {
+        reporter: { type: 'string', description: "Reporting country: ISO-2/ISO-3, UN M49 number, or 'World'." },
+        partner: { type: 'string', description: 'Partner country (same formats). Default World.' },
+        year: { type: 'string', description: 'Calendar year YYYY (annual data lags ~6-12 months).' },
+        flow: { type: 'string', enum: ['export', 'import'], description: 'Direction from reporter. Default export.' },
+        commodity: { type: 'string', description: "'TOTAL', an HS code, or 'AG2'/'AG4'/'AG6'. Default TOTAL." },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }),
+      invoke: (a) => c.trade.flows(a as never),
+    },
+    {
       name: 'crypto.gas-oracle',
       description:
         'Live EVM gas oracle. Returns slow/standard/fast tiers derived from priority-fee percentiles over the trailing 4 blocks plus a 21,000-gas transfer cost estimate. Chains: base, ethereum, polygon, arbitrum, optimism.',
@@ -2580,6 +2594,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
         lon: { type: 'number', minimum: -180, maximum: 180 },
       }, ['lat', 'lon']),
       invoke: (a) => c.energy.solarResource(a as never),
+    },
+    {
+      name: 'energy.prices',
+      description:
+        'US energy benchmark prices from the EIA open-data API. Omit series for a one-call snapshot of every benchmark; pass series for its recent time series. Benchmarks: wti_crude / brent_crude ($/barrel), henry_hub_gas ($/MMBtu), gasoline_regular / diesel ($/gallon), electricity_retail (cents/kWh). Each observation has date, value, units, frequency.',
+      inputSchema: s('EIA energy prices', {
+        series: { type: 'string', enum: ['wti_crude', 'brent_crude', 'henry_hub_gas', 'gasoline_regular', 'diesel', 'electricity_retail'], description: 'Benchmark id. Omit for a snapshot of all.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 12, description: 'Observations in single-series mode.' },
+      }),
+      invoke: (a) => c.energy.prices(a as never),
     },
     {
       name: 'park.lookup',

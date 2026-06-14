@@ -1313,6 +1313,29 @@ class _Trade(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/trade/locode", endpoint="trade.locode", query=q)
 
+    def flows(
+        self,
+        *,
+        reporter: str,
+        year: str,
+        partner: Optional[str] = None,
+        flow: Optional[str] = None,
+        commodity: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Annual international merchandise-trade flows (UN Comtrade, HS).
+
+        reporter/partner = ISO-2/ISO-3 ('US'/'USA'), UN M49 number, or 'World'.
+        commodity = 'TOTAL' (default), an HS code, or 'AG2'/'AG4'/'AG6' breakdown.
+        flow = export|import. Returns trade value (USD), weight, quantity per HS commodity.
+        """
+        q: dict[str, Any] = {"reporter": reporter, "year": year}
+        if partner is not None: q["partner"] = partner
+        if flow is not None: q["flow"] = flow
+        if commodity is not None: q["commodity"] = commodity
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/trade/flows", endpoint="trade.flows", query=q)
+
 
 class _Quakes(_Group):
     def recent(
@@ -3057,6 +3080,15 @@ class _Energy(_Group):
     def solar_resource(self, *, lat: float, lon: float) -> CallResult:
         """NREL solar resource averages (NSRDB) for a lat/lon."""
         return self._c.request("GET", "/api/energy/solar-resource", endpoint="energy.solar-resource", query={"lat": lat, "lon": lon})
+
+    def prices(self, *, series: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """US energy benchmark prices (EIA). Omit series for a snapshot of all benchmarks;
+        pass one of wti_crude / brent_crude / henry_hub_gas / gasoline_regular / diesel /
+        electricity_retail for its recent time series."""
+        q: dict[str, Any] = {}
+        if series is not None: q["series"] = series
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/energy/prices", endpoint="energy.prices", query=q)
 
 
 class _Park(_Group):

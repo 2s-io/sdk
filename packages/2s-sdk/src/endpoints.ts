@@ -246,6 +246,8 @@ export interface Endpoints {
       function?: 'port' | 'rail' | 'road' | 'airport' | 'postal' | 'multimodal' | 'fixed' | 'border'
       limit?: number
     }): R<Normalized>
+    /** Annual international merchandise-trade flows (UN Comtrade, HS). reporter ISO/M49, optional partner, year, flow, commodity (TOTAL/HS code/AG2|AG4|AG6). */
+    flows(input: { reporter: string; partner?: string; year: string; flow?: 'export' | 'import'; commodity?: string; limit?: number }): R<Normalized>
   }
   dns: {
     /** Server params: host (FQDN), types (CSV like "A,MX,TXT"), resolver. */
@@ -534,6 +536,8 @@ export interface Endpoints {
     fuelStations(input?: Record<string, unknown>): R<unknown>
     /** Solar resource averages (NREL NSRDB) for a lat/lon. */
     solarResource(input: { lat: number; lon: number }): R<unknown>
+    /** US energy benchmark prices (EIA): omit series for a snapshot of all, or pass one (wti_crude/brent_crude/henry_hub_gas/gasoline_regular/diesel/electricity_retail). */
+    prices(input?: { series?: string; limit?: number }): R<Normalized>
   }
   park: {
     /** Unified US National Park Service read API (NPS). */
@@ -1183,6 +1187,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     trade: {
       tariff: (i) => get('trade.tariff', '/api/trade/tariff', i),
       locode: (i) => get('trade.locode', '/api/trade/locode', i),
+      flows: (i) => get('trade.flows', '/api/trade/flows', i),
     },
     dns: {
       lookup: (i) => get('dns.lookup', '/api/dns/lookup', i),
@@ -1476,6 +1481,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     energy: {
       fuelStations: (i) => get('energy.fuel-stations', '/api/energy/fuel-stations', i ?? {}),
       solarResource: (i) => get('energy.solar-resource', '/api/energy/solar-resource', i),
+      prices: (i) => get('energy.prices', '/api/energy/prices', i ?? {}),
     },
     park: {
       lookup: (i) => get('park.lookup', '/api/park/lookup', i),
