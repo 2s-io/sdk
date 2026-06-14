@@ -165,12 +165,17 @@ export class TwoS {
   public readonly validate: Endpoints['validate']
   public readonly convert: Endpoints['convert']
   public readonly tax: Endpoints['tax']
+  public readonly inflation: Endpoints['inflation']
+  public readonly econ: Endpoints['econ']
+  public readonly aviation: Endpoints['aviation']
+  public readonly water: Endpoints['water']
   public readonly trade: Endpoints['trade']
   public readonly image: Endpoints['image']
   public readonly ipinfo: Endpoints['ipinfo']
   public readonly business: Endpoints['business']
   public readonly law: Endpoints['law']
   public readonly search: Endpoints['search']
+  public readonly security: Endpoints['security']
   public readonly flight: Endpoints['flight']
   public readonly stocks: Endpoints['stocks']
   public readonly transcribe: Endpoints['transcribe']
@@ -269,12 +274,17 @@ export class TwoS {
     this.validate = this.endpoints.validate
     this.convert = this.endpoints.convert
     this.tax = this.endpoints.tax
+    this.inflation = this.endpoints.inflation
+    this.econ = this.endpoints.econ
+    this.aviation = this.endpoints.aviation
+    this.water = this.endpoints.water
     this.trade = this.endpoints.trade
     this.image = this.endpoints.image
     this.ipinfo = this.endpoints.ipinfo
     this.business = this.endpoints.business
     this.law = this.endpoints.law
     this.search = this.endpoints.search
+    this.security = this.endpoints.security
     this.flight = this.endpoints.flight
     this.stocks = this.endpoints.stocks
     this.transcribe = this.endpoints.transcribe

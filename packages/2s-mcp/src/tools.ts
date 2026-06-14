@@ -226,6 +226,123 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.tax.vat(a as never),
     },
     {
+      name: 'tax.vat-rates',
+      description:
+        'Current EU VAT rates by member state — standard rate plus reduced/super-reduced/parking/zero rates — from the European Commission TEDB, refreshed regularly. Pass country (ISO 2-letter; Greece is EL) for one state, or omit for all 27. Each result returns standardRate, reducedRates[], every rate category with its percentage, and the date in force. Pairs with tax.vat (number validation).',
+      inputSchema: s('EU VAT rates lookup', {
+        country: { type: 'string', description: 'EU member-state ISO 2-letter code (Greece=EL). Omit for all 27 states.' },
+      }),
+      invoke: (a) => c.tax.vatRates(a as never),
+    },
+    {
+      name: 'inflation.calculator',
+      description: "Adjust a US dollar amount for inflation between two dates ('what is $100 in 1990 worth today?') using CPI-U. Returns the adjusted amount, cumulative inflation %, annualized rate, and the CPI values used. Source: BLS CPI via FRED.",
+      inputSchema: s('Inflation calculator', {
+        amount: { type: 'number', description: 'Dollar amount to adjust.' },
+        from: { type: 'string', description: 'Start date (YYYY, YYYY-MM, or YYYY-MM-DD).' },
+        to: { type: 'string', description: 'End date; defaults to latest CPI.' },
+      }, ['amount', 'from']),
+      invoke: (a) => c.inflation.calculator(a as never),
+    },
+    {
+      name: 'inflation.rates',
+      description: 'Current US inflation by measure with index level + YoY/MoM %. Pass measure (cpi, core-cpi, pce, core-pce, ppi, cpi-shelter, cpi-energy, import-prices, ...) or omit for all. The YoY change is the headline inflation rate. Source: BLS/BEA via FRED.',
+      inputSchema: s('Inflation rates', {
+        measure: { type: 'string', description: 'One measure (e.g. core-pce), or omit for all.' },
+      }),
+      invoke: (a) => c.inflation.rates(a as never),
+    },
+    {
+      name: 'inflation.expectations',
+      description: 'US inflation expectations — 5y & 10y TIPS breakevens, 5y5y forward, and U-Michigan 1-year consumer expectation. Each a percent. Market breakevens update daily. Source: Fed/Treasury via FRED.',
+      inputSchema: s('Inflation expectations', {}),
+      invoke: (a) => c.inflation.expectations(a as never),
+    },
+    {
+      name: 'inflation.hicp',
+      description: 'EU harmonized inflation (HICP annual rate) — the official cross-country-comparable inflation rate for the EU, euro area, and each member state. Pass country (Eurostat geo: DE, FR, EL=Greece, EA20=euro area, EU27_2020=EU) or omit for all. Source: Eurostat (keyless). For US inflation use inflation.rates.',
+      inputSchema: s('EU HICP inflation', {
+        country: { type: 'string', description: 'Eurostat geo code (DE, FR, EL, EA20, EU27_2020). Omit for all.' },
+      }),
+      invoke: (a) => c.inflation.hicp(a as never),
+    },
+    {
+      name: 'econ.indicator',
+      description: 'Latest reading of a curated US macro indicator (+ prior, year-ago, YoY %). Pass indicator (unemployment-rate, fed-funds-rate, real-gdp, gdp-growth, nonfarm-payrolls, 10y-treasury, 30y-mortgage, consumer-sentiment, ...) or omit for all. Source: BLS/BEA/Fed via FRED.',
+      inputSchema: s('Macro indicator', {
+        indicator: { type: 'string', description: 'One indicator, or omit for all.' },
+      }),
+      invoke: (a) => c.econ.indicator(a as never),
+    },
+    {
+      name: 'econ.yield-curve',
+      description: 'Current US Treasury yield curve (1M–30Y constant-maturity yields) plus the 2s10s and 3m10y spreads and an inversion flag (recession signal). Daily data. Source: US Treasury via FRED.',
+      inputSchema: s('Treasury yield curve', {}),
+      invoke: (a) => c.econ.yieldCurve(a as never),
+    },
+    {
+      name: 'econ.commodity',
+      description: 'Latest benchmark commodity price + % change. Pass commodity (wti, brent, natural-gas, gasoline, diesel, heating-oil, propane, copper, aluminum, corn, wheat, sugar) or omit for all. Each names the FRED series + unit. Source: EIA/IMF via FRED.',
+      inputSchema: s('Commodity price', {
+        commodity: { type: 'string', description: 'One commodity, or omit for all.' },
+      }),
+      invoke: (a) => c.econ.commodity(a as never),
+    },
+    {
+      name: 'econ.recession',
+      description: 'Composite US recession-signal dashboard: NY Fed recession probability (12mo ahead), Sahm-rule real-time indicator (≥0.50 = recession begun), and 10y2y Treasury spread (negative = inverted). Each with value, date, triggered flag, and a count of signals flashing. A read of the standard gauges, not a forecast. Source: FRED.',
+      inputSchema: s('Recession signals', {}),
+      invoke: (a) => c.econ.recession(a as never),
+    },
+    {
+      name: 'aviation.metar',
+      description: 'Current aviation weather observation (METAR) for airports. Pass ids (comma-separated ICAO, e.g. KATL,EGLL). Returns raw METAR + decoded flight category, temp/dewpoint, wind, visibility, altimeter, clouds. Source: NOAA Aviation Weather Center (keyless).',
+      inputSchema: s('METAR', { ids: { type: 'string', description: 'Comma-separated ICAO ids.' } }, ['ids']),
+      invoke: (a) => c.aviation.metar(a as never),
+    },
+    {
+      name: 'aviation.taf',
+      description: 'Terminal Aerodrome Forecast (TAF) for airports — the official ~24–30h aviation forecast. Pass ids (comma-separated ICAO). Returns raw TAF + issue time. Source: NOAA Aviation Weather Center (keyless).',
+      inputSchema: s('TAF', { ids: { type: 'string', description: 'Comma-separated ICAO ids.' } }, ['ids']),
+      invoke: (a) => c.aviation.taf(a as never),
+    },
+    {
+      name: 'water.gauge',
+      description: 'Real-time US river/stream conditions from a USGS monitoring site. Pass site (USGS site number, e.g. 01646500). Returns latest streamflow, gage height, water temp + site name/location. Source: USGS NWIS (keyless).',
+      inputSchema: s('USGS water gauge', { site: { type: 'string', description: 'USGS site number.' } }, ['site']),
+      invoke: (a) => c.water.gauge(a as never),
+    },
+    {
+      name: 'crypto.fear-greed',
+      description: 'Crypto Fear & Greed Index — 0–100 market sentiment (0 = Extreme Fear, 100 = Extreme Greed), updated daily, with classification. Pass limit (1–90) for recent history. Contrarian sentiment signal. Source: alternative.me.',
+      inputSchema: s('Crypto fear & greed', { limit: { type: 'integer', description: 'Recent daily readings (1–90, default 1).' } }),
+      invoke: (a) => c.crypto.fearGreed(a as never),
+    },
+    {
+      name: 'crypto.markets',
+      description: 'Top cryptocurrencies by market cap with live price, market cap, 24h volume, and 24h + 7d % change. Pass limit (1–100, default 20). Source: CoinGecko. Single token = crypto.token-price; market overview = crypto.global.',
+      inputSchema: s('Crypto markets', { limit: { type: 'integer', description: 'Top N coins (1–100, default 20).' } }),
+      invoke: (a) => c.crypto.markets(a as never),
+    },
+    {
+      name: 'crypto.global',
+      description: 'Whole-crypto-market overview: total market cap, 24h volume, 24h change, BTC + ETH dominance, active-coin count. Source: CoinGecko.',
+      inputSchema: s('Crypto global', {}),
+      invoke: (a) => c.crypto.global(a as never),
+    },
+    {
+      name: 'crypto.trending',
+      description: 'Most-searched trending cryptocurrencies right now (24h), with symbol, name, market-cap rank, price. Attention signal. Source: CoinGecko.',
+      inputSchema: s('Crypto trending', {}),
+      invoke: (a) => c.crypto.trending(a as never),
+    },
+    {
+      name: 'geo.elevation',
+      description: 'Ground elevation above sea level (meters + feet) for any coordinate on Earth. Pass lat + lon. ~90m DEM. Source: Open-Meteo (keyless).',
+      inputSchema: s('Elevation', { lat: { type: 'number' }, lon: { type: 'number' } }, ['lat', 'lon']),
+      invoke: (a) => c.geo.elevation(a as never),
+    },
+    {
       name: 'trade.tariff',
       description:
         'Look up or search the US Harmonized Tariff Schedule (HTS / HS codes). Pass code for an exact HTS number (returns the line + 10-digit stat suffixes with duty rates), or query for free-text → ranked candidate HS codes by hierarchical heading. ~29.6k public-domain USITC lines. The deterministic backbone for tariff classification.',
@@ -642,6 +759,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.business.naics(a as never),
     },
     {
+      name: 'business.lei',
+      description:
+        'Look up or search the global LEI (Legal Entity Identifier) registry — the authoritative ISO 17442 directory of ~2.6M legal entities worldwide (GLEIF, CC0). Pass lei for an exact 20-character LEI, or query to search by legal/other name (ranked best-match). Filter name search by country (HQ ISO 2-letter) and status (active|all). Returns LEI, legal name, jurisdiction, entity category, legal-form code, entity + registration status, HQ address, registration/renewal dates, and managing LOU. Canonicalize a company name to its LEI, resolve a counterparty, or enrich a vendor master.',
+      inputSchema: s('GLEIF LEI lookup/search', {
+        lei: { type: 'string', description: 'Exact 20-character ISO 17442 LEI. XOR with query.' },
+        query: { type: 'string', description: 'Free-text legal/other name search. XOR with lei.' },
+        country: { type: 'string', description: 'HQ country ISO 2-letter filter (name search only).' },
+        status: { type: 'string', enum: ['active', 'all'], description: 'active = ACTIVE entities only; all (default).' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }),
+      invoke: (a) => c.business.lei(a as never),
+    },
+    {
       name: 'edu.school-lookup',
       description: 'Every US public K-12 school (~102k, NCES Common Core of Data). Search by name/district (partial), state, city, zip, or exact 12-digit NCES id. Returns address, level, type, charter/magnet/virtual flags, enrollment, grade span.',
       inputSchema: s('School lookup', {
@@ -710,6 +840,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
         },
       }, ['text']),
       invoke: (a) => c.law.caseVerify(a as never),
+    },
+    {
+      name: 'law.citation-check',
+      description:
+        'Anti-hallucination checker for legal references. POST text to verify every cited case (CourtListener), US Code section, and CFR regulation EXISTS, with canonical metadata + source URLs. POST quotes:[{citation,quote}] to deterministically verify an attributed QUOTE actually appears in the cited opinion (ellipsis-aware) — catches fabricated quotations. Returns per-reference exists/quote-present + a summary. Checks facts (existence, quote presence), NOT whether a case legally supports a proposition.',
+      inputSchema: s('Citation check input', {
+        text: { type: 'string', description: 'Legal passage to scan for case/USC/CFR citations (existence check).', maxLength: 50000 },
+        quotes: {
+          type: 'array',
+          description: 'Explicit quote checks: each { citation, quote } verifies the citation exists AND the quote appears in its opinion.',
+          items: { type: 'object', properties: { citation: { type: 'string' }, quote: { type: 'string' } }, required: ['citation', 'quote'] },
+        },
+      }),
+      invoke: (a) => c.law.citationCheck(a as never),
     },
     {
       name: 'law.sanctions-check',
@@ -863,6 +1007,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
         safesearch: { type: 'string', enum: ['off', 'moderate', 'strict'], default: 'moderate' },
       }, ['q']),
       invoke: (a) => c.search.web(a as never),
+    },
+    {
+      name: 'security.cve',
+      description:
+        'Look up a CVE by id (e.g. CVE-2021-44228) across three authoritative vulnerability feeds in one call: the canonical record (description, CVSS base score + severity + vector, CWE ids, dates, references), whether it is on the US CISA Known Exploited Vulnerabilities catalog (with remediation due date + known-ransomware flag), and its EPSS exploit-probability score + percentile. The exploited and EPSS sections degrade independently. 404 if unknown. For vulnerability triage, prioritization, and anti-hallucination. Sources: NIST NVD, CISA KEV, FIRST.org EPSS.',
+      inputSchema: s('CVE lookup', {
+        cve: { type: 'string', description: 'CVE id, e.g. CVE-2021-44228.' },
+      }, ['cve']),
+      invoke: (a) => c.security.cve(a as never),
     },
     {
       name: 'news.search',
@@ -1064,6 +1217,35 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 100, description: 'Max alerts (1-100, default 20).' },
       }),
       invoke: (a) => c.weather.alerts(a as never),
+    },
+    {
+      name: 'weather.forecast',
+      description: 'Official US National Weather Service forecast for a coordinate (US land + territories). Pass lat + lon for ~7 days of day/night periods, or hourly=true for an hourly forecast. Each period: temperature, wind, chance of precipitation, short + detailed forecast. Keyless, public domain. For active warnings use weather.alerts.',
+      inputSchema: s('NWS forecast', {
+        lat: { type: 'number', description: 'Latitude.' },
+        lon: { type: 'number', description: 'Longitude.' },
+        hourly: { type: 'boolean', description: 'Hourly instead of day/night periods.' },
+        limit: { type: 'integer', description: 'Max periods.' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.weather.forecast(a as never),
+    },
+    {
+      name: 'weather.air-quality',
+      description: 'Current air quality for any coordinate worldwide: US AQI (+ category) and European AQI, plus PM2.5, PM10, ozone, NO2, SO2, CO concentrations. Source: Open-Meteo/CAMS (keyless).',
+      inputSchema: s('Air quality', { lat: { type: 'number' }, lon: { type: 'number' } }, ['lat', 'lon']),
+      invoke: (a) => c.weather.airQuality(a as never),
+    },
+    {
+      name: 'weather.marine',
+      description: 'Current marine/sea-state for an ocean or coastal coordinate: significant wave height, direction, period, plus wind-wave and swell components. Source: Open-Meteo marine (keyless). 404 for inland points.',
+      inputSchema: s('Marine conditions', { lat: { type: 'number' }, lon: { type: 'number' } }, ['lat', 'lon']),
+      invoke: (a) => c.weather.marine(a as never),
+    },
+    {
+      name: 'weather.history',
+      description: 'Historical daily weather (ERA5, 1940→~5 days ago) for a coordinate + date range (start, end YYYY-MM-DD, ≤366 days): per-day max/min/mean temp, precipitation total + hours, max wind. Source: Open-Meteo archive (keyless).',
+      inputSchema: s('Weather history', { lat: { type: 'number' }, lon: { type: 'number' }, start: { type: 'string' }, end: { type: 'string' } }, ['lat', 'lon', 'start', 'end']),
+      invoke: (a) => c.weather.history(a as never),
     },
     {
       name: 'climate.station-near',

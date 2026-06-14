@@ -127,6 +127,14 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   crypto: {
+    /** Crypto Fear & Greed Index (0–100 sentiment). Pass `limit` for history or omit for current. */
+    fearGreed(input?: { limit?: number }): R<Normalized>
+    /** Top cryptocurrencies by market cap (price, mcap, 24h/7d change). Pass `limit` (1–100). */
+    markets(input?: { limit?: number }): R<Normalized>
+    /** Whole-crypto-market overview: total mcap, volume, BTC/ETH dominance. */
+    global(input?: Record<string, never>): R<Normalized>
+    /** Trending (most-searched) cryptocurrencies right now. */
+    trending(input?: Record<string, never>): R<Normalized>
     addressValidate(input: {
       chain: CryptoChain
       address: string
@@ -171,6 +179,42 @@ export interface Endpoints {
   tax: {
     /** Validate an EU VAT number against the live VIES register. Pass `vat` (full id) OR `country`+`number`. */
     vat(input: { vat?: string; country?: string; number?: string }): R<Normalized>
+    /** EU VAT rates by member state (standard + reduced/etc). Pass `country` (ISO 2-letter, Greece=EL) or omit for all 27. */
+    vatRates(input?: { country?: string }): R<Normalized>
+  }
+  /** US inflation data (FRED-backed). */
+  inflation: {
+    /** Adjust a $ amount for inflation between two dates via CPI-U. Pass amount + from (+ optional to). */
+    calculator(input: { amount: number; from: string; to?: string }): R<Normalized>
+    /** Current inflation by measure (CPI, core CPI, PCE, core PCE, PPI, by category...) with YoY/MoM. Pass `measure` or omit for all. */
+    rates(input?: { measure?: string }): R<Normalized>
+    /** Market + survey inflation expectations (TIPS breakevens, 5y5y forward, U-Mich). */
+    expectations(input?: Record<string, never>): R<Normalized>
+    /** EU harmonized inflation (HICP annual rate) by country/aggregate. Pass `country` (Eurostat geo, e.g. DE, EA20) or omit for all. */
+    hicp(input?: { country?: string }): R<Normalized>
+  }
+  /** US macroeconomic indicators (FRED-backed). */
+  econ: {
+    /** Curated macro indicator latest reading + YoY (unemployment, fed funds, GDP, yields, payrolls...). Pass `indicator` or omit for all. */
+    indicator(input?: { indicator?: string }): R<Normalized>
+    /** Current US Treasury yield curve across maturities + 2s10s/3m10y spreads + inversion flag. */
+    yieldCurve(input?: Record<string, never>): R<Normalized>
+    /** Benchmark commodity prices (oil, gas, metals, ags). Pass `commodity` (wti, brent, copper, wheat...) or omit for all. */
+    commodity(input?: { commodity?: string }): R<Normalized>
+    /** Composite US recession-signal dashboard (NY Fed probability + Sahm rule + 10y2y inversion). */
+    recession(input?: Record<string, never>): R<Normalized>
+  }
+  /** Aviation weather (NOAA). */
+  aviation: {
+    /** Current METAR observation(s) for ICAO station id(s). Pass `ids` (comma-separated). */
+    metar(input: { ids: string }): R<Normalized>
+    /** Terminal Aerodrome Forecast (TAF) for ICAO station id(s). Pass `ids`. */
+    taf(input: { ids: string }): R<Normalized>
+  }
+  /** US surface-water data (USGS). */
+  water: {
+    /** Real-time streamflow + gage height at a USGS site. Pass `site` (site number). */
+    gauge(input: { site: string }): R<Normalized>
   }
   /** Trade / customs reference data. */
   trade: {
@@ -243,6 +287,8 @@ export interface Endpoints {
   }
   geo: {
     ip(input: { ip: string }): R<Normalized>
+    /** Ground elevation (m + ft) for a coordinate, global. Pass lat + lon. */
+    elevation(input: { lat: number; lon: number }): R<Normalized>
     /** Airports + schools + climate stations + recent quakes around a coordinate. */
     nearby(input: { lat: number; lon: number; radiusKm?: number; limit?: number }): R<unknown>
     /** Postal/ZIP code → place + admin divisions + coordinates (international). */
@@ -291,6 +337,8 @@ export interface Endpoints {
     entityScreen(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; threshold?: number; limit?: number }): R<unknown>
     /** NAICS 2022 industry-code lookup (exact code + children) or free-text industry search (US Census). */
     naics(input: { code?: string; query?: string; level?: number; limit?: number }): R<Normalized>
+    /** GLEIF Legal Entity Identifier registry: exact `lei` lookup or `query` name search (ISO 17442, ~2.6M entities). */
+    lei(input: { lei?: string; query?: string; country?: string; status?: 'active' | 'all'; limit?: number; offset?: number }): R<Normalized>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -305,6 +353,8 @@ export interface Endpoints {
     }): R<Normalized>
     /** POST { text } — finds + verifies citations inside a passage. */
     caseVerify(input: { text: string }): R<Normalized>
+    /** POST { text?, quotes? } — verify existence of cases/USC/CFR refs + (deterministically) whether attributed quotes appear in the cited opinion. */
+    citationCheck(input: { text?: string; quotes?: Array<{ citation: string; quote: string }> }): R<Normalized>
     /** POST { query, threshold?, limit?, sourceList? } — OFAC SDN fuzzy match. */
     sanctionsCheck(input: {
       query: string
@@ -424,6 +474,11 @@ export interface Endpoints {
       freshness?: string
       safesearch?: 'off' | 'moderate' | 'strict'
     }): R<unknown>
+  }
+  /** Vulnerability intelligence. */
+  security: {
+    /** Resolve a CVE across NVD (record + CVSS + CWE), CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit probability) in one call. */
+    cve(input: { cve: string }): R<unknown>
   }
   /** Stock market data (Massive / formerly Polygon.io). */
   stocks: {
@@ -582,6 +637,14 @@ export interface Endpoints {
       urgency?: 'Immediate' | 'Expected' | 'Future' | 'Past' | 'Unknown'
       limit?: number
     }): R<Normalized>
+    /** NWS multi-day (or hourly) forecast for a US coordinate. Pass lat + lon (+ optional hourly, limit). */
+    forecast(input: { lat: number; lon: number; hourly?: boolean; limit?: number }): R<Normalized>
+    /** Current air quality (US/EU AQI + pollutants) for a coordinate, global. */
+    airQuality(input: { lat: number; lon: number }): R<Normalized>
+    /** Current marine/sea-state (waves + swell) for an ocean/coastal coordinate. */
+    marine(input: { lat: number; lon: number }): R<Normalized>
+    /** Historical daily weather (ERA5) for a coordinate + date range. */
+    history(input: { lat: number; lon: number; start: string; end: string }): R<Normalized>
   }
   wikipedia: {
     summary(input: { title: string; lang?: string }): R<Normalized>
@@ -1025,6 +1088,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     crypto: {
       addressValidate: (i) => get('crypto.address-validate', '/api/crypto/address-validate', i),
+      fearGreed: (i) => get('crypto.fear-greed', '/api/crypto/fear-greed', i ?? {}),
+      markets: (i) => get('crypto.markets', '/api/crypto/markets', i ?? {}),
+      global: (i) => get('crypto.global', '/api/crypto/global', i ?? {}),
+      trending: (i) => get('crypto.trending', '/api/crypto/trending', i ?? {}),
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
       tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
@@ -1044,6 +1111,26 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     tax: {
       vat: (i) => get('tax.vat', '/api/tax/vat', i),
+      vatRates: (i) => get('tax.vat-rates', '/api/tax/vat-rates', i ?? {}),
+    },
+    inflation: {
+      calculator: (i) => get('inflation.calculator', '/api/inflation/calculator', i),
+      rates: (i) => get('inflation.rates', '/api/inflation/rates', i ?? {}),
+      expectations: (i) => get('inflation.expectations', '/api/inflation/expectations', i ?? {}),
+      hicp: (i) => get('inflation.hicp', '/api/inflation/hicp', i ?? {}),
+    },
+    econ: {
+      indicator: (i) => get('econ.indicator', '/api/econ/indicator', i ?? {}),
+      yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
+      commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),
+      recession: (i) => get('econ.recession', '/api/econ/recession', i ?? {}),
+    },
+    aviation: {
+      metar: (i) => get('aviation.metar', '/api/aviation/metar', i),
+      taf: (i) => get('aviation.taf', '/api/aviation/taf', i),
+    },
+    water: {
+      gauge: (i) => get('water.gauge', '/api/water/gauge', i),
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),
@@ -1071,6 +1158,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     geo: {
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
+      elevation: (i) => get('geo.elevation', '/api/geo/elevation', i),
       nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
       postal: (i) => get('geo.postal', '/api/geo/postal', i),
     },
@@ -1094,6 +1182,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
       naics: (i) => get('business.naics', '/api/business/naics', i),
+      lei: (i) => get('business.lei', '/api/business/lei', i),
     },
     html: {
       toMarkdown: (i) => post('html.to-markdown', '/api/html/to-markdown', i),
@@ -1105,6 +1194,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       docketSearch: (i) => get('law.docket-search', '/api/law/docket-search', i),
       caseSearch: (i) => get('law.case-search', '/api/law/case-search', i),
       caseVerify: (i) => post('law.case-verify', '/api/law/case-verify', i),
+      citationCheck: (i) => post('law.citation-check', '/api/law/citation-check', i),
       sanctionsCheck: (i) => post('law.sanctions-check', '/api/law/sanctions-check', i),
       federalRegister: (i) => get('law.federal-register', '/api/law/federal-register', i),
       cfrSection: (i) => get('law.cfr-section', '/api/law/cfr-section', i),
@@ -1154,6 +1244,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     weather: {
       zip: (i) => get('weather.zip', '/api/weather/zip', i),
       alerts: (i) => get('weather.alerts', '/api/weather/alerts', i),
+      forecast: (i) => get('weather.forecast', '/api/weather/forecast', i),
+      airQuality: (i) => get('weather.air-quality', '/api/weather/air-quality', i),
+      marine: (i) => get('weather.marine', '/api/weather/marine', i),
+      history: (i) => get('weather.history', '/api/weather/history', i),
     },
     wikipedia: {
       summary: (i) => get('wikipedia.summary', '/api/wikipedia/summary', i),
@@ -1266,6 +1360,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     search: {
       web: (i) => get('search.web', '/api/search/web', i),
+    },
+    security: {
+      cve: (i) => get('security.cve', '/api/security/cve', i),
     },
     flight: {
       status: (i) => get('flight.status', '/api/flight/status', i),

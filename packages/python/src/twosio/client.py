@@ -101,6 +101,29 @@ class _Patents(_Group):
 
 class _Crypto(_Group):
 
+    def fear_greed(self, *, limit: int | None = None) -> CallResult:
+        """Crypto Fear & Greed Index (0-100 sentiment + classification). Pass limit
+        (1-90) for history, or omit for the current reading."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/fear-greed", endpoint="crypto.fear-greed", query=q)
+
+    def markets(self, *, limit: int | None = None) -> CallResult:
+        """Top cryptocurrencies by market cap (price, mcap, 24h volume, 24h/7d change). Pass limit (1-100)."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/markets", endpoint="crypto.markets", query=q)
+
+    def global_(self) -> CallResult:
+        """Whole-crypto-market overview: total mcap, volume, BTC/ETH dominance, active-coin count."""
+        return self._c.request("GET", "/api/crypto/global", endpoint="crypto.global", query={})
+
+    def trending(self) -> CallResult:
+        """Most-searched trending cryptocurrencies right now (symbol, name, rank, price)."""
+        return self._c.request("GET", "/api/crypto/trending", endpoint="crypto.trending", query={})
+
     def ens_resolve(self, *, query: str) -> CallResult:
         """ENS forward+reverse resolution on Ethereum mainnet (live RPC). Param: query."""
         return self._c.request("GET", "/api/crypto/ens-resolve", endpoint="crypto.ens-resolve", query={"query": query})
@@ -300,6 +323,30 @@ class _Law(_Group):
             "POST", "/api/law/case-verify",
             endpoint="law.case-verify",
             body={"text": text},
+        )
+
+    def citation_check(
+        self,
+        *,
+        text: str | None = None,
+        quotes: list[dict] | None = None,
+    ) -> CallResult:
+        """Anti-hallucination checker for legal references.
+
+        POST /api/law/citation-check. Pass text to verify existence of every cited
+        case (CourtListener) + US Code + CFR reference; and/or quotes=[{citation, quote}]
+        to deterministically verify an attributed quote actually appears in the cited
+        opinion. Checks facts (existence, quote presence), not legal appropriateness.
+        """
+        body: dict[str, Any] = {}
+        if text is not None:
+            body["text"] = text
+        if quotes is not None:
+            body["quotes"] = quotes
+        return self._c.request(
+            "POST", "/api/law/citation-check",
+            endpoint="law.citation-check",
+            body=body,
         )
 
     def sanctions_check(
@@ -742,6 +789,28 @@ class _Weather(_Group):
             q["limit"] = limit
         return self._c.request("GET", "/api/weather/alerts", endpoint="weather.alerts", query=q)
 
+    def forecast(self, *, lat: float, lon: float, hourly: bool | None = None, limit: int | None = None) -> CallResult:
+        """NWS multi-day (or hourly) forecast for a US coordinate. Pass lat + lon;
+        hourly=True for an hourly forecast. Returns periods with temp, wind, precip, text."""
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if hourly is not None:
+            q["hourly"] = hourly
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/weather/forecast", endpoint="weather.forecast", query=q)
+
+    def air_quality(self, *, lat: float, lon: float) -> CallResult:
+        """Current air quality (US/EU AQI + PM2.5/PM10/ozone/NO2/SO2/CO) for a coordinate, global."""
+        return self._c.request("GET", "/api/weather/air-quality", endpoint="weather.air-quality", query={"lat": lat, "lon": lon})
+
+    def marine(self, *, lat: float, lon: float) -> CallResult:
+        """Current marine/sea-state (waves + swell) for an ocean/coastal coordinate."""
+        return self._c.request("GET", "/api/weather/marine", endpoint="weather.marine", query={"lat": lat, "lon": lon})
+
+    def history(self, *, lat: float, lon: float, start: str, end: str) -> CallResult:
+        """Historical daily weather (ERA5) for a coordinate + date range (start, end YYYY-MM-DD, <=366d)."""
+        return self._c.request("GET", "/api/weather/history", endpoint="weather.history", query={"lat": lat, "lon": lon, "start": start, "end": end})
+
 
 class _Dns(_Group):
     def lookup(
@@ -877,6 +946,10 @@ class _Geo(_Group):
     def ip(self, *, ip: str) -> CallResult:
         return self._c.request("GET", "/api/geo/ip", endpoint="geo.ip", query={"ip": ip})
 
+    def elevation(self, *, lat: float, lon: float) -> CallResult:
+        """Ground elevation (meters + feet) for a coordinate, global. Pass lat + lon."""
+        return self._c.request("GET", "/api/geo/elevation", endpoint="geo.elevation", query={"lat": lat, "lon": lon})
+
     def postal(self, *, postal_code: str, country: Optional[str] = None) -> CallResult:
         """Postal/ZIP code → place + admin divisions + coordinates (international, default US)."""
         q: dict[str, Any] = {"postalCode": postal_code}
@@ -966,6 +1039,87 @@ class _Validate(_Group):
         return self._c.request("POST", "/api/validate/batch", endpoint="validate.batch", body={"items": items})
 
 
+class _Inflation(_Group):
+    def calculator(self, *, amount: float, from_: str, to: str | None = None) -> CallResult:
+        """Adjust a $ amount for inflation between two dates via CPI-U. Pass amount +
+        from_ (YYYY/YYYY-MM/YYYY-MM-DD) + optional to (defaults to latest CPI)."""
+        q: dict[str, Any] = {"amount": amount, "from": from_}
+        if to is not None:
+            q["to"] = to
+        return self._c.request("GET", "/api/inflation/calculator", endpoint="inflation.calculator", query=q)
+
+    def rates(self, *, measure: str | None = None) -> CallResult:
+        """Current US inflation by measure (cpi, core-cpi, pce, core-pce, ppi, ...) with
+        index level + YoY/MoM. Pass measure or omit for all."""
+        q: dict[str, Any] = {}
+        if measure is not None:
+            q["measure"] = measure
+        return self._c.request("GET", "/api/inflation/rates", endpoint="inflation.rates", query=q)
+
+    def expectations(self) -> CallResult:
+        """US inflation expectations: TIPS breakevens (5y/10y), 5y5y forward, U-Mich survey."""
+        return self._c.request("GET", "/api/inflation/expectations", endpoint="inflation.expectations", query={})
+
+    def hicp(self, *, country: str | None = None) -> CallResult:
+        """EU harmonized inflation (HICP annual rate) by country/aggregate. Pass country
+        (Eurostat geo: DE, FR, EL=Greece, EA20=euro area, EU27_2020=EU) or omit for all."""
+        q: dict[str, Any] = {}
+        if country is not None:
+            q["country"] = country
+        return self._c.request("GET", "/api/inflation/hicp", endpoint="inflation.hicp", query=q)
+
+
+class _Econ(_Group):
+    def indicator(self, *, indicator: str | None = None) -> CallResult:
+        """Latest US macro indicator reading + YoY (unemployment-rate, fed-funds-rate,
+        real-gdp, gdp-growth, 10y-treasury, nonfarm-payrolls, ...). Pass indicator or omit for all."""
+        q: dict[str, Any] = {}
+        if indicator is not None:
+            q["indicator"] = indicator
+        return self._c.request("GET", "/api/econ/indicator", endpoint="econ.indicator", query=q)
+
+    def yield_curve(self) -> CallResult:
+        """Current US Treasury yield curve (1M-30Y) + 2s10s/3m10y spreads + inversion flag."""
+        return self._c.request("GET", "/api/econ/yield-curve", endpoint="econ.yield-curve", query={})
+
+    def commodity(self, *, commodity: str | None = None) -> CallResult:
+        """Latest benchmark commodity price + % change (wti, brent, natural-gas, gasoline,
+        diesel, copper, aluminum, corn, wheat, sugar, ...). Pass commodity or omit for all."""
+        q: dict[str, Any] = {}
+        if commodity is not None:
+            q["commodity"] = commodity
+        return self._c.request("GET", "/api/econ/commodity", endpoint="econ.commodity", query=q)
+
+    def recession(self) -> CallResult:
+        """Composite US recession-signal dashboard: NY Fed probability + Sahm rule +
+        10y2y inversion, each with a triggered flag + count of signals flashing."""
+        return self._c.request("GET", "/api/econ/recession", endpoint="econ.recession", query={})
+
+
+class _Aviation(_Group):
+    def metar(self, *, ids: str) -> CallResult:
+        """Current aviation weather observation(s) (METAR) for comma-separated ICAO ids."""
+        return self._c.request("GET", "/api/aviation/metar", endpoint="aviation.metar", query={"ids": ids})
+
+    def taf(self, *, ids: str) -> CallResult:
+        """Terminal Aerodrome Forecast(s) (TAF) for comma-separated ICAO ids."""
+        return self._c.request("GET", "/api/aviation/taf", endpoint="aviation.taf", query={"ids": ids})
+
+
+class _Security(_Group):
+    def cve(self, *, cve: str) -> CallResult:
+        """Resolve a CVE (e.g. 'CVE-2021-44228') across NVD (record + CVSS + CWE),
+        CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit
+        probability) in one call. KEV + EPSS sections degrade independently."""
+        return self._c.request("GET", "/api/security/cve", endpoint="security.cve", query={"cve": cve})
+
+
+class _Water(_Group):
+    def gauge(self, *, site: str) -> CallResult:
+        """Real-time USGS river/stream conditions (streamflow, gage height, temp) for a site number."""
+        return self._c.request("GET", "/api/water/gauge", endpoint="water.gauge", query={"site": site})
+
+
 class _Tax(_Group):
     def vat(self, *, vat: str | None = None, country: str | None = None, number: str | None = None) -> CallResult:
         """Validate an EU VAT number against the live VIES register. Pass vat (full
@@ -979,6 +1133,18 @@ class _Tax(_Group):
         if number is not None:
             q["number"] = number
         return self._c.request("GET", "/api/tax/vat", endpoint="tax.vat", query=q)
+
+    def vat_rates(self, *, country: str | None = None) -> CallResult:
+        """Current EU VAT rates by member state (European Commission TEDB).
+
+        Pass country (ISO 2-letter; Greece is EL) for one state, or omit for all 27.
+        Each item returns standardRate, reducedRates, every rate category, and the
+        date in force. Pairs with vat() (number validation).
+        """
+        q: dict = {}
+        if country is not None:
+            q["country"] = country
+        return self._c.request("GET", "/api/tax/vat-rates", endpoint="tax.vat-rates", query=q)
 
 
 class _Calendar(_Group):
@@ -1765,6 +1931,37 @@ class _Business(_Group):
         if limit is not None:
             q["limit"] = limit
         return self._c.request("GET", "/api/business/naics", endpoint="business.naics", query=q)
+
+    def lei(
+        self,
+        *,
+        lei: Optional[str] = None,
+        query: Optional[str] = None,
+        country: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """GLEIF Legal Entity Identifier registry lookup or name search (ISO 17442, ~2.6M entities).
+
+        Server params: lei (exact 20-char LEI, XOR with query), query (free-text legal/other
+        name search), country (HQ ISO 2-letter filter), status (active|all), limit, offset.
+        Returns LEI, legal name, jurisdiction, category, legal form, status, HQ address, dates.
+        """
+        q: dict[str, Any] = {}
+        if lei is not None:
+            q["lei"] = lei
+        if query is not None:
+            q["query"] = query
+        if country is not None:
+            q["country"] = country
+        if status is not None:
+            q["status"] = status
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        return self._c.request("GET", "/api/business/lei", endpoint="business.lei", query=q)
 
 
 class _Gov(_Group):
@@ -3125,6 +3322,11 @@ class TwoS:
         self.calendar = _Calendar(self)
         self.convert = _Convert(self)
         self.tax = _Tax(self)
+        self.inflation = _Inflation(self)
+        self.econ = _Econ(self)
+        self.aviation = _Aviation(self)
+        self.security = _Security(self)
+        self.water = _Water(self)
         self.trade = _Trade(self)
         self.quakes = _Quakes(self)
         self.sunrise = _Sunrise(self)
