@@ -2060,6 +2060,27 @@ class _Business(_Group):
             q["offset"] = offset
         return self._c.request("GET", "/api/business/lei", endpoint="business.lei", query=q)
 
+    def entity_match(
+        self,
+        *,
+        name: str,
+        country: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Fuzzy-resolve a messy company name to its canonical GLEIF LEI with a
+        similarity score + high/medium/low confidence (KYB / record linkage).
+
+        Tolerant of legal-suffix noise, word order, ampersands, punctuation, and
+        former/alternate names. Returns ranked candidates + a meta.bestMatch
+        (null below medium confidence). Optional country = ISO-2 HQ filter.
+        """
+        q: dict[str, Any] = {"name": name}
+        if country is not None:
+            q["country"] = country
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/business/entity-match", endpoint="business.entity-match", query=q)
+
 
 class _Gov(_Group):
     def district(self, *, address: str) -> CallResult:

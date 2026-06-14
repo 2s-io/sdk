@@ -357,6 +357,8 @@ export interface Endpoints {
     naics(input: { code?: string; query?: string; level?: number; limit?: number }): R<Normalized>
     /** GLEIF Legal Entity Identifier registry: exact `lei` lookup or `query` name search (ISO 17442, ~2.6M entities). */
     lei(input: { lei?: string; query?: string; country?: string; status?: 'active' | 'all'; limit?: number; offset?: number }): R<Normalized>
+    /** Fuzzy resolve a messy company name to its canonical GLEIF LEI with a similarity score + confidence (KYB / record linkage). */
+    entityMatch(input: { name: string; country?: string; limit?: number }): R<Normalized>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -1226,6 +1228,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
       naics: (i) => get('business.naics', '/api/business/naics', i),
       lei: (i) => get('business.lei', '/api/business/lei', i),
+      entityMatch: (i) => get('business.entity-match', '/api/business/entity-match', i),
     },
     html: {
       toMarkdown: (i) => post('html.to-markdown', '/api/html/to-markdown', i),

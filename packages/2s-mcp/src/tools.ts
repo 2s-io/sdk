@@ -808,6 +808,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.business.lei(a as never),
     },
     {
+      name: 'business.entity-match',
+      description:
+        "Fuzzy entity resolution: resolve a messy, free-text company name to its canonical GLEIF Legal Entity Identifier (LEI) with a 0-1 similarity score and high/medium/low confidence. Tolerant of legal-suffix noise (Inc/Ltd/GmbH/S.A.), word order, ampersands, punctuation, and former/alternate names (e.g. 'Apple Computer Inc' → Apple Inc.). Returns ranked candidates plus a single bestMatch (null below medium confidence — safe for KYB). The record-linkage complement to business.lei. Optional country (ISO-2) narrows the jurisdiction.",
+      inputSchema: s('GLEIF fuzzy entity match', {
+        name: { type: 'string', description: 'Free-text company / legal-entity name to resolve (messy input is fine).' },
+        country: { type: 'string', description: 'Optional ISO-2 country of the entity HQ to narrow the match.' },
+        limit: { type: 'integer', minimum: 1, maximum: 25, default: 5 },
+      }),
+      invoke: (a) => c.business.entityMatch(a as never),
+    },
+    {
       name: 'edu.school-lookup',
       description: 'Every US public K-12 school (~102k, NCES Common Core of Data). Search by name/district (partial), state, city, zip, or exact 12-digit NCES id. Returns address, level, type, charter/magnet/virtual flags, enrollment, grade span.',
       inputSchema: s('School lookup', {
