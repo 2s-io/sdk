@@ -2272,6 +2272,26 @@ class _Gov(_Group):
         if status is not None: q["status"] = status
         return self._c.request("GET", "/api/gov/fda-recalls", endpoint="gov.fda-recalls", query=q)
 
+    def product_recalls(
+        self,
+        *,
+        title: Optional[str] = None,
+        product_name: Optional[str] = None,
+        recall_number: Optional[str] = None,
+        date_start: Optional[str] = None,
+        date_end: Optional[str] = None,
+        limit: int = 20,
+    ) -> CallResult:
+        """CPSC consumer-product recalls (SaferProducts.gov), newest first. All
+        filters optional; none set returns the last 12 months. Dates YYYY-MM-DD."""
+        q: dict[str, Any] = {"limit": limit}
+        if title is not None: q["title"] = title
+        if product_name is not None: q["productName"] = product_name
+        if recall_number is not None: q["recallNumber"] = recall_number
+        if date_start is not None: q["dateStart"] = date_start
+        if date_end is not None: q["dateEnd"] = date_end
+        return self._c.request("GET", "/api/gov/product-recalls", endpoint="gov.product-recalls", query=q)
+
     def fda_food_recalls(
         self,
         *,

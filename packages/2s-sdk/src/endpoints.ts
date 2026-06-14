@@ -985,6 +985,15 @@ export interface Endpoints {
       status?: 'Ongoing' | 'Completed' | 'Terminated' | 'Pending'
       limit?: number
     }): R<unknown>
+    /** CPSC consumer-product recalls (SaferProducts.gov), newest first. All filters optional. */
+    productRecalls(input?: {
+      title?: string
+      productName?: string
+      recallNumber?: string
+      dateStart?: string
+      dateEnd?: string
+      limit?: number
+    }): R<Normalized>
     /** OpenFDA food recall enforcement reports. */
     fdaFoodRecalls(input: {
       product?: string
@@ -1444,6 +1453,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       mshaAccidents: (i) => get('gov.msha-accidents', '/api/gov/msha-accidents', i ?? {}),
       fdaDrugEvents: (i) => get('gov.fda-drug-events', '/api/gov/fda-drug-events', i),
       fdaRecalls: (i) => get('gov.fda-recalls', '/api/gov/fda-recalls', i),
+      productRecalls: (i) => get('gov.product-recalls', '/api/gov/product-recalls', i ?? {}),
       fdaFoodRecalls: (i) => get('gov.fda-food-recalls', '/api/gov/fda-food-recalls', i),
       fdaDeviceEvents: (i) => get('gov.fda-device-events', '/api/gov/fda-device-events', i),
       fdaAnimalvetEvents: (i) => get('gov.fda-animalvet-events', '/api/gov/fda-animalvet-events', i),

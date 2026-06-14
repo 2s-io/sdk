@@ -2158,6 +2158,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.fdaRecalls(a as never),
     },
     {
+      name: 'gov.product-recalls',
+      description:
+        'CPSC consumer-product recalls (SaferProducts.gov), newest first. Covers everything outside FDA (food/drug/device) and NHTSA (vehicles): strollers, appliances, lithium batteries, furniture, toys, power tools, etc. All filters optional (none set → last 12 months). Each record has recall number+date, title, CPSC URL, affected products, hazards, remedies, injuries, manufacturers/importers/distributors/retailers, where sold, countries, images.',
+      inputSchema: s('CPSC product recalls', {
+        title: { type: 'string', description: 'Substring match on the recall title.' },
+        productName: { type: 'string', description: 'Substring match on an affected product name.' },
+        recallNumber: { type: 'string', description: 'Exact CPSC recall number, e.g. "26094".' },
+        dateStart: { type: 'string', description: 'Earliest recall date (YYYY-MM-DD).' },
+        dateEnd: { type: 'string', description: 'Latest recall date (YYYY-MM-DD).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+      }),
+      invoke: (a) => c.gov.productRecalls(a as never),
+    },
+    {
       name: 'gov.fda-food-recalls',
       description: 'FDA food recall enforcement reports, newest first. Filter by product name, classification, status, recalling-firm state.',
       inputSchema: s('FDA food recalls', {
