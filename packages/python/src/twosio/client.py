@@ -976,6 +976,18 @@ class _Geo(_Group):
         if country is not None: q["country"] = country
         return self._c.request("GET", "/api/geo/postal", endpoint="geo.postal", query=q)
 
+    def flood_zone(self, *, lat: float, lon: float) -> CallResult:
+        """FEMA flood zone for a coordinate (lat/lon).
+
+        Returns the FEMA flood zone code, Special-Flood-Hazard-Area flag,
+        plain-language risk level, base flood elevation, and FIRM panel.
+        FEMA NFHL, free and keyless.
+        """
+        return self._c.request(
+            "GET", "/api/geo/flood-zone", endpoint="geo.flood-zone",
+            query={"lat": lat, "lon": lon},
+        )
+
     def nearby(
         self,
         *,
@@ -1416,6 +1428,29 @@ class _Medical(_Group):
         if rxcui is not None: q["rxcui"] = rxcui
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/medical/rxnorm", endpoint="medical.rxnorm", query=q)
+
+    def drug_status(
+        self,
+        *,
+        drug: Optional[str] = None,
+        rxcui: Optional[str] = None,
+        ndc: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Drug situational awareness: FDA shortage + recall status + NDC metadata.
+
+        Provide one of drug (free-text name, resolved via RxNorm), rxcui, or
+        ndc. Returns hasCurrentShortage / hasOpenRecall plus per-source
+        found/error blocks. Free, public-domain FDA + NIH data.
+        """
+        if drug is None and rxcui is None and ndc is None:
+            raise ValueError("drug_status() requires one of drug, rxcui, or ndc.")
+        q: dict[str, Any] = {}
+        if drug is not None: q["drug"] = drug
+        if rxcui is not None: q["rxcui"] = rxcui
+        if ndc is not None: q["ndc"] = ndc
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/drug-status", endpoint="medical.drug-status", query=q)
 
     def icd10(
         self,
@@ -2105,7 +2140,155 @@ class _Business(_Group):
         return self._c.request("GET", "/api/business/entity-match", endpoint="business.entity-match", query=q)
 
 
+class _Net(_Group):
+    def asn(self, *, asn: str) -> CallResult:
+        """Autonomous System (BGP) intelligence by AS number (e.g. "AS3333").
+
+        Returns the AS holder, allocation block, announced status, and live
+        routing: announced prefixes/IPs, RIS peer visibility, neighbour count.
+        RIPEstat (RIPE NCC), free.
+        """
+        return self._c.request("GET", "/api/net/asn", endpoint="net.asn", query={"asn": asn})
+
+
+class _Research(_Group):
+    def org(
+        self,
+        *,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Resolve a research organization via ROR (id or name). Free, CC0."""
+        if id is None and name is None:
+            raise ValueError("org() requires id or name.")
+        q: dict[str, Any] = {}
+        if id is not None: q["id"] = id
+        if name is not None: q["name"] = name
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/research/org", endpoint="research.org", query=q)
+
+    def author(self, *, orcid: str, works_limit: Optional[int] = None) -> CallResult:
+        """ORCID researcher profile by iD: name, affiliations, works. Free."""
+        q: dict[str, Any] = {"orcid": orcid}
+        if works_limit is not None: q["worksLimit"] = works_limit
+        return self._c.request("GET", "/api/research/author", endpoint="research.author", query=q)
+
+    def funding(
+        self,
+        *,
+        term: Optional[str] = None,
+        org: Optional[str] = None,
+        pi: Optional[str] = None,
+        fiscal_year: Optional[int] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """NIH RePORTER federal grant search by term/org/pi/fiscal_year. Free."""
+        if term is None and org is None and pi is None and fiscal_year is None:
+            raise ValueError("funding() requires at least one of term, org, pi, or fiscal_year.")
+        q: dict[str, Any] = {}
+        if term is not None: q["term"] = term
+        if org is not None: q["org"] = org
+        if pi is not None: q["pi"] = pi
+        if fiscal_year is not None: q["fiscalYear"] = fiscal_year
+        if limit is not None: q["limit"] = limit
+        if offset is not None: q["offset"] = offset
+        return self._c.request("GET", "/api/research/funding", endpoint="research.funding", query=q)
+
+
 class _Gov(_Group):
+    def contract_opportunities(
+        self,
+        *,
+        posted_from: str,
+        posted_to: str,
+        title: Optional[str] = None,
+        naics: Optional[str] = None,
+        state: Optional[str] = None,
+        set_aside: Optional[str] = None,
+        ptype: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+    ) -> CallResult:
+        """Active US federal contract opportunities (SAM.gov).
+
+        Requires posted_from + posted_to (MM/DD/YYYY, <=1yr span). Optional
+        title/naics/state/set_aside/ptype filters. Distinct from
+        usaspending_awards (past awards) — this is what is OPEN to bid now.
+        """
+        q: dict[str, Any] = {"postedFrom": posted_from, "postedTo": posted_to}
+        if title is not None: q["title"] = title
+        if naics is not None: q["naics"] = naics
+        if state is not None: q["state"] = state
+        if set_aside is not None: q["setAside"] = set_aside
+        if ptype is not None: q["ptype"] = ptype
+        if limit is not None: q["limit"] = limit
+        if offset is not None: q["offset"] = offset
+        return self._c.request("GET", "/api/gov/contract-opportunities", endpoint="gov.contract-opportunities", query=q)
+
+    def entity(
+        self,
+        *,
+        legal_business_name: Optional[str] = None,
+        uei_sam: Optional[str] = None,
+        cage_code: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """SAM.gov registered-entity lookup by UEI / CAGE / legal business name."""
+        if legal_business_name is None and uei_sam is None and cage_code is None:
+            raise ValueError("entity() requires one of legal_business_name, uei_sam, or cage_code.")
+        q: dict[str, Any] = {}
+        if legal_business_name is not None: q["legalBusinessName"] = legal_business_name
+        if uei_sam is not None: q["ueiSAM"] = uei_sam
+        if cage_code is not None: q["cageCode"] = cage_code
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/entity", endpoint="gov.entity", query=q)
+
+    def exclusions(
+        self,
+        *,
+        name: Optional[str] = None,
+        uei_sam: Optional[str] = None,
+        cage_code: Optional[str] = None,
+        classification_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """SAM.gov federal exclusions (debarment/suspension) check.
+
+        Search by name / uei_sam / cage_code. Distinct from
+        law.sanctions_check (OFAC) — this is federal procurement debarment.
+        """
+        if name is None and uei_sam is None and cage_code is None:
+            raise ValueError("exclusions() requires one of name, uei_sam, or cage_code.")
+        q: dict[str, Any] = {}
+        if name is not None: q["name"] = name
+        if uei_sam is not None: q["ueiSAM"] = uei_sam
+        if cage_code is not None: q["cageCode"] = cage_code
+        if classification_type is not None: q["classificationType"] = classification_type
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/exclusions", endpoint="gov.exclusions", query=q)
+
+    def counterparty(
+        self,
+        *,
+        name: str,
+        state: Optional[str] = None,
+        threshold: Optional[float] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Federal counterparty due-diligence dossier on one name.
+
+        Composes SAM registration + SAM exclusions + OFAC sanctions + GLEIF
+        LEI + USAspending awards. Returns riskFlags, a cleared boolean, a
+        summary, and per-source found/error blocks.
+        """
+        q: dict[str, Any] = {"name": name}
+        if state is not None: q["state"] = state
+        if threshold is not None: q["threshold"] = threshold
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/counterparty", endpoint="gov.counterparty", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""
@@ -3509,6 +3692,8 @@ class TwoS:
         self.sunrise = _Sunrise(self)
         self.tides = _Tides(self)
         self.medical = _Medical(self)
+        self.net = _Net(self)
+        self.research = _Research(self)
         self.timezone = _Timezone(self)
         self.earth = _Earth(self)
         self.climate = _Climate(self)

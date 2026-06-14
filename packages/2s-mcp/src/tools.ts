@@ -1360,6 +1360,116 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.medical.icd10(a as never),
     },
     {
+      name: 'medical.drug-status',
+      description: 'One-call drug situational awareness: whether a drug is currently in FDA shortage, any open/recent FDA recalls, and FDA NDC-directory metadata (labeler, DEA schedule, pharm class). Give a drug name (resolved via RxNorm), or an exact rxcui or ndc. Returns hasCurrentShortage/hasOpenRecall plus per-source found/error blocks. Free, public-domain FDA + NIH data.',
+      inputSchema: s('Drug status', {
+        drug: { type: 'string', description: 'Free-text drug name (resolved via RxNorm).' },
+        rxcui: { type: 'string', description: 'Exact RxNorm RxCUI.' },
+        ndc: { type: 'string', description: 'Exact NDC (product or package).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, []),
+      invoke: (a) => c.medical.drugStatus(a as never),
+    },
+    {
+      name: 'net.asn',
+      description: 'Autonomous System (BGP) intelligence by AS number (e.g. AS3333). Returns the AS holder/operator, IANA/RIR allocation block, whether it is announced, and live routing status: announced IPv4/IPv6 prefixes + address counts, RIS peer visibility, and observed neighbour count. RIPEstat (RIPE NCC), free. Distinct from geo.ip and dns/whois — who owns and routes an AS, observed live.',
+      inputSchema: s('ASN/BGP lookup', {
+        asn: { type: 'string', description: 'AS number, e.g. AS3333 or 3333.' },
+      }, ['asn']),
+      invoke: (a) => c.net.asn(a as never),
+    },
+    {
+      name: 'research.org',
+      description: 'Resolve a research organization via the Research Organization Registry (ROR). Pass id (a ROR id) or name (free-text search). Returns canonical ROR id, name, type, location (GeoNames), website, external ids (GRID/ISNI/Wikidata/Fundref), relationships, and aliases. Free, CC0. The canonical institution key in scholarly metadata.',
+      inputSchema: s('Research org (ROR)', {
+        id: { type: 'string', description: 'ROR id, e.g. 056y0v115 or its full URL.' },
+        name: { type: 'string', description: 'Free-text organization name.' },
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      }, []),
+      invoke: (a) => c.research.org(a as never),
+    },
+    {
+      name: 'research.author',
+      description: 'Resolve a researcher by ORCID iD. Returns name, affiliations (employments + educations with a current flag), a works count, and a works summary (title, type, year, DOI). Free, keyless ORCID Public API. The canonical author key in scholarly metadata.',
+      inputSchema: s('Research author (ORCID)', {
+        orcid: { type: 'string', description: 'ORCID iD, e.g. 0000-0002-1825-0097.' },
+        worksLimit: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+      }, ['orcid']),
+      invoke: (a) => c.research.author(a as never),
+    },
+    {
+      name: 'research.funding',
+      description: 'Search US federal biomedical research grants via NIH RePORTER. Filter by term (title/terms/abstract), org, pi, and/or fiscalYear. Returns awards with project number, title, fiscal year, award amount, PI, organization, funding agency, and dates — newest first, with a total count. Free, public-domain.',
+      inputSchema: s('Research funding (NIH RePORTER)', {
+        term: { type: 'string', description: 'Free-text over project title, terms, and abstract.' },
+        org: { type: 'string', description: 'Funded organization name.' },
+        pi: { type: 'string', description: 'Principal-investigator name.' },
+        fiscalYear: { type: 'integer', description: 'US federal fiscal year, e.g. 2026.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }, []),
+      invoke: (a) => c.research.funding(a as never),
+    },
+    {
+      name: 'geo.flood-zone',
+      description: 'FEMA flood zone for a coordinate (lat/lon). Returns the FEMA flood zone code (AE, VE, X, …), Special-Flood-Hazard-Area flag (isSFHA — the 1% annual-chance floodplain where flood insurance is mandatory), a plain-language risk level + description, base flood elevation, and source FIRM panel. FEMA NFHL, free and keyless.',
+      inputSchema: s('FEMA flood zone', {
+        lat: { type: 'number', minimum: -90, maximum: 90, description: 'Latitude (WGS84).' },
+        lon: { type: 'number', minimum: -180, maximum: 180, description: 'Longitude (WGS84).' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.geo.floodZone(a as never),
+    },
+    {
+      name: 'gov.contract-opportunities',
+      description: 'Search ACTIVE US federal contract opportunities (solicitations, RFPs/RFQs, sources-sought) from SAM.gov. Requires postedFrom + postedTo (MM/DD/YYYY, ≤1yr span); optional title, naics, state, setAside, ptype. Returns notice id, title, solicitation number, type, department, deadline, NAICS, set-aside, office location, and a sam.gov link. Free, public-domain. Distinct from gov.usaspending-awards (past) — this is what is OPEN to bid now.',
+      inputSchema: s('Federal contract opportunities', {
+        postedFrom: { type: 'string', description: 'Start of posted-date window, MM/DD/YYYY.' },
+        postedTo: { type: 'string', description: 'End of posted-date window, MM/DD/YYYY.' },
+        title: { type: 'string', description: 'Keyword in the title.' },
+        naics: { type: 'string', description: 'NAICS code.' },
+        state: { type: 'string', description: '2-letter place/office state.' },
+        setAside: { type: 'string', description: 'Set-aside code, e.g. SBA, 8A, WOSB, SDVOSBC.' },
+        ptype: { type: 'string', description: 'Notice type: o=solicitation, p=presolicitation, r=sources-sought, k=combined.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+        offset: { type: 'integer', minimum: 0, default: 0 },
+      }, ['postedFrom', 'postedTo']),
+      invoke: (a) => c.gov.contractOpportunities(a as never),
+    },
+    {
+      name: 'gov.entity',
+      description: 'Look up entities registered to do business with the US federal government in SAM.gov. Search by ueiSAM, cageCode, or legalBusinessName. Returns UEI, CAGE, legal/DBA name, registration status + dates, an active-exclusion flag, address, and business types. Free, public-domain. The federal counterparty identity key.',
+      inputSchema: s('SAM entity lookup', {
+        legalBusinessName: { type: 'string', description: 'Legal business name.' },
+        ueiSAM: { type: 'string', description: '12-char Unique Entity ID.' },
+        cageCode: { type: 'string', description: 'CAGE code.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+      }, []),
+      invoke: (a) => c.gov.entity(a as never),
+    },
+    {
+      name: 'gov.exclusions',
+      description: 'Check whether a person or company is excluded (debarred/suspended) from US federal contracts, grants, or assistance — the SAM.gov Exclusions list. Search by name, ueiSAM, cageCode, classificationType. Returns each exclusion with classification, type, program, excluding agency, dates, and address. Free, public-domain. Distinct from law.sanctions-check (OFAC).',
+      inputSchema: s('SAM exclusions (debarment)', {
+        name: { type: 'string', description: 'Person or entity name.' },
+        ueiSAM: { type: 'string', description: '12-char Unique Entity ID.' },
+        cageCode: { type: 'string', description: 'CAGE code.' },
+        classificationType: { type: 'string', description: 'Individual | Firm | Vessel | Special Entity Designation.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+      }, []),
+      invoke: (a) => c.gov.exclusions(a as never),
+    },
+    {
+      name: 'gov.counterparty',
+      description: 'Federal counterparty due-diligence dossier on one name, in a single call: SAM registration + SAM exclusions (debarment) + OFAC SDN sanctions + GLEIF LEI + USAspending federal awards. Returns headline riskFlags (federally_debarred, sanctions_high_confidence_match), a cleared boolean, a summary, and per-source found/error blocks. Free, public-domain. The federal counterpart to business.entity-screen.',
+      inputSchema: s('Federal counterparty dossier', {
+        name: { type: 'string', description: 'Company or person name to screen.' },
+        state: { type: 'string', description: 'Optional 2-letter state to scope award history.' },
+        threshold: { type: 'number', minimum: 0.1, maximum: 1, default: 0.4, description: 'OFAC fuzzy-match threshold.' },
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      }, ['name']),
+      invoke: (a) => c.gov.counterparty(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {

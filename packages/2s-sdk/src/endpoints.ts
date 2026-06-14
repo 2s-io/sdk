@@ -313,6 +313,8 @@ export interface Endpoints {
     nearby(input: { lat: number; lon: number; radiusKm?: number; limit?: number }): R<unknown>
     /** Postal/ZIP code → place + admin divisions + coordinates (international). */
     postal(input: { postalCode: string; country?: string }): R<Normalized>
+    /** FEMA flood zone for a coordinate: zone code, SFHA flag, risk level, base flood elevation (free, keyless). */
+    floodZone(input: { lat: number; lon: number }): R<unknown>
   }
   geocode: {
     /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
@@ -613,6 +615,20 @@ export interface Endpoints {
     icd10(input: { code?: string; q?: string; billable_only?: boolean; limit?: number }): R<unknown>
     /** Normalize/verify drug names against RxNorm: term=… for candidates, rxcui=… for canonical concept + ingredients/brands/dose forms. */
     rxnorm(input: { term?: string; rxcui?: string; limit?: number }): R<unknown>
+    /** Drug situational awareness: FDA shortage + recall status + NDC metadata for a drug name / rxcui / ndc (composed on RxNorm). */
+    drugStatus(input: { drug?: string; rxcui?: string; ndc?: string; limit?: number }): R<unknown>
+  }
+  net: {
+    /** Autonomous System (BGP) intelligence by AS number: holder, allocation block, announced prefixes, routing visibility (RIPEstat). */
+    asn(input: { asn: string }): R<unknown>
+  }
+  research: {
+    /** Resolve a research organization via ROR (id or name): location, external ids, relationships. */
+    org(input: { id?: string; name?: string; limit?: number }): R<unknown>
+    /** ORCID researcher profile by iD: name, affiliations, works. */
+    author(input: { orcid: string; worksLimit?: number }): R<unknown>
+    /** NIH RePORTER federal grant search by term/org/pi/fiscalYear. */
+    funding(input: { term?: string; org?: string; pi?: string; fiscalYear?: number; limit?: number; offset?: number }): R<unknown>
   }
   timezone: {
     /** Resolve a coordinate to its IANA timezone + current local wall time. */
@@ -936,6 +952,14 @@ export interface Endpoints {
     screen(input: { q?: string; ein?: string; limit?: number }): R<unknown>
   }
   gov: {
+    /** Active US federal contract opportunities (SAM.gov). Requires postedFrom + postedTo (MM/DD/YYYY); filter by title/naics/state/setAside/ptype. */
+    contractOpportunities(input: { postedFrom: string; postedTo: string; title?: string; naics?: string; state?: string; setAside?: string; ptype?: string; limit?: number; offset?: number }): R<Normalized>
+    /** SAM.gov registered-entity lookup by UEI / CAGE / legal business name. */
+    entity(input: { legalBusinessName?: string; ueiSAM?: string; cageCode?: string; limit?: number }): R<Normalized>
+    /** SAM.gov federal exclusions (debarment/suspension) check by name / UEI / CAGE. */
+    exclusions(input: { name?: string; ueiSAM?: string; cageCode?: string; classificationType?: string; limit?: number }): R<Normalized>
+    /** Federal counterparty due-diligence dossier on a name: SAM registration + exclusions + OFAC + GLEIF LEI + USAspending awards in one call. */
+    counterparty(input: { name: string; state?: string; threshold?: number; limit?: number }): R<unknown>
     /** US address → congressional district (119th), state, and county via the Census geocoder. GET { address }. */
     district(input: { address: string }): R<Normalized>
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
@@ -1211,6 +1235,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       elevation: (i) => get('geo.elevation', '/api/geo/elevation', i),
       nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
       postal: (i) => get('geo.postal', '/api/geo/postal', i),
+      floodZone: (i) => get('geo.flood-zone', '/api/geo/flood-zone', i),
     },
     person: {
       crossRegistry: (i) => get('person.cross-registry', '/api/person/cross-registry', i),
@@ -1282,6 +1307,15 @@ export function createEndpoints(client: TwoS): Endpoints {
     medical: {
       icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
       rxnorm: (i) => get('medical.rxnorm', '/api/medical/rxnorm', i),
+      drugStatus: (i) => get('medical.drug-status', '/api/medical/drug-status', i),
+    },
+    net: {
+      asn: (i) => get('net.asn', '/api/net/asn', i),
+    },
+    research: {
+      org: (i) => get('research.org', '/api/research/org', i),
+      author: (i) => get('research.author', '/api/research/author', i),
+      funding: (i) => get('research.funding', '/api/research/funding', i),
     },
     timezone: {
       lookup: (i) => get('timezone.lookup', '/api/timezone/lookup', i),
@@ -1438,6 +1472,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       screen: (i) => get('nonprofit.screen', '/api/nonprofit/screen', i),
     },
     gov: {
+      contractOpportunities: (i) => get('gov.contract-opportunities', '/api/gov/contract-opportunities', i),
+      entity: (i) => get('gov.entity', '/api/gov/entity', i),
+      exclusions: (i) => get('gov.exclusions', '/api/gov/exclusions', i),
+      counterparty: (i) => get('gov.counterparty', '/api/gov/counterparty', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
       district: (i) => get('gov.district', '/api/gov/district', i),
       congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),
