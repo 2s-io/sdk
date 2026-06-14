@@ -127,6 +127,10 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   crypto: {
+    /** DeFi TVL via DefiLlama: protocol=<slug> or chain=<name> for one, or omit for the top protocols + total TVL. */
+    defi(input?: { protocol?: string; chain?: string; limit?: number }): R<Normalized>
+    /** EVM contract decode: Sourcify verified ABI + function/event signatures + proxy, with optional 4-byte selector decode. GET { chain, address, selector? }. */
+    contract(input: { chain: string; address: string; selector?: string }): R<Normalized>
     /** Crypto Fear & Greed Index (0–100 sentiment). Pass `limit` for history or omit for current. */
     fearGreed(input?: { limit?: number }): R<Normalized>
     /** Top cryptocurrencies by market cap (price, mcap, 24h/7d change). Pass `limit` (1–100). */
@@ -203,6 +207,20 @@ export interface Endpoints {
     commodity(input?: { commodity?: string }): R<Normalized>
     /** Composite US recession-signal dashboard (NY Fed probability + Sahm rule + 10y2y inversion). */
     recession(input?: Record<string, never>): R<Normalized>
+  }
+  /** EDI (electronic data interchange). */
+  edi: {
+    /** Parse a raw ANSI X12 EDI document into structured, named JSON + a semantic summary. POST { edi }. */
+    parse(input: { edi: string }): R<Normalized>
+    /** Generate the X12 997 Functional Acknowledgment for a received interchange (meta.ack = ready-to-send 997). POST { edi, status?, controlNumber? }. */
+    ack(input: { edi: string; status?: 'A' | 'E' | 'P' | 'R' | 'M' | 'W' | 'X'; controlNumber?: string }): R<Normalized>
+    /** Generate an outbound X12 850 (PO) or 810 (Invoice) from JSON → meta.edi. POST { type, senderId, receiverId, documentNumber, items, … }. */
+    generate(input: { type: '850' | '810'; senderId: string; receiverId: string; documentNumber: string; items: Array<{ quantity: number | string; uom?: string; price?: number | string; productId?: string }>; poNumber?: string; date?: string; parties?: Array<{ role: string; name: string }>; total?: number }): R<Normalized>
+  }
+  /** Fact-check / claim verification (Google Fact Check Tools / ClaimReview). */
+  factcheck: {
+    /** Search published fact-checks by claim text → claims with publishers, verdicts, and review URLs. GET { query, language?, maxAgeDays?, publisher?, limit? }. */
+    search(input: { query: string; language?: string; maxAgeDays?: number; publisher?: string; limit?: number }): R<Normalized>
   }
   /** Aviation weather (NOAA). */
   aviation: {
@@ -479,6 +497,10 @@ export interface Endpoints {
   security: {
     /** Resolve a CVE across NVD (record + CVSS + CWE), CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit probability) in one call. */
     cve(input: { cve: string }): R<unknown>
+    /** Package security + provenance: OSV vulns + deps.dev license/deprecation + OpenSSF Scorecard health, in one call. GET { ecosystem, name, version? }. */
+    package(input: { ecosystem: string; name: string; version?: string }): R<Normalized>
+    /** Find CVEs affecting a product (NVD search by keyword or CPE). GET { product? | cpe?, limit? }. */
+    cveSearch(input: { product?: string; cpe?: string; limit?: number }): R<Normalized>
   }
   /** Stock market data (Massive / formerly Polygon.io). */
   stocks: {
@@ -908,6 +930,8 @@ export interface Endpoints {
     screen(input: { q?: string; ein?: string; limit?: number }): R<unknown>
   }
   gov: {
+    /** US address → congressional district (119th), state, and county via the Census geocoder. GET { address }. */
+    district(input: { address: string }): R<Normalized>
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
     inmateLocator(input: { lastName?: string; firstName?: string; middleName?: string; inmateNumber?: string; age?: number; sex?: 'Male' | 'Female'; race?: string }): R<unknown>
     /** US Senate lobbying disclosures (LDA filings) — registrant/client/lobbyist/year. */
@@ -1088,6 +1112,8 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     crypto: {
       addressValidate: (i) => get('crypto.address-validate', '/api/crypto/address-validate', i),
+      defi: (i) => get('crypto.defi', '/api/crypto/defi', i ?? {}),
+      contract: (i) => get('crypto.contract', '/api/crypto/contract', i),
       fearGreed: (i) => get('crypto.fear-greed', '/api/crypto/fear-greed', i ?? {}),
       markets: (i) => get('crypto.markets', '/api/crypto/markets', i ?? {}),
       global: (i) => get('crypto.global', '/api/crypto/global', i ?? {}),
@@ -1124,6 +1150,14 @@ export function createEndpoints(client: TwoS): Endpoints {
       yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
       commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),
       recession: (i) => get('econ.recession', '/api/econ/recession', i ?? {}),
+    },
+    edi: {
+      parse: (i) => post('edi.parse', '/api/edi/parse', i),
+      ack: (i) => post('edi.ack', '/api/edi/ack', i),
+      generate: (i) => post('edi.generate', '/api/edi/generate', i),
+    },
+    factcheck: {
+      search: (i) => get('factcheck.search', '/api/factcheck/search', i),
     },
     aviation: {
       metar: (i) => get('aviation.metar', '/api/aviation/metar', i),
@@ -1363,6 +1397,8 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     security: {
       cve: (i) => get('security.cve', '/api/security/cve', i),
+      package: (i) => get('security.package', '/api/security/package', i),
+      cveSearch: (i) => get('security.cve-search', '/api/security/cve-search', i),
     },
     flight: {
       status: (i) => get('flight.status', '/api/flight/status', i),
@@ -1386,6 +1422,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     gov: {
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
+      district: (i) => get('gov.district', '/api/gov/district', i),
       congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),
       congressBill: (i) => get('gov.congress-bill', '/api/gov/congress-bill', i ?? {}),
       congressMember: (i) => get('gov.congress-member', '/api/gov/congress-member', i ?? {}),

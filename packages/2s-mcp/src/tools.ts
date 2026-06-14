@@ -295,6 +295,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.econ.recession(a as never),
     },
     {
+      name: 'edi.parse',
+      description: 'Parse a raw ANSI X12 EDI document (B2B purchase orders, invoices, ship notices, etc.) into clean structured JSON. POST edi with the raw interchange text. Auto-detects delimiters; returns interchange metadata, each functional group + transaction set with its type decoded (850 PO, 810 invoice, 856 ASN, 855 PO ack, 997 ack), every segment named, and a semantic summary (PO/invoice numbers, parties, line items, totals). Deterministic, no external calls.',
+      inputSchema: s('X12 EDI parse', { edi: { type: 'string', description: 'Raw X12 interchange text (begins with ISA).' } }, ['edi']),
+      invoke: (a) => c.edi.parse(a as never),
+    },
+    {
+      name: 'edi.ack',
+      description: 'Generate the ANSI X12 997 Functional Acknowledgment for a received EDI interchange. POST edi with the raw inbound interchange (the 850/810/856 you received); returns the ready-to-send 997 in meta.ack — sender/receiver mirrored, delimiters echoed, one ST(997) per inbound functional group with correct AK1/AK2/AK5 and AK9 included/received/accepted counts. status controls the response: A=Accepted (default), E=Accepted with errors, P=Partial, R=Rejected, M/W/X=auth/security rejection. Deterministic, no external calls — the reply leg of EDI.',
+      inputSchema: s('X12 997 generate', { edi: { type: 'string', description: 'Raw inbound X12 interchange text (begins with ISA).' }, status: { type: 'string', enum: ['A', 'E', 'P', 'R', 'M', 'W', 'X'], description: 'Ack status. Default A (Accepted).' }, controlNumber: { type: 'string', description: 'Control-number seed (digits). Default time-derived.' } }, ['edi']),
+      invoke: (a) => c.edi.ack(a as never),
+    },
+    {
+      name: 'edi.generate',
+      description: 'Generate an outbound ANSI X12 EDI document from JSON. POST type (850 = Purchase Order, 810 = Invoice) + senderId, receiverId, documentNumber (PO#/invoice#), optional date, parties (N1 role+name), items (quantity, uom, price, productId); for 810 optionally poNumber + total. Returns the full X12 interchange in meta.edi (correct ISA/GS/ST…SE/GE/IEA envelope). Deterministic — the outbound complement to edi.parse + edi.ack.',
+      inputSchema: s('X12 generate', { type: { type: 'string', enum: ['850', '810'], description: '850 PO or 810 invoice.' }, senderId: { type: 'string', description: 'Sender id.' }, receiverId: { type: 'string', description: 'Receiver id.' }, documentNumber: { type: 'string', description: 'PO# or invoice#.' }, poNumber: { type: 'string', description: 'For 810: the PO invoiced.' }, date: { type: 'string', description: 'YYYYMMDD (default today).' }, parties: { type: 'array', description: 'N1 loops (role+name).', items: { type: 'object' } }, items: { type: 'array', description: 'Line items.', items: { type: 'object' } }, total: { type: 'number', description: 'For 810: invoice total USD.' } }, ['type', 'senderId', 'receiverId', 'documentNumber', 'items']),
+      invoke: (a) => c.edi.generate(a as never),
+    },
+    {
+      name: 'factcheck.search',
+      description: 'Search the global corpus of published fact-checks (ClaimReview) by claim text. Returns matching claims with the claimant, claim date, and each review\'s verdict (textualRating like "False"/"Misleading"/"True"), publisher (PolitiFact, Snopes, FactCheck.org, Reuters, AFP…), review URL and date. Covers all topics — politics, health, science, viral/misinformation. Optional language, maxAgeDays, and publisher-site filters. Check whether a claim was fact-checked + how it was rated instead of asserting from training.',
+      inputSchema: s('Fact-check search', { query: { type: 'string', description: 'Claim text to search for.' }, language: { type: 'string', description: 'BCP-47 language code (e.g. en).' }, maxAgeDays: { type: 'integer', description: 'Only reviews newer than this many days.' }, publisher: { type: 'string', description: 'Filter to a publisher site (e.g. factcheck.org).' }, limit: { type: 'integer', description: 'Max claims (1-50, default 10).' } }, ['query']),
+      invoke: (a) => c.factcheck.search(a as never),
+    },
+    {
       name: 'aviation.metar',
       description: 'Current aviation weather observation (METAR) for airports. Pass ids (comma-separated ICAO, e.g. KATL,EGLL). Returns raw METAR + decoded flight category, temp/dewpoint, wind, visibility, altimeter, clouds. Source: NOAA Aviation Weather Center (keyless).',
       inputSchema: s('METAR', { ids: { type: 'string', description: 'Comma-separated ICAO ids.' } }, ['ids']),
@@ -311,6 +335,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
       description: 'Real-time US river/stream conditions from a USGS monitoring site. Pass site (USGS site number, e.g. 01646500). Returns latest streamflow, gage height, water temp + site name/location. Source: USGS NWIS (keyless).',
       inputSchema: s('USGS water gauge', { site: { type: 'string', description: 'USGS site number.' } }, ['site']),
       invoke: (a) => c.water.gauge(a as never),
+    },
+    {
+      name: 'crypto.defi',
+      description: 'DeFi total-value-locked (TVL) via DefiLlama. No params → top protocols by TVL (name, category, TVL, 1d/7d change, chains) + total DeFi TVL. protocol=<slug> (e.g. lido, aave, uniswap) → one protocol; chain=<name> (e.g. ethereum, solana) → that chain\'s TVL. Distinct from crypto.markets (spot prices) — protocol/chain capital locked. Free, keyless.',
+      inputSchema: s('DeFi TVL', { protocol: { type: 'string', description: 'Protocol slug (e.g. lido). Omit for top list.' }, chain: { type: 'string', description: 'Chain name (e.g. ethereum) for chain TVL.' }, limit: { type: 'integer', description: 'Top-list size (1–100, default 20).' } }),
+      invoke: (a) => c.crypto.defi(a as never),
+    },
+    {
+      name: 'crypto.contract',
+      description: 'Decode an EVM smart contract. Pass chain (ethereum, base, polygon, arbitrum, optimism, bsc, avalanche) + address → whether source-verified (Sourcify), name/compiler/language, proxy + implementation, and human-readable function/event signatures from the ABI. Optional selector (0x 4-byte) → decode what it calls (from the contract ABI if verified, else the 4byte directory). Pairs with crypto.tx. Free, keyless.',
+      inputSchema: s('EVM contract decode', { chain: { type: 'string', description: 'EVM chain (ethereum, base, …).' }, address: { type: 'string', description: '0x contract address.' }, selector: { type: 'string', description: 'Optional 0x 4-byte selector to decode.' } }, ['chain', 'address']),
+      invoke: (a) => c.crypto.contract(a as never),
     },
     {
       name: 'crypto.fear-greed',
@@ -1016,6 +1052,23 @@ export function buildToolList(c: TwoS): ToolDef[] {
         cve: { type: 'string', description: 'CVE id, e.g. CVE-2021-44228.' },
       }, ['cve']),
       invoke: (a) => c.security.cve(a as never),
+    },
+    {
+      name: 'security.package',
+      description:
+        'Security + provenance for an open-source package, composed live in one call from OSV (known vulnerabilities — aggregates GitHub Security Advisories, PyPA, RustSec, Go vuln DB, etc., each with CVE aliases + severity + references), deps.dev (resolved license + deprecation), and OpenSSF Scorecard (source-repo health: overall 0-10 + per-check, plus stars/forks/open-issues). Pass ecosystem (npm/pypi/go/maven/cargo/nuget) + name (+ optional version). Live — new advisories appear within hours. Distinct from registry.npm/pypi-lookup (metadata only): "is this dependency safe to add, what license, how well-maintained."',
+      inputSchema: s('Package security', {
+        ecosystem: { type: 'string', description: 'npm, pypi, go, maven, cargo, or nuget.' },
+        name: { type: 'string', description: 'Package name (e.g. lodash).' },
+        version: { type: 'string', description: 'Version (defaults to latest).' },
+      }, ['ecosystem', 'name']),
+      invoke: (a) => c.security.package(a as never),
+    },
+    {
+      name: 'security.cve-search',
+      description: 'Find CVEs affecting a product by searching the NIST NVD. Pass product (free-text keyword, e.g. "apache log4j", "openssl") or cpe (exact CPE 2.3 name). Returns matching CVEs newest-first with id, description, CVSS score/severity/vector, dates. Optional limit (1-50). For "what CVEs affect X" — distinct from security.cve (resolve one id across NVD+KEV+EPSS). Free, keyless.',
+      inputSchema: s('CVE search', { product: { type: 'string', description: 'Free-text product/keyword.' }, cpe: { type: 'string', description: 'Exact CPE 2.3 name.' }, limit: { type: 'integer', description: 'Max CVEs (1-50, default 20).' } }),
+      invoke: (a) => c.security.cveSearch(a as never),
     },
     {
       name: 'news.search',
@@ -2038,6 +2091,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
         offset: { type: 'integer', minimum: 0, default: 0 },
       }),
       invoke: (a) => c.gov.congressMember(a as never),
+    },
+    {
+      name: 'gov.district',
+      description: 'Resolve a US street address to its congressional district (119th Congress), state, and county via the US Census Bureau geocoder. Returns matched address, lat/lon, state (name + abbr), county, and district number (null for at-large/delegate). The point-in-polygon district lookup an agent can\'t do from a sandbox; pair with gov.congress-member for the reps. Public domain, keyless.',
+      inputSchema: s('Address to district', { address: { type: 'string', description: 'US street address (one line).' } }, ['address']),
+      invoke: (a) => c.gov.district(a as never),
     },
     {
       name: 'gov.fec-candidate',

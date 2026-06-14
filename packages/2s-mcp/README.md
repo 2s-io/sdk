@@ -1,6 +1,6 @@
 # @2sio/mcp
 
-**MCP server for [2s.io](https://2s.io) — gives any MCP-aware AI agent pay-per-call access to an ever-expanding catalog of APIs.**
+**MCP server for [2s.io](https://2s.io) — the (most) everything API. Gives any MCP-aware AI agent pay-per-call access to hundreds of ground-truth data endpoints.**
 
 [Model Context Protocol](https://modelcontextprotocol.io) is the standard for AI agents to discover and use tools. This package runs a local MCP server that exposes every 2s.io endpoint as a callable tool. Plug it into Claude Desktop, AgentKit, Cline, Continue, or any other MCP host.
 

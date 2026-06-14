@@ -1,6 +1,6 @@
 # @2sio/sdk
 
-**Typed TypeScript client for [2s.io](https://2s.io) — pay-per-call AI agent APIs on Base or Solana via x402.**
+**Typed TypeScript client for [2s.io](https://2s.io) — the (most) everything API. Pay-per-call AI-agent data APIs on Base or Solana via x402.**
 
 No signup, no API keys, no credit card on file. Sign for whichever rail you hold USDC on (EIP-3009 on Base, partial SPL transfer on Solana), hit any endpoint, get back typed JSON. Settles in ~2 seconds. Prices start at $0.001 per call. The endpoint catalog is constantly expanding — 2s is an open-ended experiment in maximally-comprehensive agent infrastructure.
 

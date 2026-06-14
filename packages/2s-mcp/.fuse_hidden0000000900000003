@@ -1,36 +1,44 @@
 {
-  "name": "@2sio/sdk",
-  "version": "1.30.1",
-  "description": "Typed client for 2s \u2014 the (most) everything API. Pay-per-call AI-agent data APIs, settled in USDC on Base or Solana via x402.",
+  "name": "@2sio/mcp",
+  "version": "1.30.0",
+  "mcpName": "io.github.2s-io/mcp",
+  "description": "MCP server for 2s — the (most) everything API. Hundreds of pay-per-call AI-agent data tools (public records, finance, crypto, security, legal, health, geo, EDI), settled in USDC on Base or Solana via x402.",
   "license": "MIT",
   "homepage": "https://2s.io",
   "repository": {
     "type": "git",
     "url": "https://github.com/2s-io/sdk.git",
-    "directory": "packages/2s-sdk"
+    "directory": "packages/2s-mcp"
   },
   "bugs": {
     "url": "https://github.com/2s-io/sdk/issues"
   },
   "keywords": [
+    "mcp",
+    "model-context-protocol",
     "x402",
     "ai-agents",
-    "agentic",
-    "usdc",
-    "base",
-    "solana",
-    "pay-per-call",
+    "claude-desktop",
+    "agentkit",
+    "tools",
     "2s.io",
-    "api-sdk",
-    "stablecoin"
+    "usdc",
+    "base"
   ],
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "2sio-mcp": "./dist/cli.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./cli": {
+      "types": "./dist/cli.d.ts",
+      "default": "./dist/cli.js"
     }
   },
   "files": [
@@ -44,11 +52,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@x402/core": "^2.13.0",
-    "@x402/evm": "^2.13.0",
-    "@x402/svm": "^2.13.0",
-    "@solana/kit": "^5.0.0",
-    "viem": "^2.21.0"
+    "@2sio/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "viem": "^2.21.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

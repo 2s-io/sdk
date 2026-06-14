@@ -3,7 +3,7 @@
 [![smithery badge](https://smithery.ai/badge/twosio/mcp)](https://smithery.ai/servers/twosio/mcp)
 [![2s-io/sdk MCP server](https://glama.ai/mcp/servers/2s-io/sdk/badges/score.svg)](https://glama.ai/mcp/servers/2s-io/sdk)
 
-**Client SDK + MCP server for [2s.io](https://2s.io) — a unified JSON REST API for AI agents, paid per call in USDC on Base or Solana via [x402](https://x402.org).**
+**Client SDK + MCP server for [2s.io](https://2s.io) — the (most) everything API. One pay-per-call API giving AI agents ground-truth data across hundreds of endpoints, paid per call in USDC on Base or Solana via [x402](https://x402.org).**
 
 This repo ships SDKs for every major agent-development language plus an MCP server for any MCP-aware host:
 

@@ -101,6 +101,26 @@ class _Patents(_Group):
 
 class _Crypto(_Group):
 
+    def defi(self, *, protocol: str | None = None, chain: str | None = None, limit: int | None = None) -> CallResult:
+        """DeFi TVL via DefiLlama: protocol=<slug> or chain=<name> for one, or omit
+        for the top protocols + total DeFi TVL. GET { protocol?, chain?, limit? }."""
+        q: dict[str, Any] = {}
+        if protocol is not None:
+            q["protocol"] = protocol
+        if chain is not None:
+            q["chain"] = chain
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/defi", endpoint="crypto.defi", query=q)
+
+    def contract(self, *, chain: str, address: str, selector: str | None = None) -> CallResult:
+        """Decode an EVM contract: Sourcify verified ABI + function/event signatures
+        + proxy, with optional 4-byte selector decode. GET { chain, address, selector? }."""
+        q: dict[str, Any] = {"chain": chain, "address": address}
+        if selector is not None:
+            q["selector"] = selector
+        return self._c.request("GET", "/api/crypto/contract", endpoint="crypto.contract", query=q)
+
     def fear_greed(self, *, limit: int | None = None) -> CallResult:
         """Crypto Fear & Greed Index (0-100 sentiment + classification). Pass limit
         (1-90) for history, or omit for the current reading."""
@@ -1096,6 +1116,62 @@ class _Econ(_Group):
         return self._c.request("GET", "/api/econ/recession", endpoint="econ.recession", query={})
 
 
+class _Edi(_Group):
+    def parse(self, *, edi: str) -> CallResult:
+        """Parse a raw ANSI X12 EDI document into structured, named JSON + semantic
+        summary (auto-detects delimiters; decodes 850/810/855/856/997 etc.). POST { edi }."""
+        return self._c.request("POST", "/api/edi/parse", endpoint="edi.parse", body={"edi": edi})
+
+    def ack(self, *, edi: str, status: str | None = None, control_number: str | None = None) -> CallResult:
+        """Generate the X12 997 Functional Acknowledgment for a received interchange.
+        meta.ack = ready-to-send 997 (sender/receiver mirrored, AK9 counts correct).
+        status: A=Accepted (default), E/P/R/M/W/X. POST { edi, status?, controlNumber? }."""
+        body: dict = {"edi": edi}
+        if status is not None:
+            body["status"] = status
+        if control_number is not None:
+            body["controlNumber"] = control_number
+        return self._c.request("POST", "/api/edi/ack", endpoint="edi.ack", body=body)
+
+    def generate(self, *, type: str, sender_id: str, receiver_id: str, document_number: str, items: list, po_number: str | None = None, date: str | None = None, parties: list | None = None, total: float | None = None) -> CallResult:
+        """Generate an outbound X12 850 (PO) or 810 (Invoice) from JSON → meta.edi.
+        POST { type, senderId, receiverId, documentNumber, items, … }."""
+        body: dict[str, Any] = {"type": type, "senderId": sender_id, "receiverId": receiver_id, "documentNumber": document_number, "items": items}
+        if po_number is not None:
+            body["poNumber"] = po_number
+        if date is not None:
+            body["date"] = date
+        if parties is not None:
+            body["parties"] = parties
+        if total is not None:
+            body["total"] = total
+        return self._c.request("POST", "/api/edi/generate", endpoint="edi.generate", body=body)
+
+
+class _Factcheck(_Group):
+    def search(
+        self,
+        *,
+        query: str,
+        language: str | None = None,
+        max_age_days: int | None = None,
+        publisher: str | None = None,
+        limit: int | None = None,
+    ) -> CallResult:
+        """Search published fact-checks (ClaimReview) by claim text → claims with
+        publishers, verdicts (textualRating), and review URLs. Google Fact Check Tools."""
+        q: dict = {"query": query}
+        if language is not None:
+            q["language"] = language
+        if max_age_days is not None:
+            q["maxAgeDays"] = max_age_days
+        if publisher is not None:
+            q["publisher"] = publisher
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/factcheck/search", endpoint="factcheck.search", query=q)
+
+
 class _Aviation(_Group):
     def metar(self, *, ids: str) -> CallResult:
         """Current aviation weather observation(s) (METAR) for comma-separated ICAO ids."""
@@ -1112,6 +1188,27 @@ class _Security(_Group):
         CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit
         probability) in one call. KEV + EPSS sections degrade independently."""
         return self._c.request("GET", "/api/security/cve", endpoint="security.cve", query={"cve": cve})
+
+    def package(self, *, ecosystem: str, name: str, version: str | None = None) -> CallResult:
+        """Package security + provenance in one call: OSV vulnerabilities + deps.dev
+        license/deprecation + OpenSSF Scorecard health. ecosystem = npm/pypi/go/
+        maven/cargo/nuget. GET { ecosystem, name, version? }."""
+        q: dict[str, Any] = {"ecosystem": ecosystem, "name": name}
+        if version is not None:
+            q["version"] = version
+        return self._c.request("GET", "/api/security/package", endpoint="security.package", query=q)
+
+    def cve_search(self, *, product: str | None = None, cpe: str | None = None, limit: int | None = None) -> CallResult:
+        """Find CVEs affecting a product (NVD search). product=keyword or cpe=exact
+        CPE 2.3. Newest-first w/ CVSS. GET { product? | cpe?, limit? }."""
+        q: dict[str, Any] = {}
+        if product is not None:
+            q["product"] = product
+        if cpe is not None:
+            q["cpe"] = cpe
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/security/cve-search", endpoint="security.cve-search", query=q)
 
 
 class _Water(_Group):
@@ -1965,6 +2062,11 @@ class _Business(_Group):
 
 
 class _Gov(_Group):
+    def district(self, *, address: str) -> CallResult:
+        """US address → congressional district (119th) + state + county via the
+        Census geocoder. GET { address }."""
+        return self._c.request("GET", "/api/gov/district", endpoint="gov.district", query={"address": address})
+
     def inmate_locator(
         self,
         *,
@@ -3324,6 +3426,8 @@ class TwoS:
         self.tax = _Tax(self)
         self.inflation = _Inflation(self)
         self.econ = _Econ(self)
+        self.edi = _Edi(self)
+        self.factcheck = _Factcheck(self)
         self.aviation = _Aviation(self)
         self.security = _Security(self)
         self.water = _Water(self)

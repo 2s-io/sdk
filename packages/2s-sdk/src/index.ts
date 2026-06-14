@@ -167,6 +167,8 @@ export class TwoS {
   public readonly tax: Endpoints['tax']
   public readonly inflation: Endpoints['inflation']
   public readonly econ: Endpoints['econ']
+  public readonly edi: Endpoints['edi']
+  public readonly factcheck: Endpoints['factcheck']
   public readonly aviation: Endpoints['aviation']
   public readonly water: Endpoints['water']
   public readonly trade: Endpoints['trade']
@@ -276,6 +278,8 @@ export class TwoS {
     this.tax = this.endpoints.tax
     this.inflation = this.endpoints.inflation
     this.econ = this.endpoints.econ
+    this.edi = this.endpoints.edi
+    this.factcheck = this.endpoints.factcheck
     this.aviation = this.endpoints.aviation
     this.water = this.endpoints.water
     this.trade = this.endpoints.trade

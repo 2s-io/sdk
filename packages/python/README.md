@@ -1,6 +1,6 @@
 # 2sio (Python)
 
-**Python client for [2s.io](https://2s.io) — an ever-expanding catalog of pay-per-call AI agent APIs on Base via x402.**
+**Python client for [2s.io](https://2s.io) — the (most) everything API. Pay-per-call AI-agent data APIs on Base or Solana via x402.**
 
 ```bash
 pip install 2sio
