@@ -187,6 +187,48 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.convert.unit(a as never),
     },
     {
+      name: 'convert.currency',
+      description:
+        'Convert an amount between currencies at a live or historical exchange rate. Pass from + to (3-letter ISO 4217) + optional amount (default 1) + date (YYYY-MM-DD for historical; omit for latest). Returns the converted result, per-unit rate, and effective rate date. Live ECB reference rates (via Frankfurter), fetched per request — never stale; weekends/holidays use the last business day. ECB major currencies.',
+      inputSchema: s('Currency conversion', {
+        from: { type: 'string', description: 'Source currency (ISO 4217, e.g. USD).' },
+        to: { type: 'string', description: 'Target currency (ISO 4217, e.g. EUR).' },
+        amount: { type: 'number', description: 'Amount of source currency (default 1).' },
+        date: { type: 'string', description: 'YYYY-MM-DD for a historical rate (optional).' },
+      }, ['from', 'to']),
+      invoke: (a) => c.convert.currency(a as never),
+    },
+    {
+      name: 'iso.currency',
+      description:
+        'ISO 4217 currency lookup. Pass code (alphabetic USD or 3-digit numeric 840) or country. Returns alphabetic + numeric code, English name, minor unit (decimal places — JPY 0, USD 2, BHD 3), and countries using it. Bundled authoritative ISO 4217 data.',
+      inputSchema: s('ISO 4217 currency', {
+        code: { type: 'string', description: 'ISO 4217 code — alphabetic (USD) or numeric (840).' },
+        country: { type: 'string', description: 'Country name to find its currency.' },
+      }, []),
+      invoke: (a) => c.iso.currency(a as never),
+    },
+    {
+      name: 'iso.language',
+      description:
+        'ISO 639 language lookup. Pass code in any form — 639-1 (en), 639-2/B (ger), 639-2/T (deu) — or name. Returns the English name + all sibling codes (alpha-2, alpha3-B, alpha3-T), resolving the bibliographic/terminological split (German = de/deu/ger). Bundled authoritative ISO 639 data.',
+      inputSchema: s('ISO 639 language', {
+        code: { type: 'string', description: 'ISO 639 code (en, ger, deu).' },
+        name: { type: 'string', description: 'Language name (English), partial allowed.' },
+      }, []),
+      invoke: (a) => c.iso.language(a as never),
+    },
+    {
+      name: 'iso.subdivision',
+      description:
+        'ISO 3166-2 subdivision lookup (states/provinces/regions). Pass code (US-CA) to resolve one → name + country, or country (2-letter, US) to list all its subdivisions with codes. Bundled authoritative ISO 3166-2 data (~3.8k subdivisions, 237 countries).',
+      inputSchema: s('ISO 3166-2 subdivision', {
+        code: { type: 'string', description: 'ISO 3166-2 subdivision code, e.g. US-CA.' },
+        country: { type: 'string', description: '2-letter ISO 3166-1 country to list subdivisions, e.g. US.' },
+      }, []),
+      invoke: (a) => c.iso.subdivision(a as never),
+    },
+    {
       name: 'calendar.holidays',
       description:
         'List the official holidays for a country and year with exact observed dates, including substitute days (e.g. a Saturday July 4th observed Friday). 200+ countries, regional subdivisions (US states, German Länder, Canadian provinces…), movable feasts and lunar-calendar holidays computed from maintained rules. Filter by type (public, bank, school, optional, observance) and localize names via lang. Returns {date, name, type, substitute, rule} per holiday.',

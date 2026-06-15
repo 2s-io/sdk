@@ -167,6 +167,7 @@ export class TwoS {
   public readonly hash: Endpoints['hash']
   public readonly validate: Endpoints['validate']
   public readonly convert: Endpoints['convert']
+  public readonly iso: Endpoints['iso']
   public readonly tax: Endpoints['tax']
   public readonly inflation: Endpoints['inflation']
   public readonly econ: Endpoints['econ']
@@ -281,6 +282,7 @@ export class TwoS {
     this.hash = this.endpoints.hash
     this.validate = this.endpoints.validate
     this.convert = this.endpoints.convert
+    this.iso = this.endpoints.iso
     this.tax = this.endpoints.tax
     this.inflation = this.endpoints.inflation
     this.econ = this.endpoints.econ

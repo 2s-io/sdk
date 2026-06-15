@@ -178,6 +178,17 @@ export interface Endpoints {
   convert: {
     /** Unit-of-measure conversion: mass, length, volume, area, temperature. */
     unit(input: { value: number; from: string; to: string }): R<Normalized>
+    /** Currency conversion at a live or historical ECB rate. from + to (ISO 4217) + amount + optional date. */
+    currency(input: { from: string; to: string; amount?: number; date?: string }): R<unknown>
+  }
+  /** ISO standards lookup — currency (4217), language (639), subdivision (3166-2). */
+  iso: {
+    /** ISO 4217 currency by code (alpha/numeric) or country: name, numeric, minor units. */
+    currency(input: { code?: string; country?: string }): R<unknown>
+    /** ISO 639 language by code (639-1/2B/2T) or name: canonical codes + English name. */
+    language(input: { code?: string; name?: string }): R<unknown>
+    /** ISO 3166-2 subdivision by code (US-CA) or country (US → list). */
+    subdivision(input: { code?: string; country?: string }): R<unknown>
   }
   /** Tax-identifier validation. */
   tax: {
@@ -1236,6 +1247,12 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     convert: {
       unit: (i) => get('convert.unit', '/api/convert/unit', i),
+      currency: (i) => get('convert.currency', '/api/convert/currency', i),
+    },
+    iso: {
+      currency: (i) => get('iso.currency', '/api/iso/currency', i),
+      language: (i) => get('iso.language', '/api/iso/language', i),
+      subdivision: (i) => get('iso.subdivision', '/api/iso/subdivision', i),
     },
     trade: {
       tariff: (i) => get('trade.tariff', '/api/trade/tariff', i),

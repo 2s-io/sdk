@@ -1352,6 +1352,46 @@ class _Convert(_Group):
         return self._c.request("GET", "/api/convert/unit", endpoint="convert.unit",
                                 query={"value": value, "from": from_, "to": to})
 
+    def currency(self, *, from_: str, to: str, amount: Optional[float] = None, date: Optional[str] = None) -> CallResult:
+        """Convert an amount between currencies at a live or historical ECB rate.
+
+        from_ + to are 3-letter ISO 4217 codes; amount default 1; date YYYY-MM-DD
+        for a historical rate (omit for latest). Live Frankfurter/ECB, never stale.
+        """
+        q: dict[str, Any] = {"from": from_, "to": to}
+        if amount is not None: q["amount"] = amount
+        if date is not None: q["date"] = date
+        return self._c.request("GET", "/api/convert/currency", endpoint="convert.currency", query=q)
+
+
+class _Iso(_Group):
+    def currency(self, *, code: Optional[str] = None, country: Optional[str] = None) -> CallResult:
+        """ISO 4217 currency by code (USD or 840) or country → name, numeric, minor units, countries."""
+        if code is None and country is None:
+            raise ValueError("currency() requires code or country.")
+        q: dict[str, Any] = {}
+        if code is not None: q["code"] = code
+        if country is not None: q["country"] = country
+        return self._c.request("GET", "/api/iso/currency", endpoint="iso.currency", query=q)
+
+    def language(self, *, code: Optional[str] = None, name: Optional[str] = None) -> CallResult:
+        """ISO 639 language by code (en/ger/deu) or name → English name + all sibling codes."""
+        if code is None and name is None:
+            raise ValueError("language() requires code or name.")
+        q: dict[str, Any] = {}
+        if code is not None: q["code"] = code
+        if name is not None: q["name"] = name
+        return self._c.request("GET", "/api/iso/language", endpoint="iso.language", query=q)
+
+    def subdivision(self, *, code: Optional[str] = None, country: Optional[str] = None) -> CallResult:
+        """ISO 3166-2 subdivision by code (US-CA) or country (US → list)."""
+        if code is None and country is None:
+            raise ValueError("subdivision() requires code or country.")
+        q: dict[str, Any] = {}
+        if code is not None: q["code"] = code
+        if country is not None: q["country"] = country
+        return self._c.request("GET", "/api/iso/subdivision", endpoint="iso.subdivision", query=q)
+
 
 class _Trade(_Group):
     def tariff(self, *, code: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
@@ -3872,6 +3912,7 @@ class TwoS:
         self.validate = _Validate(self)
         self.calendar = _Calendar(self)
         self.convert = _Convert(self)
+        self.iso = _Iso(self)
         self.tax = _Tax(self)
         self.inflation = _Inflation(self)
         self.econ = _Econ(self)
