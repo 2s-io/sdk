@@ -1516,7 +1516,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
     },
     {
       name: 'gov.counterparty',
-      description: 'Federal counterparty due-diligence dossier on one name, in a single call: SAM registration + SAM exclusions (debarment) + OFAC SDN sanctions + GLEIF LEI + USAspending federal awards. Returns headline riskFlags (federally_debarred, sanctions_high_confidence_match), a cleared boolean, a summary, and per-source found/error blocks. Free, public-domain. The federal counterpart to business.entity-screen.',
+      description: 'Federal counterparty due-diligence dossier on one name, in a single call: SAM registration + SAM exclusions (debarment) + OFAC SDN sanctions + GLEIF LEI + USAspending federal awards + FARA foreign-agent registration. Returns headline riskFlags (federally_debarred, sanctions_high_confidence_match, registered_foreign_agent), a cleared boolean (debarment+sanctions only — FARA is context), a summary, and per-source found/error blocks. Free, public-domain. The federal counterpart to business.entity-screen.',
       inputSchema: s('Federal counterparty dossier', {
         name: { type: 'string', description: 'Company or person name to screen.' },
         state: { type: 'string', description: 'Optional 2-letter state to scope award history.' },
@@ -1524,6 +1524,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
       }, ['name']),
       invoke: (a) => c.gov.counterparty(a as never),
+    },
+    {
+      name: 'gov.foreign-agents',
+      description: 'Search currently-active FARA (Foreign Agents Registration Act) registrants by name. Returns whether the entity is a registered foreign agent (isRegisteredForeignAgent), a KYB-safe bestMatch (null below medium confidence — no false positives), and scored candidates with registration number, date, and city/state. FARA registration is a US disclosure status (acting for a foreign principal), not wrongdoing. DOJ FARA eFile, free and keyless.',
+      inputSchema: s('FARA foreign-agent search', {
+        name: { type: 'string', description: 'Company or person name to screen against FARA registrants.' },
+        limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
+      }, ['name']),
+      invoke: (a) => c.gov.foreignAgents(a as never),
     },
     {
       name: 'timezone.lookup',

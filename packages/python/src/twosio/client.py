@@ -2358,6 +2358,17 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/counterparty", endpoint="gov.counterparty", query=q)
 
+    def foreign_agents(self, *, name: str, limit: Optional[int] = None) -> CallResult:
+        """Search active FARA (Foreign Agents Registration Act) registrants by name.
+
+        Returns isRegisteredForeignAgent, a KYB-safe bestMatch (null below
+        medium confidence), and scored candidates with registration number,
+        date, and city/state. DOJ FARA eFile, free and keyless.
+        """
+        q: dict[str, Any] = {"name": name}
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/foreign-agents", endpoint="gov.foreign-agents", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""
