@@ -322,6 +322,8 @@ export interface Endpoints {
     postal(input: { postalCode: string; country?: string }): R<Normalized>
     /** FEMA flood zone for a coordinate: zone code, SFHA flag, risk level, base flood elevation (free, keyless). */
     floodZone(input: { lat: number; lon: number }): R<unknown>
+    /** Static risk/context dossier for a point: Census place + FEMA flood + USGS seismic + nearest NOAA station (+ ACS when zip given). Pass lat+lon or address. */
+    locationDossier(input: { lat?: number; lon?: number; address?: string; zip?: string; riskCategory?: string; siteClass?: string }): R<unknown>
   }
   geocode: {
     /** Server params: q (query string), limit (1-10), country (ISO-3166 alpha-2). */
@@ -628,6 +630,8 @@ export interface Endpoints {
   net: {
     /** Autonomous System (BGP) intelligence by AS number: holder, allocation block, announced prefixes, routing visibility (RIPEstat). */
     asn(input: { asn: string }): R<unknown>
+    /** Resolve a MAC address or OUI prefix to its IEEE-registered vendor + decoded address bits (multicast/local/randomized). Bundled IEEE registries. */
+    macVendor(input: { mac: string }): R<unknown>
   }
   research: {
     /** Resolve a research organization via ROR (id or name): location, external ids, relationships. */
@@ -1249,6 +1253,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
       postal: (i) => get('geo.postal', '/api/geo/postal', i),
       floodZone: (i) => get('geo.flood-zone', '/api/geo/flood-zone', i),
+      locationDossier: (i) => get('geo.location-dossier', '/api/geo/location-dossier', i),
     },
     person: {
       crossRegistry: (i) => get('person.cross-registry', '/api/person/cross-registry', i),
@@ -1324,6 +1329,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     net: {
       asn: (i) => get('net.asn', '/api/net/asn', i),
+      macVendor: (i) => get('net.mac-vendor', '/api/net/mac-vendor', i),
     },
     research: {
       org: (i) => get('research.org', '/api/research/org', i),

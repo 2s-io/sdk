@@ -990,6 +990,33 @@ class _Geo(_Group):
             query={"lat": lat, "lon": lon},
         )
 
+    def location_dossier(
+        self,
+        *,
+        lat: Optional[float] = None,
+        lon: Optional[float] = None,
+        address: Optional[str] = None,
+        zip: Optional[str] = None,
+        risk_category: Optional[str] = None,
+        site_class: Optional[str] = None,
+    ) -> CallResult:
+        """Static risk/context dossier for a US location.
+
+        Pass lat+lon or address (geocoded for you); optional zip adds ACS
+        demographics. Composes Census place context + FEMA flood zone + USGS
+        ASCE 7-16 seismic + nearest NOAA station, each isolated. Free, keyless.
+        """
+        q: dict[str, Any] = {}
+        if lat is not None: q["lat"] = lat
+        if lon is not None: q["lon"] = lon
+        if address is not None: q["address"] = address
+        if zip is not None: q["zip"] = zip
+        if risk_category is not None: q["riskCategory"] = risk_category
+        if site_class is not None: q["siteClass"] = site_class
+        return self._c.request(
+            "GET", "/api/geo/location-dossier", endpoint="geo.location-dossier", query=q,
+        )
+
     def nearby(
         self,
         *,
@@ -2181,6 +2208,16 @@ class _Net(_Group):
         RIPEstat (RIPE NCC), free.
         """
         return self._c.request("GET", "/api/net/asn", endpoint="net.asn", query={"asn": asn})
+
+    def mac_vendor(self, *, mac: str) -> CallResult:
+        """Resolve a MAC address or OUI prefix to its IEEE-registered vendor.
+
+        Accepts any format (FC:FB:FB:01:02:03, fcfbfb, a 9-hex MA-S prefix, …).
+        Longest-prefix match across the IEEE MA-L/MA-M/MA-S registries; also
+        decodes multicast / locally-administered / randomized-privacy bits.
+        Bundled authoritative IEEE data, free.
+        """
+        return self._c.request("GET", "/api/net/mac-vendor", endpoint="net.mac-vendor", query={"mac": mac})
 
 
 class _Research(_Group):

@@ -1414,6 +1414,14 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.net.asn(a as never),
     },
     {
+      name: 'net.mac-vendor',
+      description: 'Resolve a MAC address (or bare OUI prefix) to its IEEE-registered hardware vendor. Accepts any format (FC:FB:FB:01:02:03, fc-fb-fb-01-02-03, fcfb.fb01.0203, fcfbfb, or a 9-hex MA-S prefix). Longest-prefix match across the IEEE MA-L/MA-M/MA-S registries, so subdivided blocks resolve to the real manufacturer. Returns the vendor, matched OUI + registry, and decoded address bits: multicast/group, locally administered, or randomized (privacy) MAC. Bundled authoritative IEEE data, free.',
+      inputSchema: s('MAC vendor lookup', {
+        mac: { type: 'string', description: 'MAC address or OUI prefix in any common format.' },
+      }, ['mac']),
+      invoke: (a) => c.net.macVendor(a as never),
+    },
+    {
       name: 'research.org',
       description: 'Resolve a research organization via the Research Organization Registry (ROR). Pass id (a ROR id) or name (free-text search). Returns canonical ROR id, name, type, location (GeoNames), website, external ids (GRID/ISNI/Wikidata/Fundref), relationships, and aliases. Free, CC0. The canonical institution key in scholarly metadata.',
       inputSchema: s('Research org (ROR)', {
@@ -1453,6 +1461,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
         lon: { type: 'number', minimum: -180, maximum: 180, description: 'Longitude (WGS84).' },
       }, ['lat', 'lon']),
       invoke: (a) => c.geo.floodZone(a as never),
+    },
+    {
+      name: 'geo.location-dossier',
+      description: 'Static risk & context dossier for a US location. Pass lat+lon or a US address (geocoded for you); optional zip adds ACS demographics. Composes five keyless federal sources: Census place context (county/state/tract/congressional district), FEMA flood zone + SFHA status, USGS ASCE 7-16 seismic design parameters (Ss/S1/SDS/SD1/seismic design category/PGA), the nearest NOAA/GHCN climate station, and Census ACS 5-year demographics (zip only). Each layer is isolated. The slow-moving structural-risk picture for siting/insurance/diligence — distinct from real-time weather/earthquake conditions.',
+      inputSchema: s('Location risk dossier', {
+        lat: { type: 'number', minimum: -90, maximum: 90, description: 'Latitude (WGS84). With lon, or use address.' },
+        lon: { type: 'number', minimum: -180, maximum: 180, description: 'Longitude (WGS84). With lat, or use address.' },
+        address: { type: 'string', description: 'US street address (alternative to lat/lon).' },
+        zip: { type: 'string', description: 'Optional 5-digit ZIP to include ACS demographics.' },
+        riskCategory: { type: 'string', enum: ['I', 'II', 'III', 'IV'], description: 'ASCE risk category (default II).' },
+        siteClass: { type: 'string', enum: ['A', 'B', 'C', 'D', 'E'], description: 'ASCE soil site class (default D).' },
+      }, []),
+      invoke: (a) => c.geo.locationDossier(a as never),
     },
     {
       name: 'gov.contract-opportunities',
