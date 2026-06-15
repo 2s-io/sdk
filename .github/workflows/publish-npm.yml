@@ -38,7 +38,30 @@ jobs:
         working-directory: ${{ steps.pkg.outputs.dir }}
       - run: npm run build
         working-directory: ${{ steps.pkg.outputs.dir }}
-      - run: npm publish --access public --provenance
+      - name: Publish to npm (idempotent)
         working-directory: ${{ steps.pkg.outputs.dir }}
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VER=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VER" version >/dev/null 2>&1; then
+            echo "$NAME@$VER already on npm — skipping publish"
+          else
+            npm publish --access public --provenance
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # The MCP server (server.json) must also be published to the official MCP
+      # registry on every mcp ship, or the registry listing drifts behind npm.
+      # Uses GitHub OIDC (id-token: write above) — namespace io.github.2s-io/*
+      # is authorized because this workflow runs in the 2s-io org. Idempotent:
+      # re-dispatching mcp after npm is live still syncs the registry.
+      - name: Publish to MCP registry
+        if: ${{ github.event.inputs.package == 'mcp' }}
+        working-directory: packages/2s-mcp
+        run: |
+          ASSET_URL=$(curl -sSL https://api.github.com/repos/modelcontextprotocol/registry/releases/latest \
+            | grep -o 'https://[^"]*_linux_amd64.tar.gz' | head -1)
+          echo "downloading mcp-publisher from $ASSET_URL"
+          curl -sSL "$ASSET_URL" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
