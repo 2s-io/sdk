@@ -223,6 +223,8 @@ export interface Endpoints {
   edi: {
     /** Parse a raw ANSI X12 EDI document into structured, named JSON + a semantic summary. POST { edi }. */
     parse(input: { edi: string }): R<Normalized>
+    /** Parse a raw UN/EDIFACT document (international B2B EDI) into structured, named JSON + a semantic summary. POST { edi }. */
+    edifact(input: { edi: string }): R<Normalized>
     /** Generate the X12 997 Functional Acknowledgment for a received interchange (meta.ack = ready-to-send 997). POST { edi, status?, controlNumber? }. */
     ack(input: { edi: string; status?: 'A' | 'E' | 'P' | 'R' | 'M' | 'W' | 'X'; controlNumber?: string }): R<Normalized>
     /** Generate an outbound X12 850 (PO) or 810 (Invoice) from JSON → meta.edi. POST { type, senderId, receiverId, documentNumber, items, … }. */
@@ -1228,6 +1230,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     edi: {
       parse: (i) => post('edi.parse', '/api/edi/parse', i),
+      edifact: (i) => post('edi.edifact', '/api/edi/edifact', i),
       ack: (i) => post('edi.ack', '/api/edi/ack', i),
       generate: (i) => post('edi.generate', '/api/edi/generate', i),
     },

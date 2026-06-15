@@ -343,6 +343,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.edi.parse(a as never),
     },
     {
+      name: 'edi.edifact',
+      description: 'Parse a raw UN/EDIFACT document (the B2B EDI standard used across Europe, Asia, logistics and customs — international counterpart to ANSI X12) into clean structured JSON. POST edi with the raw interchange text. Reads the optional UNA service-string advice to auto-detect delimiters (or applies UN defaults); handles release-character escaping; returns the interchange envelope (UNB: sender/recipient with qualifiers, date/time, control reference, test indicator) and each message with its type decoded (ORDERS PO, INVOIC invoice, DESADV ASN, ORDRSP PO response, CONTRL ack), every segment named (BGM, DTM, NAD, LIN, QTY, MOA…), and a semantic summary (order/invoice numbers, dates, parties with role decoded, line items, totals). Deterministic, no external calls.',
+      inputSchema: s('UN/EDIFACT parse', { edi: { type: 'string', description: 'Raw UN/EDIFACT interchange text (optional UNA, then UNB/UNH…).' } }, ['edi']),
+      invoke: (a) => c.edi.edifact(a as never),
+    },
+    {
       name: 'edi.ack',
       description: 'Generate the ANSI X12 997 Functional Acknowledgment for a received EDI interchange. POST edi with the raw inbound interchange (the 850/810/856 you received); returns the ready-to-send 997 in meta.ack — sender/receiver mirrored, delimiters echoed, one ST(997) per inbound functional group with correct AK1/AK2/AK5 and AK9 included/received/accepted counts. status controls the response: A=Accepted (default), E=Accepted with errors, P=Partial, R=Rejected, M/W/X=auth/security rejection. Deterministic, no external calls — the reply leg of EDI.',
       inputSchema: s('X12 997 generate', { edi: { type: 'string', description: 'Raw inbound X12 interchange text (begins with ISA).' }, status: { type: 'string', enum: ['A', 'E', 'P', 'R', 'M', 'W', 'X'], description: 'Ack status. Default A (Accepted).' }, controlNumber: { type: 'string', description: 'Control-number seed (digits). Default time-derived.' } }, ['edi']),

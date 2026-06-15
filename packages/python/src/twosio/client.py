@@ -1163,6 +1163,12 @@ class _Edi(_Group):
         summary (auto-detects delimiters; decodes 850/810/855/856/997 etc.). POST { edi }."""
         return self._c.request("POST", "/api/edi/parse", endpoint="edi.parse", body={"edi": edi})
 
+    def edifact(self, *, edi: str) -> CallResult:
+        """Parse a raw UN/EDIFACT document (international B2B EDI — counterpart to X12)
+        into structured, named JSON + semantic summary (reads UNA delimiters; decodes
+        ORDERS/INVOIC/DESADV/ORDRSP/CONTRL). POST { edi }."""
+        return self._c.request("POST", "/api/edi/edifact", endpoint="edi.edifact", body={"edi": edi})
+
     def ack(self, *, edi: str, status: str | None = None, control_number: str | None = None) -> CallResult:
         """Generate the X12 997 Functional Acknowledgment for a received interchange.
         meta.ack = ready-to-send 997 (sender/receiver mirrored, AK9 counts correct).
