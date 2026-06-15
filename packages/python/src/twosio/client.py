@@ -2425,6 +2425,25 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/nfip-claims", endpoint="gov.nfip-claims", query=q)
 
+    def carrier_safety(
+        self,
+        *,
+        dot: Optional[int] = None,
+        name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FMCSA motor-carrier safety profile.
+
+        Pass dot (USDOT number) for the full record (authority/status, safety
+        rating, crash + inspection history, CSA BASICs), or name to search →
+        matching carriers with DOT numbers. Free, public-domain US DOT data.
+        """
+        q: dict[str, Any] = {}
+        if dot is not None: q["dot"] = dot
+        if name is not None: q["name"] = name
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/carrier-safety", endpoint="gov.carrier-safety", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""

@@ -981,6 +981,8 @@ export interface Endpoints {
     fccId(input: { fccId: string }): R<unknown>
     /** FEMA NFIP flood-insurance claims history for an area (by state + optional county FIPS/zip/year): net payouts + flood zone + cause + water depth. */
     nfipClaims(input: { state: string; county?: string; zip?: string; yearFrom?: number; yearTo?: number; limit?: number }): R<unknown>
+    /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
+    carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US address → congressional district (119th), state, and county via the Census geocoder. GET { address }. */
     district(input: { address: string }): R<Normalized>
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
@@ -1508,6 +1510,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       riskIndex: (i) => get('gov.risk-index', '/api/gov/risk-index', i),
       fccId: (i) => get('gov.fcc-id', '/api/gov/fcc-id', i),
       nfipClaims: (i) => get('gov.nfip-claims', '/api/gov/nfip-claims', i),
+      carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
       district: (i) => get('gov.district', '/api/gov/district', i),
       congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),

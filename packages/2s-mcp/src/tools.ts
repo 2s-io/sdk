@@ -1568,6 +1568,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.nfipClaims(a as never),
     },
     {
+      name: 'gov.carrier-safety',
+      description: 'FMCSA motor-carrier (trucking/bus) safety profile. Pass dot (USDOT number) for the full record: legal/DBA name, state, interstate/intrastate, operating-authority status (allowedToOperate), FMCSA safety rating, fleet size, crash history (total/fatal/injury/tow-away), roadside-inspection history with driver+vehicle out-of-service rates, and CSA BASIC measures (Unsafe Driving, Hours-of-Service, Driver Fitness, Controlled Substances, Vehicle Maintenance, Hazmat, Crash Indicator). Or pass name to search → matching carriers + DOT numbers. Free, public-domain US DOT data. For commercial-auto/freight underwriting, broker/shipper vetting, vendor diligence.',
+      inputSchema: s('FMCSA carrier safety', {
+        dot: { type: 'integer', description: 'USDOT number for the full safety profile.' },
+        name: { type: 'string', description: 'Carrier name to search (returns matches with DOT numbers).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, []),
+      invoke: (a) => c.gov.carrierSafety(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {
