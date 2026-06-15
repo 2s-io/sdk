@@ -975,6 +975,8 @@ export interface Endpoints {
     counterparty(input: { name: string; state?: string; threshold?: number; limit?: number }): R<unknown>
     /** FARA foreign-agent registration search by name: is this entity a registered foreign agent, with a KYB-safe bestMatch. */
     foreignAgents(input: { name: string; limit?: number }): R<unknown>
+    /** FEMA National Risk Index for a US county (by FIPS, state+county, or lat/lon): composite risk + per-hazard ratings. */
+    riskIndex(input: { countyFips?: string; state?: string; county?: string; lat?: number; lon?: number }): R<unknown>
     /** US address → congressional district (119th), state, and county via the Census geocoder. GET { address }. */
     district(input: { address: string }): R<Normalized>
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
@@ -1499,6 +1501,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       exclusions: (i) => get('gov.exclusions', '/api/gov/exclusions', i),
       counterparty: (i) => get('gov.counterparty', '/api/gov/counterparty', i),
       foreignAgents: (i) => get('gov.foreign-agents', '/api/gov/foreign-agents', i),
+      riskIndex: (i) => get('gov.risk-index', '/api/gov/risk-index', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
       district: (i) => get('gov.district', '/api/gov/district', i),
       congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),

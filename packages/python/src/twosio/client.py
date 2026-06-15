@@ -2369,6 +2369,29 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/foreign-agents", endpoint="gov.foreign-agents", query=q)
 
+    def risk_index(
+        self,
+        *,
+        county_fips: Optional[str] = None,
+        state: Optional[str] = None,
+        county: Optional[str] = None,
+        lat: Optional[float] = None,
+        lon: Optional[float] = None,
+    ) -> CallResult:
+        """FEMA National Risk Index for a US county.
+
+        Look up by county_fips (5-digit STCOFIPS), state + county name, or a
+        lat/lon point. Returns the composite Risk Index + component scores +
+        per-hazard ratings for all 18 natural hazards. Free, public-domain.
+        """
+        q: dict[str, Any] = {}
+        if county_fips is not None: q["countyFips"] = county_fips
+        if state is not None: q["state"] = state
+        if county is not None: q["county"] = county
+        if lat is not None: q["lat"] = lat
+        if lon is not None: q["lon"] = lon
+        return self._c.request("GET", "/api/gov/risk-index", endpoint="gov.risk-index", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""

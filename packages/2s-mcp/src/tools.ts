@@ -1535,6 +1535,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.foreignAgents(a as never),
     },
     {
+      name: 'gov.risk-index',
+      description: 'FEMA National Risk Index for a US county — the authoritative natural-hazard risk profile. Look up by countyFips (5-digit STCOFIPS), state + county name, or a lat/lon point. Returns the composite Risk Index score/rating/national-percentile (18-hazard model = Expected Annual Loss × Social Vulnerability ÷ Community Resilience), each component, and per-hazard risk ratings + expected annual loss for all 18 hazards (wildfire, earthquake, hurricane, riverine & coastal flooding, tornado, heat/cold wave, drought, …). Free, public-domain. For siting, insurance, and resilience planning; complements geo.flood-zone (flood SFHA only).',
+      inputSchema: s('FEMA National Risk Index', {
+        countyFips: { type: 'string', description: '5-digit county FIPS (STCOFIPS), e.g. 06037.' },
+        state: { type: 'string', description: 'State name or 2-letter abbreviation (with county).' },
+        county: { type: 'string', description: 'County name (with state).' },
+        lat: { type: 'number', minimum: -90, maximum: 90, description: 'Latitude (with lon) for a point lookup.' },
+        lon: { type: 'number', minimum: -180, maximum: 180, description: 'Longitude (with lat) for a point lookup.' },
+      }, []),
+      invoke: (a) => c.gov.riskIndex(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {
