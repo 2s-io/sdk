@@ -1547,6 +1547,14 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.riskIndex(a as never),
     },
     {
+      name: 'gov.fcc-id',
+      description: 'Resolve an FCC ID (printed on US wireless/electronic devices) to the grantee — the manufacturer holding the FCC equipment authorization. Pass fccId in any form (BCG-E3217A, BCGE3217A). Returns grantee code, product code, and the grantee company (name, city, state, country, registration date). FCC EAS open dataset, free and keyless — the "who made this device" lookup an agent reading a hardware label cannot do natively. (Per-product RF detail like frequencies/equipment class is not in the open dataset.)',
+      inputSchema: s('FCC ID lookup', {
+        fccId: { type: 'string', description: 'An FCC ID, e.g. BCG-E3217A or BCGE3217A.' },
+      }, ['fccId']),
+      invoke: (a) => c.gov.fccId(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {

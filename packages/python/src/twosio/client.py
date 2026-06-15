@@ -2392,6 +2392,15 @@ class _Gov(_Group):
         if lon is not None: q["lon"] = lon
         return self._c.request("GET", "/api/gov/risk-index", endpoint="gov.risk-index", query=q)
 
+    def fcc_id(self, *, fcc_id: str) -> CallResult:
+        """Resolve an FCC ID to its grantee/manufacturer.
+
+        Pass any FCC ID form (BCG-E3217A, BCGE3217A). Returns the grantee code,
+        product code, and grantee company (name, location, registration date)
+        via the FCC EAS open dataset. Free, keyless.
+        """
+        return self._c.request("GET", "/api/gov/fcc-id", endpoint="gov.fcc-id", query={"fccId": fcc_id})
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""
