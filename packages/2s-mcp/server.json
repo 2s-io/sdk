@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.2s-io/mcp",
-  "description": "MCP server for 2s — the (most) everything API. Pay-per-call AI-agent data tools settled in USDC on Base or Solana via x402.",
+  "description": "Pay-per-call data tools for AI agents - the 2s everything API, settled in USDC via x402.",
   "repository": {
     "url": "https://github.com/2s-io/sdk",
     "source": "github",
