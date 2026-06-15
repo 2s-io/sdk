@@ -46,35 +46,24 @@ client = TwoS(signer=signer)
 
 ## What's included
 
-260+ endpoints across 85+ groups, namespaced on the client. A sample of the verticals:
-
-- **Patents & trademarks** — USPTO patent search/detail/documents, trademark search.
-- **Legal** — court opinions & dockets (CourtListener / Free Law Project), OFAC sanctions screening.
-- **Government & economy** — Federal Register, Congress votes, FEC, BLS, US Census, World Bank, inflation/FX.
-- **Finance & markets** — SEC EDGAR filings, stock fundamentals, crypto address validation, gas oracle.
-- **Science & medicine** — arXiv / PubMed / Semantic Scholar papers, ICD-10 & clinical lookups, nutrition, chem/bio.
-- **Vehicles & aviation** — NHTSA VIN decode & recalls, aircraft registry, airports, live flights.
-- **Geo & weather** — geocoding (OpenStreetMap), NWS/NOAA forecasts, tides, earthquakes (USGS), timezone, sunrise.
-- **Business & registries** — company lookups, nonprofits, GLEIF LEI entity match, licenses.
-- **Security** — CVE lookup (NVD + CISA KEV + EPSS).
-- **Web & data utilities** — URL→markdown, screenshots, hashing, DNS/TLS, barcode, format conversion.
-- **Agent primitives** — knowledge-delta, memory, marketplace.
+An ever-expanding catalog of endpoints, namespaced by group:
 
 ```python
-client.patents.search(q="neural network")
+client.patents.search(q="...")
+client.patents.detail(applicationNumber="18566276")
+client.crypto.address_validate(chain="eth", address="0xd8dA...")
+client.ai.summarize(url="https://example.com")
 client.law.sanctions_check(name="John Smith")
-client.vehicle.vin_decode(vin="1HGCM82633A004352")
-client.security.cve(cve="CVE-2021-44228")
-client.finance.company_facts(ticker="AAPL")
 client.geocode.address(query="350 5th Ave, New York, NY")
-# ... and many more
+client.weather.zip(zip="94103")
+# ... and more
 ```
 
-Settles in USDC on **Base** or **Solana** via x402. Full catalog: <https://2s.io/api/directory>. OpenAPI: <https://2s.io/api/openapi>.
+Full catalog: <https://2s.io/api/directory>. OpenAPI: <https://2s.io/api/openapi>.
 
 ## Safety
 
-- **No default price cap** — some endpoints are intentionally premium. Set `max_price_usd` to opt into a local ceiling; the client then refuses to sign any payment above it.
+- The client refuses to sign payments above `max_price_usd` (default `$0.10`).
 - Optional `on_payment_requested` hook for per-call approval.
 
 ```python

@@ -1578,6 +1578,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.carrierSafety(a as never),
     },
     {
+      name: 'gov.representatives',
+      description: "Your sitting US Congress members for a location. Pass a US address (geocoded to its state + congressional district) or an explicit state (2-letter) + optional district. Returns the current US House representative + the state's two US senators, each with name, party, state/district, Bioguide ID, DC office, phone, official website, and contact form. State-only → just the two senators; DC/territories → their non-voting delegate. Bundled CC0 data (unitedstates/congress-legislators). Fills the gap after gov.district (which gives the district, not the people) — civic lookup, advocacy, constituent tooling.",
+      inputSchema: s('US representatives', {
+        address: { type: 'string', description: 'US street address (geocoded to district).' },
+        state: { type: 'string', description: '2-letter state/territory code (alternative to address).' },
+        district: { type: 'string', description: 'Congressional district number (with state); omit for senators only.' },
+      }, []),
+      invoke: (a) => c.gov.representatives(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {

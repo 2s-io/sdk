@@ -2444,6 +2444,25 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/carrier-safety", endpoint="gov.carrier-safety", query=q)
 
+    def representatives(
+        self,
+        *,
+        address: Optional[str] = None,
+        state: Optional[str] = None,
+        district: Optional[object] = None,
+    ) -> CallResult:
+        """US Congress members for a location.
+
+        Pass address (geocoded to district) or state[+district]. Returns the
+        House rep + 2 senators with party, Bioguide IDs, phone, office, contact
+        form. State-only → senators; DC/territories → delegate. Bundled CC0 data.
+        """
+        q: dict[str, Any] = {}
+        if address is not None: q["address"] = address
+        if state is not None: q["state"] = state
+        if district is not None: q["district"] = district
+        return self._c.request("GET", "/api/gov/representatives", endpoint="gov.representatives", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""
