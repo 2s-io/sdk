@@ -11,7 +11,9 @@ from typing import Any, Awaitable, Callable, Optional, Union
 import httpx
 
 DEFAULT_BASE = "https://2s.io"
-DEFAULT_MAX_PRICE_USD = 0.10
+# No default price ceiling — 2s prices each endpoint by its own cost/margin and
+# some are intentionally premium. Callers opt into a local cap via max_price_usd.
+DEFAULT_MAX_PRICE_USD = float("inf")
 
 
 def _run_coro_sync(coro):
@@ -3613,7 +3615,8 @@ class TwoS:
             x402-only; we do NOT advertise bearer auth. Reserved for internal
             use until deposit detection is wired up.
         base_url: Override the default ``https://2s.io`` host.
-        max_price_usd: Local ceiling on per-call payment. Defaults to ``$0.10``.
+        max_price_usd: Optional local ceiling on per-call payment. No default cap
+            (some endpoints are intentionally premium); set this to opt in.
         on_payment_requested: Optional ``(info) -> bool`` hook fired before signing.
     """
 

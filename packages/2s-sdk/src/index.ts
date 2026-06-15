@@ -73,9 +73,10 @@ export interface TwoSConfig {
    */
   trial?: boolean
   /**
-   * Maximum payment USD the SDK will silently authorize per call. Calls
-   * advertising a higher price are refused locally without signing. Default
-   * is `0.10`. Set to `Infinity` to disable the cap.
+   * Optional per-call USD ceiling: calls advertising a higher price are
+   * refused locally without signing. OPT-IN — there is NO default cap (2s
+   * prices each endpoint by its own cost/margin; some are intentionally
+   * premium, e.g. heavy AI/transcription). Set this if YOU want a local guard.
    */
   maxPriceUsd?: number
   /**
@@ -130,7 +131,9 @@ export class TwoSError extends Error {
 }
 
 const DEFAULT_BASE = 'https://2s.io'
-const DEFAULT_MAX_PRICE = 0.10
+// No default price ceiling — 2s prices each endpoint by its own cost/margin and
+// some are intentionally premium. Callers opt into a local cap via maxPriceUsd.
+const DEFAULT_MAX_PRICE = Infinity
 
 /**
  * Main client. Construct once, reuse across calls. Endpoint methods are
