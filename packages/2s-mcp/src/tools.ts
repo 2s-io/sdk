@@ -1555,6 +1555,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.fccId(a as never),
     },
     {
+      name: 'gov.nfip-claims',
+      description: 'FEMA National Flood Insurance Program (NFIP) claims history for a US location — the flood losses actually paid out in an area. Requires state (2-letter); narrow by county (5-digit FIPS), ZIP, and yearOfLoss range. Returns the total matching claim count plus recent redacted claims (date of loss, county/census tract/ZIP, rated flood zone, cause, water depth, net building + contents payment USD, approx lat/lon), largest net payout first. FEMA redacts city, so filter by county/ZIP. Free, public-domain (OpenFEMA). Distinct from geo.flood-zone (current SFHA) and gov.risk-index (modeled future risk) — this is the realized loss track record, for underwriting + property diligence.',
+      inputSchema: s('NFIP flood-insurance claims', {
+        state: { type: 'string', description: '2-letter US state/territory code (required).' },
+        county: { type: 'string', description: '5-digit county FIPS, e.g. 48201.' },
+        zip: { type: 'string', description: 'Reported ZIP code.' },
+        yearFrom: { type: 'integer', description: 'Earliest year of loss (inclusive).' },
+        yearTo: { type: 'integer', description: 'Latest year of loss (inclusive).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['state']),
+      invoke: (a) => c.gov.nfipClaims(a as never),
+    },
+    {
       name: 'timezone.lookup',
       description: 'Resolve a coordinate to its IANA timezone, current UTC offset, local wall time, DST status, and short abbreviation. Polygon lookup against a CC0 timezone boundary index + runtime tzdata for current transition rules.',
       inputSchema: s('Timezone lookup', {

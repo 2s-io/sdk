@@ -979,6 +979,8 @@ export interface Endpoints {
     riskIndex(input: { countyFips?: string; state?: string; county?: string; lat?: number; lon?: number }): R<unknown>
     /** Resolve an FCC ID to its grantee/manufacturer (company, location, registration date) via the FCC EAS open dataset. */
     fccId(input: { fccId: string }): R<unknown>
+    /** FEMA NFIP flood-insurance claims history for an area (by state + optional county FIPS/zip/year): net payouts + flood zone + cause + water depth. */
+    nfipClaims(input: { state: string; county?: string; zip?: string; yearFrom?: number; yearTo?: number; limit?: number }): R<unknown>
     /** US address → congressional district (119th), state, and county via the Census geocoder. GET { address }. */
     district(input: { address: string }): R<Normalized>
     /** Federal Bureau of Prisons inmate locator (1982-present, current + released). */
@@ -1505,6 +1507,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       foreignAgents: (i) => get('gov.foreign-agents', '/api/gov/foreign-agents', i),
       riskIndex: (i) => get('gov.risk-index', '/api/gov/risk-index', i),
       fccId: (i) => get('gov.fcc-id', '/api/gov/fcc-id', i),
+      nfipClaims: (i) => get('gov.nfip-claims', '/api/gov/nfip-claims', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
       district: (i) => get('gov.district', '/api/gov/district', i),
       congressTrades: (i) => get('gov.congress-trades', '/api/gov/congress-trades', i ?? {}),

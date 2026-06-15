@@ -2401,6 +2401,30 @@ class _Gov(_Group):
         """
         return self._c.request("GET", "/api/gov/fcc-id", endpoint="gov.fcc-id", query={"fccId": fcc_id})
 
+    def nfip_claims(
+        self,
+        *,
+        state: str,
+        county: Optional[str] = None,
+        zip: Optional[str] = None,
+        year_from: Optional[int] = None,
+        year_to: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FEMA NFIP flood-insurance claims history for a US location.
+
+        Requires state (2-letter); narrow by county FIPS / zip / year-of-loss
+        range. Returns total match count + recent redacted claims (net payouts,
+        flood zone, cause, water depth). FEMA redacts city. Public-domain (OpenFEMA).
+        """
+        q: dict[str, Any] = {"state": state}
+        if county is not None: q["county"] = county
+        if zip is not None: q["zip"] = zip
+        if year_from is not None: q["yearFrom"] = year_from
+        if year_to is not None: q["yearTo"] = year_to
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/nfip-claims", endpoint="gov.nfip-claims", query=q)
+
     def district(self, *, address: str) -> CallResult:
         """US address → congressional district (119th) + state + county via the
         Census geocoder. GET { address }."""
