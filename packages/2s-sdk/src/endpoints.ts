@@ -228,6 +228,13 @@ export interface Endpoints {
     metar(input: { ids: string }): R<Normalized>
     /** Terminal Aerodrome Forecast (TAF) for ICAO station id(s). Pass `ids`. */
     taf(input: { ids: string }): R<Normalized>
+    /** NTSB civil aviation accident/incident history. Filter by registration/state/make/model/city/date range. */
+    accidents(input: { registration?: string; state?: string; make?: string; model?: string; city?: string; dateFrom?: string; dateTo?: string; limit?: number }): R<unknown>
+  }
+  /** Developer/standards reference. */
+  dev: {
+    /** IETF RFC lookup by number → status, title, authors, date, obsoletes/updates chain (bundled index). */
+    rfc(input: { number: string }): R<unknown>
   }
   /** US surface-water data (USGS). */
   water: {
@@ -859,6 +866,8 @@ export interface Endpoints {
     realEstate(input: { state: 'TX'; name?: string; licenseNumber?: string; licenseType?: string; status?: string; limit?: number; offset?: number }): R<unknown>
   }
   health: {
+    /** Current US disease surveillance (CDC NNDSS weekly notifiable-disease counts). Filter by condition/location/year. */
+    diseaseSurveillance(input: { condition?: string; location?: string; year?: number; weeks?: number; limit?: number }): R<Normalized>
     /** CMS Open Payments — pharma/device → US physician payment disclosures. */
     openPayments(input: {
       npi?: string
@@ -1198,9 +1207,13 @@ export function createEndpoints(client: TwoS): Endpoints {
     factcheck: {
       search: (i) => get('factcheck.search', '/api/factcheck/search', i),
     },
+    dev: {
+      rfc: (i) => get('dev.rfc', '/api/dev/rfc', i),
+    },
     aviation: {
       metar: (i) => get('aviation.metar', '/api/aviation/metar', i),
       taf: (i) => get('aviation.taf', '/api/aviation/taf', i),
+      accidents: (i) => get('aviation.accidents', '/api/aviation/accidents', i),
     },
     water: {
       gauge: (i) => get('water.gauge', '/api/water/gauge', i),
@@ -1399,6 +1412,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       broker: (i) => get('license.broker', '/api/license/broker', i),
     },
     health: {
+      diseaseSurveillance: (i) => get('health.disease-surveillance', '/api/health/disease-surveillance', i ?? {}),
       openPayments: (i) => get('health.open-payments', '/api/health/open-payments', i),
       hospitalLookup: (i) => get('health.hospital-lookup', '/api/health/hospital-lookup', i),
       hospitalQuality: (i) => get('health.hospital-quality', '/api/health/hospital-quality', i),

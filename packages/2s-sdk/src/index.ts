@@ -173,6 +173,7 @@ export class TwoS {
   public readonly edi: Endpoints['edi']
   public readonly factcheck: Endpoints['factcheck']
   public readonly aviation: Endpoints['aviation']
+  public readonly dev: Endpoints['dev']
   public readonly water: Endpoints['water']
   public readonly trade: Endpoints['trade']
   public readonly image: Endpoints['image']
@@ -286,6 +287,7 @@ export class TwoS {
     this.edi = this.endpoints.edi
     this.factcheck = this.endpoints.factcheck
     this.aviation = this.endpoints.aviation
+    this.dev = this.endpoints.dev
     this.water = this.endpoints.water
     this.trade = this.endpoints.trade
     this.image = this.endpoints.image

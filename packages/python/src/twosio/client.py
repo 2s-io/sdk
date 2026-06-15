@@ -1195,6 +1195,36 @@ class _Aviation(_Group):
         """Terminal Aerodrome Forecast(s) (TAF) for comma-separated ICAO ids."""
         return self._c.request("GET", "/api/aviation/taf", endpoint="aviation.taf", query={"ids": ids})
 
+    def accidents(
+        self,
+        *,
+        registration: Optional[str] = None,
+        state: Optional[str] = None,
+        make: Optional[str] = None,
+        model: Optional[str] = None,
+        city: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """NTSB civil aviation accident/incident history (CAROL). At least one filter required."""
+        q: dict[str, Any] = {}
+        if registration is not None: q["registration"] = registration
+        if state is not None: q["state"] = state
+        if make is not None: q["make"] = make
+        if model is not None: q["model"] = model
+        if city is not None: q["city"] = city
+        if date_from is not None: q["dateFrom"] = date_from
+        if date_to is not None: q["dateTo"] = date_to
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/aviation/accidents", endpoint="aviation.accidents", query=q)
+
+
+class _Dev(_Group):
+    def rfc(self, *, number: str) -> CallResult:
+        """IETF RFC lookup by number → status, title, authors, obsoletes/updates chain (bundled index)."""
+        return self._c.request("GET", "/api/dev/rfc", endpoint="dev.rfc", query={"number": number})
+
 
 class _Security(_Group):
     def cve(self, *, cve: str) -> CallResult:
@@ -2938,6 +2968,24 @@ class _License(_Group):
 
 
 class _Health(_Group):
+    def disease_surveillance(
+        self,
+        *,
+        condition: Optional[str] = None,
+        location: Optional[str] = None,
+        year: Optional[int] = None,
+        weeks: Optional[int] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Current US disease surveillance (CDC NNDSS weekly counts). At least one of condition/location required."""
+        q: dict[str, Any] = {}
+        if condition is not None: q["condition"] = condition
+        if location is not None: q["location"] = location
+        if year is not None: q["year"] = year
+        if weeks is not None: q["weeks"] = weeks
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/health/disease-surveillance", endpoint="health.disease-surveillance", query=q)
+
     def provider_profile(self, *, npi: str) -> CallResult:
         """Provider 360 by NPI — NPPES identity + Open Payments + Medicare billing, merged.
 
@@ -3688,6 +3736,7 @@ class TwoS:
         self.edi = _Edi(self)
         self.factcheck = _Factcheck(self)
         self.aviation = _Aviation(self)
+        self.dev = _Dev(self)
         self.security = _Security(self)
         self.water = _Water(self)
         self.trade = _Trade(self)

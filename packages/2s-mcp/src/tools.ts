@@ -331,6 +331,41 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.aviation.taf(a as never),
     },
     {
+      name: 'aviation.accidents',
+      description: 'Search NTSB civil aviation accident/incident history (CAROL database). Filter by registration (N-number), state, make, model, city, and/or date range (dateFrom/dateTo YYYY-MM-DD). Returns events with date, location, aircraft, injury severity/counts, flight phase, and an NTSB report URL. Free, US public-domain. At least one filter required.',
+      inputSchema: s('NTSB accidents', {
+        registration: { type: 'string', description: 'Aircraft registration / N-number (partial).' },
+        state: { type: 'string', description: 'US state (2-letter or full name).' },
+        make: { type: 'string', description: 'Aircraft make, e.g. Cessna.' },
+        model: { type: 'string', description: 'Aircraft model, e.g. 172.' },
+        city: { type: 'string', description: 'Event city (partial).' },
+        dateFrom: { type: 'string', description: 'Earliest event date YYYY-MM-DD.' },
+        dateTo: { type: 'string', description: 'Latest event date YYYY-MM-DD.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }, []),
+      invoke: (a) => c.aviation.accidents(a as never),
+    },
+    {
+      name: 'health.disease-surveillance',
+      description: 'Current US disease surveillance from the CDC (NNDSS weekly notifiable-disease counts, MMWR 2022→current). Filter by condition (substring), location (state/region/territory/national), and/or year; weeks/limit page results. Returns current-week count, prior-52-week max, and cumulative YTD per condition+location+week. Free, keyless CDC data. At least one of condition/location required.',
+      inputSchema: s('CDC disease surveillance', {
+        condition: { type: 'string', description: 'Disease/condition substring, e.g. measles.' },
+        location: { type: 'string', description: 'Reporting area: state, region, territory, or "U.S. Residents".' },
+        year: { type: 'integer', minimum: 2022, description: 'MMWR year.' },
+        weeks: { type: 'integer', minimum: 1, maximum: 520, description: 'Most-recent N weeks.' },
+        limit: { type: 'integer', minimum: 1, maximum: 1000, default: 100 },
+      }, []),
+      invoke: (a) => c.health.diseaseSurveillance(a as never),
+    },
+    {
+      name: 'dev.rfc',
+      description: 'Look up an IETF RFC by number. Returns status (e.g. INTERNET STANDARD/PROPOSED STANDARD), title, authors, date, stream, DOI, and the obsoletes/obsoleted-by/updates/updated-by relationship chain. Bundled RFC index (~9.8k RFCs); anti-hallucination on RFC status/relationships.',
+      inputSchema: s('RFC lookup', {
+        number: { type: 'string', description: 'RFC number, e.g. RFC2616 or 2616.' },
+      }, ['number']),
+      invoke: (a) => c.dev.rfc(a as never),
+    },
+    {
       name: 'water.gauge',
       description: 'Real-time US river/stream conditions from a USGS monitoring site. Pass site (USGS site number, e.g. 01646500). Returns latest streamflow, gage height, water temp + site name/location. Source: USGS NWIS (keyless).',
       inputSchema: s('USGS water gauge', { site: { type: 'string', description: 'USGS site number.' } }, ['site']),
