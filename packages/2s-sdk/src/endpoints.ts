@@ -225,10 +225,12 @@ export interface Endpoints {
     parse(input: { edi: string }): R<Normalized>
     /** Parse a raw UN/EDIFACT document (international B2B EDI) into structured, named JSON + a semantic summary. POST { edi }. */
     edifact(input: { edi: string }): R<Normalized>
+    /** Generate an outbound UN/EDIFACT ORDERS or INVOIC from JSON → meta.edi. POST { type, senderId, recipientId, documentNumber, items, … }. */
+    edifactGenerate(input: { type: 'ORDERS' | 'INVOIC'; senderId: string; recipientId: string; senderQualifier?: string; recipientQualifier?: string; documentNumber: string; date?: string; parties?: Array<{ role: string; name: string }>; items: Array<{ quantity: number | string; productId?: string; price?: number | string; idType?: string }>; total?: number; controlRef?: string }): R<Normalized>
     /** Generate the X12 997 Functional Acknowledgment for a received interchange (meta.ack = ready-to-send 997). POST { edi, status?, controlNumber? }. */
     ack(input: { edi: string; status?: 'A' | 'E' | 'P' | 'R' | 'M' | 'W' | 'X'; controlNumber?: string }): R<Normalized>
     /** Generate an outbound X12 850 (PO) or 810 (Invoice) from JSON → meta.edi. POST { type, senderId, receiverId, documentNumber, items, … }. */
-    generate(input: { type: '850' | '810'; senderId: string; receiverId: string; documentNumber: string; items: Array<{ quantity: number | string; uom?: string; price?: number | string; productId?: string }>; poNumber?: string; date?: string; parties?: Array<{ role: string; name: string }>; total?: number }): R<Normalized>
+    generate(input: { type: '850' | '810' | '856'; senderId: string; receiverId: string; documentNumber: string; items: Array<{ quantity: number | string; uom?: string; price?: number | string; productId?: string }>; poNumber?: string; date?: string; parties?: Array<{ role: string; name: string }>; total?: number }): R<Normalized>
   }
   /** Fact-check / claim verification (Google Fact Check Tools / ClaimReview). */
   factcheck: {
@@ -543,6 +545,8 @@ export interface Endpoints {
   security: {
     /** Resolve a CVE across NVD (record + CVSS + CWE), CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit probability) in one call. */
     cve(input: { cve: string }): R<unknown>
+    /** CVE change feed — CVEs modified within a window (NVD lastMod), each flagged if now CISA known-exploited. The pollable delta primitive. */
+    cveChanges(input: { since: string; until?: string; keyword?: string; cpe?: string; limit?: number }): R<Normalized>
     /** Package security + provenance: OSV vulns + deps.dev license/deprecation + OpenSSF Scorecard health, in one call. GET { ecosystem, name, version? }. */
     package(input: { ecosystem: string; name: string; version?: string }): R<Normalized>
     /** Find CVEs affecting a product (NVD search by keyword or CPE). GET { product? | cpe?, limit? }. */
@@ -786,6 +790,10 @@ export interface Endpoints {
   vehicle: {
     /** Vehicle 360 by VIN — decode + this vehicle's recalls + complaints merged in one call. */
     profile(input: { vin: string; modelYear?: number }): R<unknown>
+    /** EPA/DOE fuel economy, fuel cost, and emissions by year/make/model (one entry per powertrain config). */
+    fuelEconomy(input: { year: number; make: string; model: string }): R<Normalized>
+    /** NHTSA vPIC Canadian Vehicle Specifications — dimensions/weights by year/make(/model). */
+    canadianSpecs(input: { year: number; make: string; model?: string }): R<Normalized>
     /** Decode a VIN via NHTSA vPIC. */
     vinDecode(input: { vin: string; modelYear?: number }): R<unknown>
     /** NHTSA recall lookup by VIN, by make/model/year, or by campaign ID. */
@@ -1253,6 +1261,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     edi: {
       parse: (i) => post('edi.parse', '/api/edi/parse', i),
       edifact: (i) => post('edi.edifact', '/api/edi/edifact', i),
+      edifactGenerate: (i) => post('edi.edifact-generate', '/api/edi/edifact-generate', i),
       ack: (i) => post('edi.ack', '/api/edi/ack', i),
       generate: (i) => post('edi.generate', '/api/edi/generate', i),
     },
@@ -1449,6 +1458,8 @@ export function createEndpoints(client: TwoS): Endpoints {
     vehicle: {
       vinDecode: (i) => get('vehicle.vin-decode', '/api/vehicle/vin-decode', i),
       profile: (i) => get('vehicle.profile', '/api/vehicle/profile', i),
+      fuelEconomy: (i) => get('vehicle.fuel-economy', '/api/vehicle/fuel-economy', i),
+      canadianSpecs: (i) => get('vehicle.canadian-specs', '/api/vehicle/canadian-specs', i),
       recalls: (i) => get('vehicle.recalls', '/api/vehicle/recalls', i),
       complaints: (i) => get('vehicle.complaints', '/api/vehicle/complaints', i),
       investigations: (i) => get('vehicle.investigations', '/api/vehicle/investigations', i),
@@ -1535,6 +1546,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     security: {
       cve: (i) => get('security.cve', '/api/security/cve', i),
+      cveChanges: (i) => get('security.cve-changes', '/api/security/cve-changes', i),
       package: (i) => get('security.package', '/api/security/package', i),
       cveSearch: (i) => get('security.cve-search', '/api/security/cve-search', i),
     },

@@ -349,6 +349,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.edi.edifact(a as never),
     },
     {
+      name: 'edi.edifact-generate',
+      description: "Generate an outbound UN/EDIFACT document from JSON (international counterpart to edi.generate/X12). POST type ('ORDERS' PO or 'INVOIC' invoice) + senderId, recipientId, documentNumber, optional date, parties (NAD role+name), items (quantity, productId, price), and for INVOIC optional total. Returns the full EDIFACT interchange in meta.edi (UNA/UNB/UNH…UNT/UNZ with BGM/DTM/NAD/LIN/QTY/PRI/MOA), proper delimiters + release-char escaping. Deterministic; round-trips through edi.edifact.",
+      inputSchema: s('EDIFACT generate', { type: { type: 'string', enum: ['ORDERS', 'INVOIC'] }, senderId: { type: 'string' }, recipientId: { type: 'string' }, documentNumber: { type: 'string' }, date: { type: 'string' }, parties: { type: 'array', items: { type: 'object' } }, items: { type: 'array', items: { type: 'object' } }, total: { type: 'number' } }, ['type', 'senderId', 'recipientId', 'documentNumber', 'items']),
+      invoke: (a) => c.edi.edifactGenerate(a as never),
+    },
+    {
+      name: 'vehicle.fuel-economy',
+      description: 'Official US EPA/DOE fuel-economy, fuel-cost, and emissions data for a vehicle by year + make + model. Returns one entry per powertrain configuration: MPG city/highway/combined (MPGe for EVs), CO2 grams/mile, annual fuel cost, annual petroleum barrels, EPA greenhouse-gas score, 5-year savings vs average, transmission, drivetrain, cylinders, displacement, fuel type, size class, EV range. Authoritative EPA figures; keyless, public-domain, 1984+.',
+      inputSchema: s('Fuel economy', { year: { type: 'integer', description: '4-digit model year (1984+).' }, make: { type: 'string' }, model: { type: 'string' } }, ['year', 'make', 'model']),
+      invoke: (a) => c.vehicle.fuelEconomy(a as never),
+    },
+    {
+      name: 'vehicle.canadian-specs',
+      description: 'Canadian-market vehicle dimensions/weights from NHTSA vPIC Canadian Vehicle Specifications. Pass year + make (required) + optional model. Returns labeled dimensions — overall length/width/height (cm), wheelbase, curb weight (kg), track width, interior room, weight distribution — plus the raw spec map. Keyless, public-domain, 1971+.',
+      inputSchema: s('Canadian specs', { year: { type: 'integer', description: '4-digit year (1971+).' }, make: { type: 'string' }, model: { type: 'string', description: 'Optional model filter.' } }, ['year', 'make']),
+      invoke: (a) => c.vehicle.canadianSpecs(a as never),
+    },
+    {
+      name: 'security.cve-changes',
+      description: "CVE change feed — the CVE records MODIFIED within a time window, so an agent can incrementally maintain a vulnerability view instead of re-scanning. Pass since (YYYY-MM-DD or ISO datetime); until defaults to now (window ≤120 days). Optional keyword/cpe filter. Each result: id, published + lastModified, vulnStatus, CVSS score/severity, description, and kevListed (now on the CISA Known-Exploited catalog). Newest first. Live NVD + CISA KEV, keyless. Pairs with security.cve for full detail.",
+      inputSchema: s('CVE changes', { since: { type: 'string', description: 'Window start (YYYY-MM-DD or ISO).' }, until: { type: 'string', description: 'Window end (default now).' }, keyword: { type: 'string' }, cpe: { type: 'string' }, limit: { type: 'integer' } }, ['since']),
+      invoke: (a) => c.security.cveChanges(a as never),
+    },
+    {
       name: 'finance.amortize',
       description: 'Compute a loan or mortgage amortization schedule. Pass principal, annualRatePct (e.g. 6.5), and term as termMonths or termYears; optional extraMonthly adds extra principal each month. Returns the fixed monthly payment, total interest, total paid, payoff month count, and the full month-by-month schedule (payment/principal/interest/balance). Deterministic, no external calls.',
       inputSchema: s('Loan amortization', { principal: { type: 'number', description: 'Loan principal (> 0).' }, annualRatePct: { type: 'number', description: 'Annual interest rate percent (0..100).' }, termMonths: { type: 'integer', description: 'Term in months (or use termYears).' }, termYears: { type: 'number', description: 'Term in years.' }, extraMonthly: { type: 'number', description: 'Optional extra monthly principal.' } }, ['principal', 'annualRatePct']),

@@ -1215,6 +1215,38 @@ class _Edi(_Group):
         ORDERS/INVOIC/DESADV/ORDRSP/CONTRL). POST { edi }."""
         return self._c.request("POST", "/api/edi/edifact", endpoint="edi.edifact", body={"edi": edi})
 
+    def edifact_generate(
+        self,
+        *,
+        type: str,
+        sender_id: str,
+        recipient_id: str,
+        document_number: str,
+        items: list,
+        parties: list | None = None,
+        date: str | None = None,
+        total: float | None = None,
+        sender_qualifier: str | None = None,
+        recipient_qualifier: str | None = None,
+        control_ref: str | None = None,
+    ) -> CallResult:
+        """Generate an outbound UN/EDIFACT ORDERS or INVOIC from JSON -> meta.edi.
+        POST { type, senderId, recipientId, documentNumber, items, ... }."""
+        body: dict[str, Any] = {"type": type, "senderId": sender_id, "recipientId": recipient_id, "documentNumber": document_number, "items": items}
+        if parties is not None:
+            body["parties"] = parties
+        if date is not None:
+            body["date"] = date
+        if total is not None:
+            body["total"] = total
+        if sender_qualifier is not None:
+            body["senderQualifier"] = sender_qualifier
+        if recipient_qualifier is not None:
+            body["recipientQualifier"] = recipient_qualifier
+        if control_ref is not None:
+            body["controlRef"] = control_ref
+        return self._c.request("POST", "/api/edi/edifact-generate", endpoint="edi.edifact-generate", body=body)
+
     def ack(self, *, edi: str, status: str | None = None, control_number: str | None = None) -> CallResult:
         """Generate the X12 997 Functional Acknowledgment for a received interchange.
         meta.ack = ready-to-send 997 (sender/receiver mirrored, AK9 counts correct).
@@ -1320,6 +1352,16 @@ class _Security(_Group):
         CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit
         probability) in one call. KEV + EPSS sections degrade independently."""
         return self._c.request("GET", "/api/security/cve", endpoint="security.cve", query={"cve": cve})
+
+    def cve_changes(self, *, since: str, until: str | None = None, keyword: str | None = None, cpe: str | None = None, limit: int | None = None) -> CallResult:
+        """CVE change feed — CVEs MODIFIED within a window (NVD lastMod), each flagged if
+        now CISA known-exploited. since=YYYY-MM-DD/ISO; window <=120 days. Pollable delta."""
+        q: dict[str, Any] = {"since": since}
+        if until is not None: q["until"] = until
+        if keyword is not None: q["keyword"] = keyword
+        if cpe is not None: q["cpe"] = cpe
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/security/cve-changes", endpoint="security.cve-changes", query=q)
 
     def package(self, *, ecosystem: str, name: str, version: str | None = None) -> CallResult:
         """Package security + provenance in one call: OSV vulnerabilities + deps.dev
@@ -2100,6 +2142,18 @@ class _Space(_Group):
 
 
 class _Vehicle(_Group):
+    def fuel_economy(self, *, year: int, make: str, model: str) -> CallResult:
+        """EPA/DOE fuel-economy, fuel-cost, and emissions by year/make/model (one entry
+        per powertrain config: MPG city/hwy/combined, CO2 g/mi, annual fuel cost, …)."""
+        return self._c.request("GET", "/api/vehicle/fuel-economy", endpoint="vehicle.fuel-economy", query={"year": year, "make": make, "model": model})
+
+    def canadian_specs(self, *, year: int, make: str, model: str | None = None) -> CallResult:
+        """NHTSA vPIC Canadian Vehicle Specifications — dimensions/weights by year/make(/model)."""
+        q: dict = {"year": year, "make": make}
+        if model is not None:
+            q["model"] = model
+        return self._c.request("GET", "/api/vehicle/canadian-specs", endpoint="vehicle.canadian-specs", query=q)
+
     def profile(
         self,
         *,
