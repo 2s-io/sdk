@@ -355,6 +355,42 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.edi.edifactGenerate(a as never),
     },
     {
+      name: 'domain.email-security',
+      description: "Grade a domain's email-authentication / DNS-security posture from live DNS in one call: SPF, DMARC (policy), DKIM (supplied/common selectors), MTA-STS, TLS-RPT, DNSSEC, CAA, BIMI. Pass domain (+ optional dkimSelector). Returns a letter grade, a summary (incl. spoofingProtected), and a per-mechanism block with the raw record, parsed tags, and specific issues. Live DNS via DoH (keyless) — an LLM can't know a domain's current records.",
+      inputSchema: s('Email security posture', { domain: { type: 'string' }, dkimSelector: { type: 'string', description: 'Optional known DKIM selector.' } }, ['domain']),
+      invoke: (a) => c.domain.emailSecurity(a as never),
+    },
+    {
+      name: 'domain.ct-logs',
+      description: 'Certificate Transparency recon for a domain — discover its subdomains and issued certificates from public CT logs (passive attack-surface mapping). Pass domain (+ optional limit). Returns deduplicated subdomains + certs (issuer, validity, SAN names), newest first. certSpotter primary, crt.sh fallback, keyless. CT shows names that ever appeared in a cert, not necessarily live hosts.',
+      inputSchema: s('CT-log recon', { domain: { type: 'string' }, limit: { type: 'integer', description: 'Max certs (1-500).' } }, ['domain']),
+      invoke: (a) => c.domain.ctLogs(a as never),
+    },
+    {
+      name: 'security.http-headers',
+      description: "Fetch a URL and grade its HTTP security headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP/CORP). Pass url. Returns a letter grade + score, present/missing headers, and a per-header analysis with the live value and issues. Also flags Server/X-Powered-By info disclosure. SSRF-guarded live fetch (private targets refused) — an LLM can't see a site's current headers.",
+      inputSchema: s('HTTP security headers', { url: { type: 'string', description: 'URL to analyze (scheme optional).' } }, ['url']),
+      invoke: (a) => c.security.httpHeaders(a as never),
+    },
+    {
+      name: 'security.password-exposure',
+      description: "Check whether a password appears in known breaches via Have I Been Pwned's k-anonymity model — only the first 5 chars of the password's SHA-1 are sent upstream, never the password or full hash. POST { password } (hashed server-side) or { sha1 } (the 40-hex SHA-1, for zero-knowledge). Returns breached + count. 900M+ breach corpus; for signup/password-policy enforcement. Absence ≠ strength.",
+      inputSchema: s('Password exposure', { password: { type: 'string', description: 'Password (hashed server-side; only a 5-char prefix leaves).' }, sha1: { type: 'string', description: '40-hex SHA-1 (client-side hashing = zero-knowledge).' } }, []),
+      invoke: (a) => c.security.passwordExposure(a as never),
+    },
+    {
+      name: 'security.ioc-reputation',
+      description: 'Threat-intel reputation for an IOC — pass ioc as an IP, domain, URL, or file hash (auto-detected). Returns a malicious boolean + per-source breakdown: abuse.ch ThreatFox, URLhaus, MalwareBazaar, Feodo Tracker (botnet C2 IPs), Tor exit nodes, Spamhaus DROP. Live, hourly-rotating threat feeds an LLM cannot know — a ground-truth check for SOC alert triage. Absence ≠ safety.',
+      inputSchema: s('IOC reputation', { ioc: { type: 'string', description: 'IP, domain, URL, or file hash.' } }, ['ioc']),
+      invoke: (a) => c.security.iocReputation(a as never),
+    },
+    {
+      name: 'net.rpki-validity',
+      description: 'RPKI Route Origin Validation for a (BGP origin AS, prefix) pair — is this AS authorized to originate this prefix? Pass asn (AS15169) + prefix (8.8.8.0/24). Returns status (valid / invalid = possible hijack / unknown), a hijackSignal boolean, validating ROAs, and a description. Live RIR/RPKI data via RIPEstat (keyless). The core BGP-security check.',
+      inputSchema: s('RPKI validity', { asn: { type: 'string', description: 'Origin AS (AS15169 or 15169).' }, prefix: { type: 'string', description: 'CIDR, e.g. 8.8.8.0/24.' } }, ['asn', 'prefix']),
+      invoke: (a) => c.net.rpkiValidity(a as never),
+    },
+    {
       name: 'vehicle.fuel-economy',
       description: 'Official US EPA/DOE fuel-economy, fuel-cost, and emissions data for a vehicle by year + make + model. Returns one entry per powertrain configuration: MPG city/highway/combined (MPGe for EVs), CO2 grams/mile, annual fuel cost, annual petroleum barrels, EPA greenhouse-gas score, 5-year savings vs average, transmission, drivetrain, cylinders, displacement, fuel type, size class, EV range. Authoritative EPA figures; keyless, public-domain, 1984+.',
       inputSchema: s('Fuel economy', { year: { type: 'integer', description: '4-digit model year (1984+).' }, make: { type: 'string' }, model: { type: 'string' } }, ['year', 'make', 'model']),

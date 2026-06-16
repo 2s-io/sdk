@@ -883,6 +883,20 @@ class _Domain(_Group):
         """Domain recon dossier — DNS + WHOIS/RDAP + live TLS certificate in one call."""
         return self._c.request("GET", "/api/domain/intel", endpoint="domain.intel", query={"domain": domain})
 
+    def email_security(self, *, domain: str, dkim_selector: str | None = None) -> CallResult:
+        """Email-auth / DNS-security posture grade (SPF/DKIM/DMARC/MTA-STS/DNSSEC/CAA/BIMI) from live DNS."""
+        q: dict = {"domain": domain}
+        if dkim_selector is not None:
+            q["dkimSelector"] = dkim_selector
+        return self._c.request("GET", "/api/domain/email-security", endpoint="domain.email-security", query=q)
+
+    def ct_logs(self, *, domain: str, limit: int | None = None) -> CallResult:
+        """Certificate Transparency recon — subdomains + issued certs for a domain (certSpotter/crt.sh)."""
+        q: dict = {"domain": domain}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/domain/ct-logs", endpoint="domain.ct-logs", query=q)
+
 
 class _Email(_Group):
     def validate(self, *, email: str, check_mx: bool | None = None) -> CallResult:
@@ -1362,6 +1376,22 @@ class _Security(_Group):
         if cpe is not None: q["cpe"] = cpe
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/security/cve-changes", endpoint="security.cve-changes", query=q)
+
+    def http_headers(self, *, url: str) -> CallResult:
+        """Fetch a URL and grade its HTTP security headers (CSP/HSTS/X-Frame/…). SSRF-guarded."""
+        return self._c.request("GET", "/api/security/http-headers", endpoint="security.http-headers", query={"url": url})
+
+    def password_exposure(self, *, password: str | None = None, sha1: str | None = None) -> CallResult:
+        """Check a password against breach corpora via HIBP k-anonymity (only a 5-char SHA-1
+        prefix is sent upstream). Pass password (hashed server-side) or sha1 (zero-knowledge)."""
+        body: dict = {}
+        if password is not None: body["password"] = password
+        if sha1 is not None: body["sha1"] = sha1
+        return self._c.request("POST", "/api/security/password-exposure", endpoint="security.password-exposure", body=body)
+
+    def ioc_reputation(self, *, ioc: str) -> CallResult:
+        """Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP)."""
+        return self._c.request("GET", "/api/security/ioc-reputation", endpoint="security.ioc-reputation", query={"ioc": ioc})
 
     def package(self, *, ecosystem: str, name: str, version: str | None = None) -> CallResult:
         """Package security + provenance in one call: OSV vulnerabilities + deps.dev
@@ -2421,6 +2451,11 @@ class _Net(_Group):
         Bundled authoritative IEEE data, free.
         """
         return self._c.request("GET", "/api/net/mac-vendor", endpoint="net.mac-vendor", query={"mac": mac})
+
+    def rpki_validity(self, *, asn: str, prefix: str) -> CallResult:
+        """RPKI route-origin validation for an (ASN, prefix) pair — valid/invalid/unknown
+        BGP-hijack signal (RIPEstat). asn=AS15169, prefix=8.8.8.0/24."""
+        return self._c.request("GET", "/api/net/rpki-validity", endpoint="net.rpki-validity", query={"asn": asn, "prefix": prefix})
 
 
 class _Research(_Group):

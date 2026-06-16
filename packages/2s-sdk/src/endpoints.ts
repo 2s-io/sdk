@@ -285,6 +285,10 @@ export interface Endpoints {
     whois(input: { domain: string }): R<Normalized>
     /** Domain recon dossier — DNS + WHOIS/RDAP + TLS certificate in one call. */
     intel(input: { domain: string }): R<Normalized>
+    /** Email-auth / DNS-security posture grade (SPF/DKIM/DMARC/MTA-STS/DNSSEC/CAA/BIMI) from live DNS. */
+    emailSecurity(input: { domain: string; dkimSelector?: string }): R<Normalized>
+    /** Certificate Transparency recon — subdomains + issued certs for a domain. */
+    ctLogs(input: { domain: string; limit?: number }): R<Normalized>
   }
   email: {
     /** Email signals: RFC syntax, disposable/role/free flags, and MX-record presence (NOT deliverability). */
@@ -547,6 +551,12 @@ export interface Endpoints {
     cve(input: { cve: string }): R<unknown>
     /** CVE change feed — CVEs modified within a window (NVD lastMod), each flagged if now CISA known-exploited. The pollable delta primitive. */
     cveChanges(input: { since: string; until?: string; keyword?: string; cpe?: string; limit?: number }): R<Normalized>
+    /** Grade a URL's HTTP security headers (CSP/HSTS/X-Frame/…) from the live response. */
+    httpHeaders(input: { url: string }): R<Normalized>
+    /** Check a password against breach corpora via HIBP k-anonymity (only a 5-char SHA-1 prefix is sent). POST { password } or { sha1 }. */
+    passwordExposure(input: { password?: string; sha1?: string }): R<Normalized>
+    /** Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP). */
+    iocReputation(input: { ioc: string }): R<Normalized>
     /** Package security + provenance: OSV vulns + deps.dev license/deprecation + OpenSSF Scorecard health, in one call. GET { ecosystem, name, version? }. */
     package(input: { ecosystem: string; name: string; version?: string }): R<Normalized>
     /** Find CVEs affecting a product (NVD search by keyword or CPE). GET { product? | cpe?, limit? }. */
@@ -669,6 +679,8 @@ export interface Endpoints {
     asn(input: { asn: string }): R<unknown>
     /** Resolve a MAC address or OUI prefix to its IEEE-registered vendor + decoded address bits (multicast/local/randomized). Bundled IEEE registries. */
     macVendor(input: { mac: string }): R<unknown>
+    /** RPKI route-origin validation for an (ASN, prefix) pair — valid/invalid/unknown BGP-hijack signal (RIPEstat). */
+    rpkiValidity(input: { asn: string; prefix: string }): R<Normalized>
   }
   research: {
     /** Resolve a research organization via ROR (id or name): location, external ids, relationships. */
@@ -1300,6 +1312,8 @@ export function createEndpoints(client: TwoS): Endpoints {
     domain: {
       whois: (i) => get('domain.whois', '/api/domain/whois', i),
       intel: (i) => get('domain.intel', '/api/domain/intel', i),
+      emailSecurity: (i) => get('domain.email-security', '/api/domain/email-security', i),
+      ctLogs: (i) => get('domain.ct-logs', '/api/domain/ct-logs', i),
     },
     email: {
       validate: (i) => get('email.validate', '/api/email/validate', i),
@@ -1405,6 +1419,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     net: {
       asn: (i) => get('net.asn', '/api/net/asn', i),
       macVendor: (i) => get('net.mac-vendor', '/api/net/mac-vendor', i),
+      rpkiValidity: (i) => get('net.rpki-validity', '/api/net/rpki-validity', i),
     },
     research: {
       org: (i) => get('research.org', '/api/research/org', i),
@@ -1547,6 +1562,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     security: {
       cve: (i) => get('security.cve', '/api/security/cve', i),
       cveChanges: (i) => get('security.cve-changes', '/api/security/cve-changes', i),
+      httpHeaders: (i) => get('security.http-headers', '/api/security/http-headers', i),
+      passwordExposure: (i) => post('security.password-exposure', '/api/security/password-exposure', i),
+      iocReputation: (i) => get('security.ioc-reputation', '/api/security/ioc-reputation', i),
       package: (i) => get('security.package', '/api/security/package', i),
       cveSearch: (i) => get('security.cve-search', '/api/security/cve-search', i),
     },
