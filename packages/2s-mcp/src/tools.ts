@@ -385,6 +385,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.security.iocReputation(a as never),
     },
     {
+      name: 'security.cwe',
+      description: 'Authoritative MITRE CWE (Common Weakness Enumeration) lookup. Pass id (CWE-79 or 79) for the canonical weakness — name, abstraction, description, ChildOf/ParentOf relationships, mapped CAPEC patterns (all with names) — or query for keyword search. Bundled (~970), zero external calls. Anti-hallucination: agents cite CWE IDs/names that must be exact. Pairs with security.cve + security.capec.',
+      inputSchema: s('CWE lookup', { id: { type: 'string', description: 'CWE id (CWE-79 or 79).' }, query: { type: 'string' }, limit: { type: 'integer' } }, []),
+      invoke: (a) => c.security.cwe(a as never),
+    },
+    {
+      name: 'security.attack',
+      description: 'Authoritative MITRE ATT&CK (Enterprise) technique lookup. Pass id (T1059 / T1059.001) for name, tactics, description, platforms, sub-technique parent, mitigations, detection — or query for keyword search. Bundled (~700 techniques), zero external calls. Agents cite T-numbers + tactics that must be exact. For threat modeling, detection engineering, report enrichment.',
+      inputSchema: s('ATT&CK lookup', { id: { type: 'string', description: 'Technique id (T1059 / T1059.001).' }, query: { type: 'string' }, limit: { type: 'integer' } }, []),
+      invoke: (a) => c.security.attack(a as never),
+    },
+    {
+      name: 'security.capec',
+      description: 'Authoritative MITRE CAPEC (Common Attack Pattern Enumeration) lookup. Pass id (CAPEC-66 or 66) for name, abstraction, description, likelihood, severity, mapped CWE weaknesses + related patterns (with names) — or query for keyword search. Bundled (~615), zero external calls. The attacker view; CAPEC↔CWE cross-links let an agent pivot between an attack and the weakness it exploits.',
+      inputSchema: s('CAPEC lookup', { id: { type: 'string', description: 'CAPEC id (CAPEC-66 or 66).' }, query: { type: 'string' }, limit: { type: 'integer' } }, []),
+      invoke: (a) => c.security.capec(a as never),
+    },
+    {
+      name: 'security.exploit-availability',
+      description: "Does public exploit code exist for a CVE, and where? Pass cve (CVE-2021-44228). Returns hasPublicExploit, count, hasMetasploitModule + hasVerifiedExploit flags, and Exploit-DB entries (description, type, platform, date, link). Bundled Exploit-DB index (~25k CVEs). The 'is it weaponized?' triage signal BEYOND security.cve's KEV (in-the-wild) + EPSS (probability). Absence != no exploit exists.",
+      inputSchema: s('Exploit availability', { cve: { type: 'string', description: 'CVE id, e.g. CVE-2021-44228.' } }, ['cve']),
+      invoke: (a) => c.security.exploitAvailability(a as never),
+    },
+    {
       name: 'net.rpki-validity',
       description: 'RPKI Route Origin Validation for a (BGP origin AS, prefix) pair — is this AS authorized to originate this prefix? Pass asn (AS15169) + prefix (8.8.8.0/24). Returns status (valid / invalid = possible hijack / unknown), a hijackSignal boolean, validating ROAs, and a description. Live RIR/RPKI data via RIPEstat (keyless). The core BGP-security check.',
       inputSchema: s('RPKI validity', { asn: { type: 'string', description: 'Origin AS (AS15169 or 15169).' }, prefix: { type: 'string', description: 'CIDR, e.g. 8.8.8.0/24.' } }, ['asn', 'prefix']),

@@ -557,6 +557,14 @@ export interface Endpoints {
     passwordExposure(input: { password?: string; sha1?: string }): R<Normalized>
     /** Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP). */
     iocReputation(input: { ioc: string }): R<Normalized>
+    /** MITRE CWE weakness lookup by id (CWE-79) or keyword search (bundled, anti-hallucination). */
+    cwe(input: { id?: string; query?: string; limit?: number }): R<Normalized>
+    /** MITRE ATT&CK Enterprise technique lookup by id (T1059) or keyword search (bundled). */
+    attack(input: { id?: string; query?: string; limit?: number }): R<Normalized>
+    /** MITRE CAPEC attack-pattern lookup by id (CAPEC-66) or keyword search (bundled). */
+    capec(input: { id?: string; query?: string; limit?: number }): R<Normalized>
+    /** Does public exploit code exist for a CVE (Exploit-DB)? The weaponized-triage signal beyond KEV/EPSS. */
+    exploitAvailability(input: { cve: string }): R<Normalized>
     /** Package security + provenance: OSV vulns + deps.dev license/deprecation + OpenSSF Scorecard health, in one call. GET { ecosystem, name, version? }. */
     package(input: { ecosystem: string; name: string; version?: string }): R<Normalized>
     /** Find CVEs affecting a product (NVD search by keyword or CPE). GET { product? | cpe?, limit? }. */
@@ -1565,6 +1573,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       httpHeaders: (i) => get('security.http-headers', '/api/security/http-headers', i),
       passwordExposure: (i) => post('security.password-exposure', '/api/security/password-exposure', i),
       iocReputation: (i) => get('security.ioc-reputation', '/api/security/ioc-reputation', i),
+      cwe: (i) => get('security.cwe', '/api/security/cwe', i ?? {}),
+      attack: (i) => get('security.attack', '/api/security/attack', i ?? {}),
+      capec: (i) => get('security.capec', '/api/security/capec', i ?? {}),
+      exploitAvailability: (i) => get('security.exploit-availability', '/api/security/exploit-availability', i),
       package: (i) => get('security.package', '/api/security/package', i),
       cveSearch: (i) => get('security.cve-search', '/api/security/cve-search', i),
     },

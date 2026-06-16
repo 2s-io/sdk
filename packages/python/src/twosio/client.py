@@ -1393,6 +1393,34 @@ class _Security(_Group):
         """Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP)."""
         return self._c.request("GET", "/api/security/ioc-reputation", endpoint="security.ioc-reputation", query={"ioc": ioc})
 
+    def cwe(self, *, id: str | None = None, query: str | None = None, limit: int | None = None) -> CallResult:
+        """MITRE CWE weakness lookup by id (CWE-79) or keyword search (bundled, anti-hallucination)."""
+        q: dict = {}
+        if id is not None: q["id"] = id
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/security/cwe", endpoint="security.cwe", query=q)
+
+    def attack(self, *, id: str | None = None, query: str | None = None, limit: int | None = None) -> CallResult:
+        """MITRE ATT&CK Enterprise technique lookup by id (T1059) or keyword search (bundled)."""
+        q: dict = {}
+        if id is not None: q["id"] = id
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/security/attack", endpoint="security.attack", query=q)
+
+    def capec(self, *, id: str | None = None, query: str | None = None, limit: int | None = None) -> CallResult:
+        """MITRE CAPEC attack-pattern lookup by id (CAPEC-66) or keyword search (bundled)."""
+        q: dict = {}
+        if id is not None: q["id"] = id
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/security/capec", endpoint="security.capec", query=q)
+
+    def exploit_availability(self, *, cve: str) -> CallResult:
+        """Does public exploit code exist for a CVE (Exploit-DB)? Weaponized-triage signal beyond KEV/EPSS."""
+        return self._c.request("GET", "/api/security/exploit-availability", endpoint="security.exploit-availability", query={"cve": cve})
+
     def package(self, *, ecosystem: str, name: str, version: str | None = None) -> CallResult:
         """Package security + provenance in one call: OSV vulnerabilities + deps.dev
         license/deprecation + OpenSSF Scorecard health. ecosystem = npm/pypi/go/
