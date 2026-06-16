@@ -576,6 +576,25 @@ class _Law(_Group):
 
 
 class _Finance(_Group):
+    def amortize(
+        self,
+        *,
+        principal: float,
+        annual_rate_pct: float,
+        term_months: Optional[int] = None,
+        term_years: Optional[float] = None,
+        extra_monthly: Optional[float] = None,
+    ) -> CallResult:
+        """Loan/mortgage amortization schedule (deterministic). Provide term_months or term_years."""
+        q: dict = {"principal": principal, "annualRatePct": annual_rate_pct}
+        if term_months is not None:
+            q["termMonths"] = term_months
+        if term_years is not None:
+            q["termYears"] = term_years
+        if extra_monthly is not None:
+            q["extraMonthly"] = extra_monthly
+        return self._c.request("GET", "/api/finance/amortize", endpoint="finance.amortize", query=q)
+
     def company_profile(
         self,
         *,
@@ -859,6 +878,33 @@ class _Dns(_Group):
 class _Domain(_Group):
     def whois(self, *, domain: str) -> CallResult:
         return self._c.request("GET", "/api/domain/whois", endpoint="domain.whois", query={"domain": domain})
+
+    def intel(self, *, domain: str) -> CallResult:
+        """Domain recon dossier — DNS + WHOIS/RDAP + live TLS certificate in one call."""
+        return self._c.request("GET", "/api/domain/intel", endpoint="domain.intel", query={"domain": domain})
+
+
+class _Email(_Group):
+    def validate(self, *, email: str, check_mx: bool | None = None) -> CallResult:
+        """Email signals: RFC syntax, disposable/role/free flags, MX-record presence
+        (via DoH). NOT a deliverability guarantee."""
+        q: dict = {"email": email}
+        if check_mx is not None:
+            q["checkMx"] = check_mx
+        return self._c.request("GET", "/api/email/validate", endpoint="email.validate", query=q)
+
+
+class _Travel(_Group):
+    def advisory(self, *, country: str | None = None) -> CallResult:
+        """US State Dept travel advisories (live). Omit country for the full list."""
+        q: dict = {}
+        if country is not None:
+            q["country"] = country
+        return self._c.request("GET", "/api/travel/advisory", endpoint="travel.advisory", query=q)
+
+    def visa(self, *, passport: str, destination: str) -> CallResult:
+        """Visa requirement for a passport x destination (ISO alpha-3/alpha-2/name)."""
+        return self._c.request("GET", "/api/travel/visa", endpoint="travel.visa", query={"passport": passport, "destination": destination})
 
 
 class _Url(_Group):
@@ -1514,6 +1560,23 @@ class _Tides(_Group):
 
 
 class _Medical(_Group):
+    def drug_price(
+        self,
+        *,
+        ndc: Optional[str] = None,
+        name: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """CMS NADAC drug acquisition cost by ndc or name (live; current-year dataset auto-resolved)."""
+        q: dict = {}
+        if ndc is not None:
+            q["ndc"] = ndc
+        if name is not None:
+            q["name"] = name
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/medical/drug-price", endpoint="medical.drug-price", query=q)
+
     def rxnorm(
         self,
         *,
@@ -2243,6 +2306,30 @@ class _Business(_Group):
         if limit is not None:
             q["limit"] = limit
         return self._c.request("GET", "/api/business/entity-match", endpoint="business.entity-match", query=q)
+
+    def kyb_360(
+        self,
+        *,
+        name: str,
+        state: Optional[str] = None,
+        ticker: Optional[str] = None,
+        threshold: Optional[float] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Full company KYB dossier: SAM registration/exclusions, OFAC sanctions,
+        GLEIF LEI, USAspending awards, FARA, USPTO trademarks (+ SEC EDGAR if
+        ticker). Returns riskFlags + cleared (debarment+sanctions) + per-source
+        blocks. Probabilistic name match — verify with a hard id before acting."""
+        q: dict[str, Any] = {"name": name}
+        if state is not None:
+            q["state"] = state
+        if ticker is not None:
+            q["ticker"] = ticker
+        if threshold is not None:
+            q["threshold"] = threshold
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/business/kyb-360", endpoint="business.kyb-360", query=q)
 
 
 class _Net(_Group):
@@ -3985,6 +4072,8 @@ class TwoS:
         self.job = _Job(self)
         self.property = _Property(self)
         self.treasury = _Treasury(self)
+        self.email = _Email(self)
+        self.travel = _Travel(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:

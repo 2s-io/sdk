@@ -279,6 +279,18 @@ export interface Endpoints {
   }
   domain: {
     whois(input: { domain: string }): R<Normalized>
+    /** Domain recon dossier — DNS + WHOIS/RDAP + TLS certificate in one call. */
+    intel(input: { domain: string }): R<Normalized>
+  }
+  email: {
+    /** Email signals: RFC syntax, disposable/role/free flags, and MX-record presence (NOT deliverability). */
+    validate(input: { email: string; checkMx?: boolean }): R<Normalized>
+  }
+  travel: {
+    /** US State Dept travel advisories (live RSS). Omit country for all. */
+    advisory(input?: { country?: string }): R<Normalized>
+    /** Visa requirement for a passport × destination (ISO alpha-3/alpha-2/name). */
+    visa(input: { passport: string; destination: string }): R<Normalized>
   }
   earth: {
     now(input: {
@@ -298,6 +310,8 @@ export interface Endpoints {
     }): R<unknown>
   }
   finance: {
+    /** Loan/mortgage amortization schedule (deterministic). */
+    amortize(input: { principal: number; annualRatePct: number; termMonths?: number; termYears?: number; extraMonthly?: number }): R<Normalized>
     /** Recent SEC filings for a US public company by ticker. */
     secFilings(input: {
       ticker: string
@@ -385,6 +399,8 @@ export interface Endpoints {
     lei(input: { lei?: string; query?: string; country?: string; status?: 'active' | 'all'; limit?: number; offset?: number }): R<Normalized>
     /** Fuzzy resolve a messy company name to its canonical GLEIF LEI with a similarity score + confidence (KYB / record linkage). */
     entityMatch(input: { name: string; country?: string; limit?: number }): R<Normalized>
+    /** Full company KYB dossier: SAM/exclusions/OFAC/GLEIF/USAspending/FARA/trademarks (+ SEC if ticker). */
+    kyb360(input: { name: string; state?: string; ticker?: string; threshold?: number; limit?: number }): R<Normalized>
   }
   law: {
     /** Federal court dockets (civil + criminal) via RECAP — q full-text or exact docketNumber. */
@@ -639,6 +655,8 @@ export interface Endpoints {
     rxnorm(input: { term?: string; rxcui?: string; limit?: number }): R<unknown>
     /** Drug situational awareness: FDA shortage + recall status + NDC metadata for a drug name / rxcui / ndc (composed on RxNorm). */
     drugStatus(input: { drug?: string; rxcui?: string; ndc?: string; limit?: number }): R<unknown>
+    /** CMS NADAC drug acquisition cost by NDC or name (live; current-year dataset auto-resolved). */
+    drugPrice(input: { ndc?: string; name?: string; limit?: number }): R<Normalized>
   }
   net: {
     /** Autonomous System (BGP) intelligence by AS number: holder, allocation block, announced prefixes, routing visibility (RIPEstat). */
@@ -1267,12 +1285,21 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     domain: {
       whois: (i) => get('domain.whois', '/api/domain/whois', i),
+      intel: (i) => get('domain.intel', '/api/domain/intel', i),
+    },
+    email: {
+      validate: (i) => get('email.validate', '/api/email/validate', i),
+    },
+    travel: {
+      advisory: (i) => get('travel.advisory', '/api/travel/advisory', i ?? {}),
+      visa: (i) => get('travel.visa', '/api/travel/visa', i),
     },
     earth: {
       now: (i) => get('earth.now', '/api/earth/now', i),
       events: (i) => get('earth.events', '/api/earth/events', i ?? {}),
     },
     finance: {
+      amortize: (i) => get('finance.amortize', '/api/finance/amortize', i),
       secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
       companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
@@ -1309,6 +1336,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       naics: (i) => get('business.naics', '/api/business/naics', i),
       lei: (i) => get('business.lei', '/api/business/lei', i),
       entityMatch: (i) => get('business.entity-match', '/api/business/entity-match', i),
+      kyb360: (i) => get('business.kyb-360', '/api/business/kyb-360', i),
     },
     html: {
       toMarkdown: (i) => post('html.to-markdown', '/api/html/to-markdown', i),
@@ -1358,6 +1386,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
       rxnorm: (i) => get('medical.rxnorm', '/api/medical/rxnorm', i),
       drugStatus: (i) => get('medical.drug-status', '/api/medical/drug-status', i),
+      drugPrice: (i) => get('medical.drug-price', '/api/medical/drug-price', i),
     },
     net: {
       asn: (i) => get('net.asn', '/api/net/asn', i),

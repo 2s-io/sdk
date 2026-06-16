@@ -233,6 +233,8 @@ export class TwoS {
   public readonly job: Endpoints['job']
   public readonly property: Endpoints['property']
   public readonly treasury: Endpoints['treasury']
+  public readonly email: Endpoints['email']
+  public readonly travel: Endpoints['travel']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -348,6 +350,8 @@ export class TwoS {
     this.job = this.endpoints.job
     this.property = this.endpoints.property
     this.treasury = this.endpoints.treasury
+    this.email = this.endpoints.email
+    this.travel = this.endpoints.travel
   }
 
   /** Base URL with no trailing slash. */

@@ -349,6 +349,48 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.edi.edifact(a as never),
     },
     {
+      name: 'finance.amortize',
+      description: 'Compute a loan or mortgage amortization schedule. Pass principal, annualRatePct (e.g. 6.5), and term as termMonths or termYears; optional extraMonthly adds extra principal each month. Returns the fixed monthly payment, total interest, total paid, payoff month count, and the full month-by-month schedule (payment/principal/interest/balance). Deterministic, no external calls.',
+      inputSchema: s('Loan amortization', { principal: { type: 'number', description: 'Loan principal (> 0).' }, annualRatePct: { type: 'number', description: 'Annual interest rate percent (0..100).' }, termMonths: { type: 'integer', description: 'Term in months (or use termYears).' }, termYears: { type: 'number', description: 'Term in years.' }, extraMonthly: { type: 'number', description: 'Optional extra monthly principal.' } }, ['principal', 'annualRatePct']),
+      invoke: (a) => c.finance.amortize(a as never),
+    },
+    {
+      name: 'email.validate',
+      description: 'Validate an email address: RFC syntax validity, normalized address with local/domain, and flags for isDisposable (throwaway domain), isRoleAccount (info@/support@/…), isFreeProvider (gmail/outlook/…). With checkMx (default true) also reports hasMxRecords (domain MX presence, via DNS-over-HTTPS) + MX hosts. NOT a deliverability or mailbox-existence guarantee — signals only. For signup hygiene and lead scrubbing.',
+      inputSchema: s('Email validate', { email: { type: 'string', description: 'Email address.' }, checkMx: { type: 'boolean', description: 'Look up MX presence (default true).' } }, ['email']),
+      invoke: (a) => c.email.validate(a as never),
+    },
+    {
+      name: 'travel.advisory',
+      description: 'Current US State Department travel advisories. Omit country for the full list, or pass a country name (case-insensitive substring) for one. Returns the advisory level (1 Normal Precautions → 4 Do Not Travel) with label, a plain-text summary of reasons, the official link, and published date. Live from the official travel.state.gov RSS feed (public domain).',
+      inputSchema: s('Travel advisory', { country: { type: 'string', description: 'Country name (substring). Omit for all.' } }, []),
+      invoke: (a) => c.travel.advisory(a as never),
+    },
+    {
+      name: 'travel.visa',
+      description: "Visa requirement for a passport × destination. Pass passport and destination as ISO-3166 alpha-3, alpha-2, or country name. Returns the category — visa free (with visaFreeDays), visa on arrival, e-visa, eta, visa required, or no admission — plus a plain-language description. Community-maintained Passport Index dataset (MIT); informational, not official immigration advice.",
+      inputSchema: s('Visa requirement', { passport: { type: 'string', description: 'Passport country (ISO alpha-3/alpha-2/name).' }, destination: { type: 'string', description: 'Destination country (ISO alpha-3/alpha-2/name).' } }, ['passport', 'destination']),
+      invoke: (a) => c.travel.visa(a as never),
+    },
+    {
+      name: 'medical.drug-price',
+      description: "US drug pricing from CMS NADAC (National Average Drug Acquisition Cost), the benchmark per-unit acquisition cost CMS surveys weekly. Pass ndc (11-digit NDC) for an exact product or name (e.g. 'atorvastatin 10 mg') to search. Returns NDC, description, nadacPerUnit (USD), pricingUnit, effectiveDate, OTC flag, brand/generic classification — newest first. Real surveyed acquisition costs (not retail/insured price). Public domain; current-year dataset auto-resolved.",
+      inputSchema: s('Drug price (NADAC)', { ndc: { type: 'string', description: '11-digit National Drug Code.' }, name: { type: 'string', description: 'Drug name/description keyword.' }, limit: { type: 'integer', description: 'Max rows (1..100).' } }, []),
+      invoke: (a) => c.medical.drugPrice(a as never),
+    },
+    {
+      name: 'domain.intel',
+      description: 'Domain intelligence in one call — composes DNS (A/AAAA/MX/NS/TXT), WHOIS/RDAP (registrar, dates, status, nameservers, DNSSEC), and the live TLS certificate (issuer, validity, SANs, fingerprint) for a domain. Returns a summary (resolves, has MX, registrar, domain expiry, HTTPS valid, days to cert expiry) plus a found/error block per section. For domain due diligence, security recon, and expiry monitoring.',
+      inputSchema: s('Domain intel', { domain: { type: 'string', description: 'Domain name (e.g. example.com).' } }, ['domain']),
+      invoke: (a) => c.domain.intel(a as never),
+    },
+    {
+      name: 'business.kyb-360',
+      description: 'Full Know-Your-Business (KYB) intelligence dossier on a company in one call. Pass name (company name); optional state narrows federal awards, optional ticker pulls SEC EDGAR identity + filings. Fans out to SAM registration, SAM exclusions (debarment), OFAC sanctions, GLEIF LEI, USAspending awards, FARA foreign-agent registration, and USPTO trademarks owned. Returns riskFlags + a cleared boolean (debarment+sanctions), a summary of every signal, and a found/error block per source. For vendor onboarding, KYB/AML, and procurement due diligence. Probabilistic name matching — verify with a hard identifier before acting.',
+      inputSchema: s('KYB-360 dossier', { name: { type: 'string', description: 'Company name.' }, state: { type: 'string', description: 'Optional US state (narrows awards).' }, ticker: { type: 'string', description: 'Optional ticker → SEC EDGAR.' }, threshold: { type: 'number', description: 'Sanctions match threshold 0..1 (default 0.85).' }, limit: { type: 'integer', description: 'Max rows per source (1..20).' } }, ['name']),
+      invoke: (a) => c.business.kyb360(a as never),
+    },
+    {
       name: 'edi.ack',
       description: 'Generate the ANSI X12 997 Functional Acknowledgment for a received EDI interchange. POST edi with the raw inbound interchange (the 850/810/856 you received); returns the ready-to-send 997 in meta.ack — sender/receiver mirrored, delimiters echoed, one ST(997) per inbound functional group with correct AK1/AK2/AK5 and AK9 included/received/accepted counts. status controls the response: A=Accepted (default), E=Accepted with errors, P=Partial, R=Rejected, M/W/X=auth/security rejection. Deterministic, no external calls — the reply leg of EDI.',
       inputSchema: s('X12 997 generate', { edi: { type: 'string', description: 'Raw inbound X12 interchange text (begins with ISA).' }, status: { type: 'string', enum: ['A', 'E', 'P', 'R', 'M', 'W', 'X'], description: 'Ack status. Default A (Accepted).' }, controlNumber: { type: 'string', description: 'Control-number seed (digits). Default time-derived.' } }, ['edi']),
