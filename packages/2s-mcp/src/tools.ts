@@ -456,6 +456,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.dev.rfc(a as never),
     },
     {
+      name: 'dev.preflight',
+      description: "Check whether a shell command is runnable before running it — a pre-execution gate for agent-generated commands. POST command (curl/wget/httpie or anything with a URL). Parses out method, target URL, and headers and returns a structured verdict: verdict ('runnable'/'invalid'), runnable boolean, and a checks breakdown (hasTarget, urlValid, schemeOk, hostPresent, methodValid, privateTarget). Default is STATIC + deterministic (no network) — a command with no URL is invalid. Pass probe=true to also run a guarded HEAD against the target and report dnsResolves/reachable/tlsValid/httpStatus. Private/loopback targets are refused (SSRF-safe).",
+      inputSchema: s('Command preflight', { command: { type: 'string', description: 'Shell command to check.' }, probe: { type: 'boolean', description: 'Also do a live guarded HEAD probe (default false).' } }, ['command']),
+      invoke: (a) => c.dev.preflight(a as never),
+    },
+    {
       name: 'water.gauge',
       description: 'Real-time US river/stream conditions from a USGS monitoring site. Pass site (USGS site number, e.g. 01646500). Returns latest streamflow, gage height, water temp + site name/location. Source: USGS NWIS (keyless).',
       inputSchema: s('USGS water gauge', { site: { type: 'string', description: 'USGS site number.' } }, ['site']),

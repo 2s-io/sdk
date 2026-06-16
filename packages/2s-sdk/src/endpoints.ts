@@ -248,6 +248,8 @@ export interface Endpoints {
   dev: {
     /** IETF RFC lookup by number → status, title, authors, date, obsoletes/updates chain (bundled index). */
     rfc(input: { number: string }): R<unknown>
+    /** Preflight gate: is a shell command runnable? Static verdict + optional live HEAD probe (probe=true). */
+    preflight(input: { command: string; probe?: boolean }): R<Normalized>
   }
   /** US surface-water data (USGS). */
   water: {
@@ -1259,6 +1261,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     dev: {
       rfc: (i) => get('dev.rfc', '/api/dev/rfc', i),
+      preflight: (i) => post('dev.preflight', '/api/dev/preflight', i),
     },
     aviation: {
       metar: (i) => get('aviation.metar', '/api/aviation/metar', i),

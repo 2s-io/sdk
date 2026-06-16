@@ -1304,6 +1304,15 @@ class _Dev(_Group):
         """IETF RFC lookup by number → status, title, authors, obsoletes/updates chain (bundled index)."""
         return self._c.request("GET", "/api/dev/rfc", endpoint="dev.rfc", query={"number": number})
 
+    def preflight(self, *, command: str, probe: bool | None = None) -> CallResult:
+        """Preflight gate: is a shell command runnable? Parses method/URL/headers and
+        returns verdict (runnable/invalid) + per-check evidence. Static + deterministic
+        by default; probe=True adds a guarded live HEAD (SSRF-safe). POST { command, probe? }."""
+        body: dict = {"command": command}
+        if probe is not None:
+            body["probe"] = probe
+        return self._c.request("POST", "/api/dev/preflight", endpoint="dev.preflight", body=body)
+
 
 class _Security(_Group):
     def cve(self, *, cve: str) -> CallResult:
