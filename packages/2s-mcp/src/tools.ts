@@ -2018,6 +2018,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.vehicle.investigations(a as never),
     },
     {
+      name: 'vehicle.safety-ratings',
+      description:
+        'NHTSA NCAP 5-Star crash-test ratings by make/model/year. Returns one item per crash-tested body style with overall/front/side/rollover star ratings, rollover probability, crash-avoidance tech flags, and complaint/recall/investigation counts. Untested vehicles return an empty list.',
+      inputSchema: s('Safety ratings', {
+        make: { type: 'string', description: 'Manufacturer, e.g., "Honda".' },
+        model: { type: 'string', description: 'Model name, e.g., "Accord".' },
+        modelYear: { type: 'integer', description: '4-digit model year.' },
+      }, ['make', 'model', 'modelYear']),
+      invoke: (a) => c.vehicle.safetyRatings(a as never),
+    },
+    {
       name: 'vehicle.models',
       description: 'List all models offered by a make in a given model year (vPIC).',
       inputSchema: s('Models', {

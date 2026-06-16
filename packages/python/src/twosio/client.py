@@ -2154,6 +2154,13 @@ class _Vehicle(_Group):
             query={"limit": limit, "offset": offset},
         )
 
+    def safety_ratings(self, *, make: str, model: str, model_year: int) -> CallResult:
+        """NHTSA NCAP 5-Star crash-test ratings by make/model/year."""
+        return self._c.request(
+            "GET", "/api/vehicle/safety-ratings", endpoint="vehicle.safety-ratings",
+            query={"make": make, "model": model, "modelYear": model_year},
+        )
+
     def models(self, *, make: str, model_year: int) -> CallResult:
         """List all models offered by a make in a given model year (vPIC)."""
         return self._c.request(

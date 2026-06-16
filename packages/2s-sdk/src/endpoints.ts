@@ -804,6 +804,8 @@ export interface Endpoints {
     }): R<unknown>
     /** NHTSA open investigations (newest-first, chronological). */
     investigations(input: { limit?: number; offset?: number }): R<unknown>
+    /** NHTSA NCAP 5-Star crash-test ratings by make/model/year. */
+    safetyRatings(input: { make: string; model: string; modelYear: number }): R<unknown>
     /** Models for a given make + year (vPIC). */
     models(input: { make: string; modelYear: number }): R<unknown>
     /** Decode a 3-character World Manufacturer Identifier (WMI). */
@@ -1447,6 +1449,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       recalls: (i) => get('vehicle.recalls', '/api/vehicle/recalls', i),
       complaints: (i) => get('vehicle.complaints', '/api/vehicle/complaints', i),
       investigations: (i) => get('vehicle.investigations', '/api/vehicle/investigations', i),
+      safetyRatings: (i) => get('vehicle.safety-ratings', '/api/vehicle/safety-ratings', i),
       models: (i) => get('vehicle.models', '/api/vehicle/models', i),
       decodeWmi: (i) => get('vehicle.decode-wmi', '/api/vehicle/decode-wmi', i),
       manufacturers: (i) => get('vehicle.manufacturers', '/api/vehicle/manufacturers', i),
