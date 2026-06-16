@@ -32,6 +32,16 @@ export interface Endpoints {
   account: {
     balance(): R<AccountBalanceResponse>
   }
+  /** Run many endpoint calls behind one x402 payment. */
+  batch: {
+    /**
+     * Execute up to 50 catalog calls in one request, settled once. Price = sum
+     * of sub-call prices (no discount). Atomic: every sub-call must succeed or
+     * nothing is charged. Excludes bearer-only, deprecated, variable-priced,
+     * and metered-upstream endpoints.
+     */
+    run(input: { calls: Array<{ endpoint: string; params?: Record<string, unknown> }> }): R<Normalized>
+  }
   ai: {
     summarize(input: { url: string; instruction?: string }): R<Normalized>
     /** POST — server param names: text, targetLanguage, sourceLanguage. */
@@ -533,8 +543,10 @@ export interface Endpoints {
     /** Live news search: headlines with source, age, breaking flag. freshness: pd|pw|pm|py. */
     search(input: { q: string; count?: number; offset?: number; country?: string; freshness?: 'pd' | 'pw' | 'pm' | 'py' }): R<unknown>
   }
-  /** Live web search. */
+  /** Live web search + catalog discovery. */
   search: {
+    /** Find 2s endpoints matching a natural-language query (e.g. "screen a company for sanctions"). */
+    endpoints(input: { q: string; limit?: number }): R<Normalized>
     /** Ranked web results with title, url, snippet, site, age. freshness: pd|pw|pm|py or YYYY-MM-DDtoYYYY-MM-DD. */
     web(input: {
       q: string
@@ -1205,6 +1217,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     account: {
       balance: () => get('account.balance', '/api/account/balance'),
     },
+    batch: {
+      run: (i) => post('batch.run', '/api/batch/run', i),
+    },
     ai: {
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),
       translate: (i) => post('ai.translate', '/api/ai/translate', i),
@@ -1565,6 +1580,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       search: (i) => get('news.search', '/api/news/search', i),
     },
     search: {
+      endpoints: (i) => get('search.endpoints', '/api/search/endpoints', i),
       web: (i) => get('search.web', '/api/search/web', i),
     },
     security: {

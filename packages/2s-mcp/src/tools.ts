@@ -27,6 +27,31 @@ export function buildToolList(c: TwoS): ToolDef[] {
     ({ type: 'object' as const, description, properties, required, additionalProperties: false })
 
   const t: ToolDef[] = [
+    // ── Discovery + batch ────────────────────────────────────────────
+    {
+      name: 'search.endpoints',
+      description:
+        'Find the right 2s endpoint(s) for a task using a natural-language query (e.g. "screen a company for sanctions", "decode a VIN", "check a domain\'s email security"). Returns ranked matches with id, path, method, price, and description. Use this to discover capabilities before calling.',
+      inputSchema: s('Endpoint search', {
+        q: { type: 'string', description: 'Natural-language description of what you want to do (min 2 chars).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['q']),
+      invoke: (a) => c.search.endpoints(a as never),
+    },
+    {
+      name: 'batch.run',
+      description:
+        'Run up to 50 endpoint calls behind ONE x402 payment. Price = exact sum of the sub-call prices (no discount). Atomic: every sub-call must succeed or nothing is charged (failures are returned so you can retry for free). Sub-calls must be ordinary catalog endpoints (no bearer-only, deprecated, variable-priced, or metered-upstream endpoints; no nested batch). Each item carries that endpoint\'s own response in `data`.',
+      inputSchema: s('Batch run', {
+        calls: {
+          type: 'array',
+          description: '1–50 sub-calls, each { endpoint: dotted-id, params: object }.',
+          items: { type: 'object' },
+        },
+      }, ['calls']),
+      invoke: (a) => c.batch.run(a as never),
+    },
+
     // ── Patents ──────────────────────────────────────────────────────
     {
       name: 'patents.search',
@@ -351,7 +376,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
     {
       name: 'edi.edifact-generate',
       description: "Generate an outbound UN/EDIFACT document from JSON (international counterpart to edi.generate/X12). POST type ('ORDERS' PO or 'INVOIC' invoice) + senderId, recipientId, documentNumber, optional date, parties (NAD role+name), items (quantity, productId, price), and for INVOIC optional total. Returns the full EDIFACT interchange in meta.edi (UNA/UNB/UNH…UNT/UNZ with BGM/DTM/NAD/LIN/QTY/PRI/MOA), proper delimiters + release-char escaping. Deterministic; round-trips through edi.edifact.",
-      inputSchema: s('EDIFACT generate', { type: { type: 'string', enum: ['ORDERS', 'INVOIC'] }, senderId: { type: 'string' }, recipientId: { type: 'string' }, documentNumber: { type: 'string' }, date: { type: 'string' }, parties: { type: 'array', items: { type: 'object' } }, items: { type: 'array', items: { type: 'object' } }, total: { type: 'number' } }, ['type', 'senderId', 'recipientId', 'documentNumber', 'items']),
+      inputSchema: s('EDIFACT generate', { type: { type: 'string', enum: ['ORDERS', 'INVOIC'] }, senderId: { type: 'string' }, recipientId: { type: 'string' }, senderQualifier: { type: 'string', description: 'Default 14 (GLN/EAN).' }, recipientQualifier: { type: 'string' }, documentNumber: { type: 'string' }, date: { type: 'string', description: 'CCYYMMDD (default today).' }, parties: { type: 'array', items: { type: 'object' }, description: 'NAD loops (role+name).' }, items: { type: 'array', items: { type: 'object' }, description: 'Line items (quantity, productId, price, idType?).' }, total: { type: 'number', description: 'INVOIC total.' }, controlRef: { type: 'string' } }, ['type', 'senderId', 'recipientId', 'documentNumber', 'items']),
       invoke: (a) => c.edi.edifactGenerate(a as never),
     },
     {

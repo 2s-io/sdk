@@ -1930,6 +1930,18 @@ class _Account(_Group):
         return self._c.request("GET", "/api/account/balance", endpoint="account.balance")
 
 
+class _Batch(_Group):
+    def run(self, *, calls: list) -> CallResult:
+        """Run up to 50 catalog calls behind one x402 payment.
+
+        Price = sum of the sub-call prices (no discount). Atomic: every sub-call
+        must succeed or nothing is charged. Each `calls` item is
+        {"endpoint": "<group>.<name>", "params": {...}}. Excludes bearer-only,
+        deprecated, variable-priced, and metered-upstream endpoints.
+        """
+        return self._c.request("POST", "/api/batch/run", endpoint="batch.run", body={"calls": calls})
+
+
 class _Poi(_Group):
     def near(
         self,
@@ -3948,6 +3960,13 @@ class _News(_Group):
 
 
 class _Search(_Group):
+    def endpoints(self, *, q: str, limit: Optional[int] = None) -> CallResult:
+        """Find 2s endpoints matching a natural-language query (e.g. "screen a company for sanctions")."""
+        query: dict[str, Any] = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/search/endpoints", endpoint="search.endpoints", query=query)
+
     def web(
         self,
         *,
@@ -4164,6 +4183,7 @@ class TwoS:
         self.tld = _Tld(self)
         self.census = _Census(self)
         self.account = _Account(self)
+        self.batch = _Batch(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)
