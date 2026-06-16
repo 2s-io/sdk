@@ -32,6 +32,31 @@ export interface Endpoints {
   account: {
     balance(): R<AccountBalanceResponse>
   }
+  /** USDA agricultural statistics, drought, and trade. */
+  agriculture: {
+    /** US Drought Monitor severity for a county (5-digit FIPS) or state (2-letter), weekly. */
+    drought(input: { area: string; weeks?: number }): R<Normalized>
+    /** USDA NASS QuickStats — crop/livestock yields, acreage, production, prices. Requires commodity_desc + a bound. */
+    stats(input: {
+      commodity_desc: string
+      year?: string
+      year__GE?: string
+      year__LE?: string
+      state_alpha?: string
+      county_name?: string
+      statisticcat_desc?: string
+      agg_level_desc?: string
+      short_desc?: string
+      freq_desc?: string
+    }): R<Normalized>
+  }
+  /** USDA-NRCS soil + USDA plant hardiness. */
+  soil: {
+    /** SSURGO soil profile (map unit + ranked components) for a lat/lng. */
+    profile(input: { lat: number; lon: number }): R<Normalized>
+    /** USDA plant hardiness zone for a US ZIP code. */
+    hardinessZone(input: { zip: string }): R<Normalized>
+  }
   /** Run many endpoint calls behind one x402 payment. */
   batch: {
     /**
@@ -1219,6 +1244,14 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     batch: {
       run: (i) => post('batch.run', '/api/batch/run', i),
+    },
+    agriculture: {
+      drought: (i) => get('agriculture.drought', '/api/agriculture/drought', i),
+      stats: (i) => get('agriculture.stats', '/api/agriculture/stats', i),
+    },
+    soil: {
+      profile: (i) => get('soil.profile', '/api/soil/profile', i),
+      hardinessZone: (i) => get('soil.hardiness-zone', '/api/soil/hardiness-zone', i),
     },
     ai: {
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),

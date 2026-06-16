@@ -1930,6 +1930,37 @@ class _Account(_Group):
         return self._c.request("GET", "/api/account/balance", endpoint="account.balance")
 
 
+class _Agriculture(_Group):
+    def drought(self, *, area: str, weeks: Optional[int] = None) -> CallResult:
+        """US Drought Monitor severity for a county (5-digit FIPS) or state (2-letter), weekly."""
+        query: dict[str, Any] = {"area": area}
+        if weeks is not None:
+            query["weeks"] = weeks
+        return self._c.request("GET", "/api/agriculture/drought", endpoint="agriculture.drought", query=query)
+
+    def stats(self, *, commodity_desc: str, **filters: Any) -> CallResult:
+        """USDA NASS QuickStats — crop/livestock yields, acreage, production, prices.
+
+        Requires commodity_desc plus at least one bound (year / year__GE / year__LE /
+        state_alpha / agg_level_desc / short_desc). 50k-row cap upstream.
+        """
+        query: dict[str, Any] = {"commodity_desc": commodity_desc}
+        for k, v in filters.items():
+            if v is not None:
+                query[k] = v
+        return self._c.request("GET", "/api/agriculture/stats", endpoint="agriculture.stats", query=query)
+
+
+class _Soil(_Group):
+    def profile(self, *, lat: float, lon: float) -> CallResult:
+        """SSURGO soil profile (map unit + ranked components) for a US lat/lng."""
+        return self._c.request("GET", "/api/soil/profile", endpoint="soil.profile", query={"lat": lat, "lon": lon})
+
+    def hardiness_zone(self, *, zip: str) -> CallResult:
+        """USDA plant hardiness zone for a US ZIP code."""
+        return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
+
+
 class _Batch(_Group):
     def run(self, *, calls: list) -> CallResult:
         """Run up to 50 catalog calls behind one x402 payment.
@@ -4184,6 +4215,8 @@ class TwoS:
         self.census = _Census(self)
         self.account = _Account(self)
         self.batch = _Batch(self)
+        self.agriculture = _Agriculture(self)
+        self.soil = _Soil(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)

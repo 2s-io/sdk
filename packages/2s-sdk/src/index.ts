@@ -148,6 +148,8 @@ export class TwoS {
   // Per-group accessors mirroring `client.endpoints.<group>` for terser code.
   public readonly account: Endpoints['account']
   public readonly batch: Endpoints['batch']
+  public readonly agriculture: Endpoints['agriculture']
+  public readonly soil: Endpoints['soil']
   public readonly ai: Endpoints['ai']
   public readonly aircraft: Endpoints['aircraft']
   public readonly airport: Endpoints['airport']
@@ -266,6 +268,8 @@ export class TwoS {
     this.endpoints = createEndpoints(this)
     this.account = this.endpoints.account
     this.batch = this.endpoints.batch
+    this.agriculture = this.endpoints.agriculture
+    this.soil = this.endpoints.soil
     this.ai = this.endpoints.ai
     this.aircraft = this.endpoints.aircraft
     this.airport = this.endpoints.airport

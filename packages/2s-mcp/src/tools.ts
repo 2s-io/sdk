@@ -52,6 +52,55 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.batch.run(a as never),
     },
 
+    // ── Agriculture & soil ───────────────────────────────────────────
+    {
+      name: 'soil.profile',
+      description:
+        'Ground-truth soil profile for any US lat/lng from USDA-NRCS SSURGO. Returns the soil map unit + component soil types ranked by composition %, each with taxonomic order/class, drainage class, hydrologic group, and slope. Keyless, public-domain. For agronomy, land/septic/foundation suitability, hydrology, crop-fit. Water/unsurveyed points return an empty component list.',
+      inputSchema: s('Soil profile input', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.soil.profile(a as never),
+    },
+    {
+      name: 'soil.hardiness-zone',
+      description:
+        'USDA Plant Hardiness Zone for a US ZIP code — planting zone (e.g. "9b") + average annual minimum-temperature range (°F) + ZIP centroid. Keyless, public-domain. The "what grows where" primitive for gardening/landscaping/nursery/agronomy.',
+      inputSchema: s('Hardiness zone input', {
+        zip: { type: 'string', description: '5-digit US ZIP code.' },
+      }, ['zip']),
+      invoke: (a) => c.soil.hardinessZone(a as never),
+    },
+    {
+      name: 'agriculture.drought',
+      description:
+        'US Drought Monitor severity for a county (5-digit FIPS) or state (2-letter). Weekly % of area in each category (None, D0 Abnormally Dry → D4 Exceptional), newest first, with the worst category per week. Keyless, public-domain (NDMC/USDA/NOAA). The official metric behind USDA disaster eligibility.',
+      inputSchema: s('Drought input', {
+        area: { type: 'string', description: '5-digit county FIPS or 2-letter state code.' },
+        weeks: { type: 'integer', minimum: 1, maximum: 260 },
+      }, ['area']),
+      invoke: (a) => c.agriculture.drought(a as never),
+    },
+    {
+      name: 'agriculture.stats',
+      description:
+        'USDA NASS QuickStats — authoritative US ag statistics: crop yields, acreage, production, livestock inventory, prices received. Filter by commodity (CORN/SOYBEANS/CATTLE…), year (or year__GE/__LE range), state (2-letter), county, statistic category (YIELD/PRODUCTION/AREA HARVESTED/PRICE RECEIVED), aggregation level. 50k-row cap — narrow broad queries. Public-domain.',
+      inputSchema: s('NASS stats input', {
+        commodity_desc: { type: 'string', description: 'Commodity, upper-case (CORN, SOYBEANS, CATTLE).' },
+        year: { type: 'string' },
+        year__GE: { type: 'string', description: 'Year >= (range start).' },
+        year__LE: { type: 'string', description: 'Year <= (range end).' },
+        state_alpha: { type: 'string', description: '2-letter state code.' },
+        county_name: { type: 'string' },
+        statisticcat_desc: { type: 'string', description: 'YIELD, PRODUCTION, AREA HARVESTED, PRICE RECEIVED.' },
+        agg_level_desc: { type: 'string', description: 'NATIONAL, STATE, COUNTY.' },
+        short_desc: { type: 'string', description: 'Exact NASS data-item string.' },
+        freq_desc: { type: 'string', description: 'ANNUAL, MONTHLY, WEEKLY.' },
+      }, ['commodity_desc']),
+      invoke: (a) => c.agriculture.stats(a as never),
+    },
+
     // ── Patents ──────────────────────────────────────────────────────
     {
       name: 'patents.search',
