@@ -3099,6 +3099,37 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.energy.prices(a as never),
     },
     {
+      name: 'energy.generation-mix',
+      description:
+        'Electricity generation mix by fuel type for a US state (2-letter) or "US", from EIA — the latest monthly net generation (thousand MWh) per fuel (natural gas, coal, nuclear, solar, wind, hydro…) with each fuel\'s % share and the all-fuels total. For grid carbon-intensity and decarbonization reasoning. Public-domain.',
+      inputSchema: s('Generation mix', {
+        location: { type: 'string', description: '2-letter US state code, or "US".' },
+      }, ['location']),
+      invoke: (a) => c.energy.generationMix(a as never),
+    },
+    {
+      name: 'energy.electricity-rates',
+      description:
+        'Retail electricity price + sales for a US state by customer sector (residential/commercial/industrial/transportation/all), monthly newest-first, from EIA. Returns price (cents/kWh), sales (MWh), revenue ($M), customers. More granular than energy.prices (national benchmark only).',
+      inputSchema: s('Electricity rates', {
+        state: { type: 'string', description: '2-letter US state code.' },
+        sector: { type: 'string', enum: ['residential', 'commercial', 'industrial', 'transportation', 'all'] },
+        months: { type: 'integer', minimum: 1, maximum: 120 },
+      }, ['state']),
+      invoke: (a) => c.energy.electricityRates(a as never),
+    },
+    {
+      name: 'energy.utility-rates',
+      description:
+        'Which electric utility serves a US lat/lng + a summary of its published rate plans, from OpenEI URDB (CC0). Each plan: utility, rate name, sector, EIA utility id, fixed monthly charge, first-tier energy rate ($/kWh), tariff link. For solar/EV/storage economics, bill estimation, and "who is my utility".',
+      inputSchema: s('Utility rates', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+        limit: { type: 'integer', minimum: 1, maximum: 25 },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.energy.utilityRates(a as never),
+    },
+    {
       name: 'park.lookup',
       description: 'Unified read API over the US National Park Service developer.nps.gov. resource = parks | alerts | campgrounds | events | newsreleases | thingstodo | visitorcenters. Filter by parkCode (CSV), state, free-text query.',
       inputSchema: s('NPS park lookup', {

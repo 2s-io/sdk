@@ -639,6 +639,12 @@ export interface Endpoints {
     solarResource(input: { lat: number; lon: number }): R<unknown>
     /** US energy benchmark prices (EIA): omit series for a snapshot of all, or pass one (wti_crude/brent_crude/henry_hub_gas/gasoline_regular/diesel/electricity_retail). */
     prices(input?: { series?: string; limit?: number }): R<Normalized>
+    /** Electricity generation mix by fuel type for a US state or "US" (EIA, latest month + shares). */
+    generationMix(input: { location: string }): R<Normalized>
+    /** Retail electricity price + sales for a US state by sector, monthly (EIA). */
+    electricityRates(input: { state: string; sector?: 'residential' | 'commercial' | 'industrial' | 'transportation' | 'all'; months?: number }): R<Normalized>
+    /** Serving utility + rate-plan summaries for a lat/lon (OpenEI URDB, CC0). */
+    utilityRates(input: { lat: number; lon: number; limit?: number }): R<Normalized>
   }
   park: {
     /** Unified US National Park Service read API (NPS). */
@@ -1704,6 +1710,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       fuelStations: (i) => get('energy.fuel-stations', '/api/energy/fuel-stations', i ?? {}),
       solarResource: (i) => get('energy.solar-resource', '/api/energy/solar-resource', i),
       prices: (i) => get('energy.prices', '/api/energy/prices', i ?? {}),
+      generationMix: (i) => get('energy.generation-mix', '/api/energy/generation-mix', i),
+      electricityRates: (i) => get('energy.electricity-rates', '/api/energy/electricity-rates', i),
+      utilityRates: (i) => get('energy.utility-rates', '/api/energy/utility-rates', i),
     },
     park: {
       lookup: (i) => get('park.lookup', '/api/park/lookup', i),

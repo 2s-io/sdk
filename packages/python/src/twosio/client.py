@@ -3774,6 +3774,23 @@ class _Energy(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/energy/prices", endpoint="energy.prices", query=q)
 
+    def generation_mix(self, *, location: str) -> CallResult:
+        """Electricity generation mix by fuel type for a US state or 'US' (EIA, latest month + shares)."""
+        return self._c.request("GET", "/api/energy/generation-mix", endpoint="energy.generation-mix", query={"location": location})
+
+    def electricity_rates(self, *, state: str, sector: Optional[str] = None, months: Optional[int] = None) -> CallResult:
+        """Retail electricity price + sales for a US state by sector, monthly (EIA)."""
+        q: dict[str, Any] = {"state": state}
+        if sector is not None: q["sector"] = sector
+        if months is not None: q["months"] = months
+        return self._c.request("GET", "/api/energy/electricity-rates", endpoint="energy.electricity-rates", query=q)
+
+    def utility_rates(self, *, lat: float, lon: float, limit: Optional[int] = None) -> CallResult:
+        """Serving utility + rate-plan summaries for a lat/lon (OpenEI URDB, CC0)."""
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/energy/utility-rates", endpoint="energy.utility-rates", query=q)
+
 
 class _Park(_Group):
     def lookup(
