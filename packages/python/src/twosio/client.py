@@ -2760,6 +2760,40 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/nfip-claims", endpoint="gov.nfip-claims", query=q)
 
+    def disaster_declarations(
+        self,
+        *,
+        state: Optional[str] = None,
+        disaster_number: Optional[int] = None,
+        declaration_type: Optional[str] = None,
+        incident_type: Optional[str] = None,
+        county: Optional[str] = None,
+        fy_declared: Optional[int] = None,
+        from_date: Optional[str] = None,
+        to_date: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FEMA federal disaster & emergency declarations (since 1953).
+
+        Filter by state / disaster_number / declaration_type (DR/EM/FM/FS/FW) /
+        incident_type (Hurricane, Fire, Flood, …) / county FIPS / fy_declared /
+        declaration date range. No filter → most recent declarations nationwide.
+        Returns total match count + records (one per designated county/area) with
+        title, dates, designated area, FEMA region, and assistance programs.
+        Public-domain (OpenFEMA).
+        """
+        q: dict[str, Any] = {}
+        if state is not None: q["state"] = state
+        if disaster_number is not None: q["disasterNumber"] = disaster_number
+        if declaration_type is not None: q["declarationType"] = declaration_type
+        if incident_type is not None: q["incidentType"] = incident_type
+        if county is not None: q["county"] = county
+        if fy_declared is not None: q["fyDeclared"] = fy_declared
+        if from_date is not None: q["fromDate"] = from_date
+        if to_date is not None: q["toDate"] = to_date
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/disaster-declarations", endpoint="gov.disaster-declarations", query=q)
+
     def carrier_safety(
         self,
         *,

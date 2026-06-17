@@ -1096,6 +1096,8 @@ export interface Endpoints {
     fccId(input: { fccId: string }): R<unknown>
     /** FEMA NFIP flood-insurance claims history for an area (by state + optional county FIPS/zip/year): net payouts + flood zone + cause + water depth. */
     nfipClaims(input: { state: string; county?: string; zip?: string; yearFrom?: number; yearTo?: number; limit?: number }): R<unknown>
+    /** FEMA federal disaster & emergency declarations (every declaration since 1953): filter by state/disasterNumber/declarationType/incidentType/county/year/date range. */
+    disasterDeclarations(input?: { state?: string; disasterNumber?: number; declarationType?: string; incidentType?: string; county?: string; fyDeclared?: number; fromDate?: string; toDate?: string; limit?: number }): R<unknown>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
     carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US Congress members for a location: address (or state[+district]) → House rep + 2 senators with party, IDs, phone, office, contact form. */
@@ -1678,6 +1680,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       riskIndex: (i) => get('gov.risk-index', '/api/gov/risk-index', i),
       fccId: (i) => get('gov.fcc-id', '/api/gov/fcc-id', i),
       nfipClaims: (i) => get('gov.nfip-claims', '/api/gov/nfip-claims', i),
+      disasterDeclarations: (i) => get('gov.disaster-declarations', '/api/gov/disaster-declarations', i ?? {}),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),

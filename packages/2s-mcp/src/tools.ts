@@ -1860,6 +1860,22 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.nfipClaims(a as never),
     },
     {
+      name: 'gov.disaster-declarations',
+      description: 'FEMA federal disaster & emergency declarations — every federally declared disaster since 1953, including ones declared this week. Filter by state (2-letter), disasterNumber, declarationType (DR=major disaster, EM=emergency, FM/FS/FW=fire management), incidentType (Hurricane, Fire, Flood, Severe Storm, …), county (5-digit FIPS), fiscal year (fyDeclared), and declaration date range (fromDate/toDate, YYYY-MM-DD). No filter → most recent declarations nationwide. Returns total matching count + records (one per designated county/area) with declaration string, disaster number, title, incident type, declaration/incident/closeout dates, designated area, county FIPS, FEMA region, and authorized assistance programs (Individuals & Households, Individual Assistance, Public Assistance, Hazard Mitigation). Free, public-domain (OpenFEMA). Distinct from gov.risk-index (modeled future risk) and gov.nfip-claims (realized flood losses) — the official federal-response record, for disaster logistics, eligibility checks, insurance, emergency management.',
+      inputSchema: s('FEMA disaster declarations', {
+        state: { type: 'string', description: '2-letter US state/territory code.' },
+        disasterNumber: { type: 'integer', description: 'FEMA disaster number, e.g. 4673.' },
+        declarationType: { type: 'string', description: 'DR, EM, FM, FS, or FW.' },
+        incidentType: { type: 'string', description: 'Incident type, e.g. Hurricane, Fire, Flood, Severe Storm.' },
+        county: { type: 'string', description: '5-digit county FIPS, e.g. 12086.' },
+        fyDeclared: { type: 'integer', description: 'Fiscal year declared, e.g. 2026.' },
+        fromDate: { type: 'string', description: 'Earliest declaration date, YYYY-MM-DD.' },
+        toDate: { type: 'string', description: 'Latest declaration date, YYYY-MM-DD.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, []),
+      invoke: (a) => c.gov.disasterDeclarations(a as never),
+    },
+    {
       name: 'gov.carrier-safety',
       description: 'FMCSA motor-carrier (trucking/bus) safety profile. Pass dot (USDOT number) for the full record: legal/DBA name, state, interstate/intrastate, operating-authority status (allowedToOperate), FMCSA safety rating, fleet size, crash history (total/fatal/injury/tow-away), roadside-inspection history with driver+vehicle out-of-service rates, and CSA BASIC measures (Unsafe Driving, Hours-of-Service, Driver Fitness, Controlled Substances, Vehicle Maintenance, Hazmat, Crash Indicator). Or pass name to search → matching carriers + DOT numbers. Free, public-domain US DOT data. For commercial-auto/freight underwriting, broker/shipper vetting, vendor diligence.',
       inputSchema: s('FMCSA carrier safety', {
