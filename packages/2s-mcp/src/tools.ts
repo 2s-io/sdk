@@ -101,6 +101,44 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agriculture.stats(a as never),
     },
 
+    // ── Music (MusicBrainz, CC0) ─────────────────────────────────────
+    {
+      name: 'music.recording',
+      description:
+        'Resolve a song/recording from MusicBrainz (open, CC0 music encyclopedia). Pass artist + title, or a free-text/Lucene query. Returns ranked recordings with MBID, title, primary artist, length (ms), first-release date, disambiguation. Keyless, public-domain. Canonicalize a track to its MBID.',
+      inputSchema: s('Recording lookup', {
+        artist: { type: 'string' },
+        title: { type: 'string' },
+        query: { type: 'string', description: 'Free-text / Lucene (overrides artist+title).' },
+        limit: { type: 'integer', minimum: 1, maximum: 25 },
+      }),
+      invoke: (a) => c.music.recording(a as never),
+    },
+    {
+      name: 'music.artist',
+      description:
+        'Resolve a music artist from MusicBrainz (CC0). Pass a name or query. Returns ranked artists with MBID, name, sort name, type (Person/Group), country, gender, life span, disambiguation. Keyless, public-domain.',
+      inputSchema: s('Artist lookup', {
+        name: { type: 'string' },
+        query: { type: 'string', description: 'Free-text / Lucene (overrides name).' },
+        limit: { type: 'integer', minimum: 1, maximum: 25 },
+      }),
+      invoke: (a) => c.music.artist(a as never),
+    },
+    {
+      name: 'music.release',
+      description:
+        'Resolve an album/release from MusicBrainz (CC0). Pass a barcode (UPC/EAN), artist + album, or a free-text query. Returns ranked releases with MBID, title, artist, date, country, barcode, status, track count, label, catalog number. Barcode → album is the differentiated lookup. Keyless, public-domain.',
+      inputSchema: s('Release lookup', {
+        barcode: { type: 'string', description: 'UPC/EAN barcode.' },
+        artist: { type: 'string' },
+        album: { type: 'string' },
+        query: { type: 'string', description: 'Free-text / Lucene (overrides the others).' },
+        limit: { type: 'integer', minimum: 1, maximum: 25 },
+      }),
+      invoke: (a) => c.music.release(a as never),
+    },
+
     // ── Patents ──────────────────────────────────────────────────────
     {
       name: 'patents.search',

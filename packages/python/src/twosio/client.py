@@ -1961,6 +1961,32 @@ class _Soil(_Group):
         return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
 
 
+class _Music(_Group):
+    def recording(self, *, artist: Optional[str] = None, title: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Resolve a recording/song from MusicBrainz (CC0) by artist+title or query."""
+        q: dict[str, Any] = {}
+        for k, v in {"artist": artist, "title": title, "query": query, "limit": limit}.items():
+            if v is not None:
+                q[k] = v
+        return self._c.request("GET", "/api/music/recording", endpoint="music.recording", query=q)
+
+    def artist(self, *, name: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Resolve an artist from MusicBrainz (CC0) by name or query."""
+        q: dict[str, Any] = {}
+        for k, v in {"name": name, "query": query, "limit": limit}.items():
+            if v is not None:
+                q[k] = v
+        return self._c.request("GET", "/api/music/artist", endpoint="music.artist", query=q)
+
+    def release(self, *, barcode: Optional[str] = None, artist: Optional[str] = None, album: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Resolve a release/album from MusicBrainz (CC0) by barcode, artist+album, or query."""
+        q: dict[str, Any] = {}
+        for k, v in {"barcode": barcode, "artist": artist, "album": album, "query": query, "limit": limit}.items():
+            if v is not None:
+                q[k] = v
+        return self._c.request("GET", "/api/music/release", endpoint="music.release", query=q)
+
+
 class _Batch(_Group):
     def run(self, *, calls: list) -> CallResult:
         """Run up to 50 catalog calls behind one x402 payment.
@@ -4234,6 +4260,7 @@ class TwoS:
         self.batch = _Batch(self)
         self.agriculture = _Agriculture(self)
         self.soil = _Soil(self)
+        self.music = _Music(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)

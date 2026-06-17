@@ -57,6 +57,15 @@ export interface Endpoints {
     /** USDA plant hardiness zone for a US ZIP code. */
     hardinessZone(input: { zip: string }): R<Normalized>
   }
+  /** MusicBrainz music metadata (CC0). */
+  music: {
+    /** Resolve a recording/song by artist+title or free-text query. */
+    recording(input: { artist?: string; title?: string; query?: string; limit?: number }): R<Normalized>
+    /** Resolve an artist by name or query. */
+    artist(input: { name?: string; query?: string; limit?: number }): R<Normalized>
+    /** Resolve a release/album by barcode, artist+album, or query. */
+    release(input: { barcode?: string; artist?: string; album?: string; query?: string; limit?: number }): R<Normalized>
+  }
   /** Run many endpoint calls behind one x402 payment. */
   batch: {
     /**
@@ -1258,6 +1267,11 @@ export function createEndpoints(client: TwoS): Endpoints {
     soil: {
       profile: (i) => get('soil.profile', '/api/soil/profile', i),
       hardinessZone: (i) => get('soil.hardiness-zone', '/api/soil/hardiness-zone', i),
+    },
+    music: {
+      recording: (i) => get('music.recording', '/api/music/recording', i),
+      artist: (i) => get('music.artist', '/api/music/artist', i),
+      release: (i) => get('music.release', '/api/music/release', i),
     },
     ai: {
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),
