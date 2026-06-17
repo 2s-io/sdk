@@ -151,6 +151,7 @@ export class TwoS {
   public readonly agriculture: Endpoints['agriculture']
   public readonly soil: Endpoints['soil']
   public readonly music: Endpoints['music']
+  public readonly maritime: Endpoints['maritime']
   public readonly ai: Endpoints['ai']
   public readonly aircraft: Endpoints['aircraft']
   public readonly airport: Endpoints['airport']
@@ -272,6 +273,7 @@ export class TwoS {
     this.agriculture = this.endpoints.agriculture
     this.soil = this.endpoints.soil
     this.music = this.endpoints.music
+    this.maritime = this.endpoints.maritime
     this.ai = this.endpoints.ai
     this.aircraft = this.endpoints.aircraft
     this.airport = this.endpoints.airport

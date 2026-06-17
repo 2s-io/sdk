@@ -1961,6 +1961,23 @@ class _Soil(_Group):
         return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
 
 
+class _Maritime(_Group):
+    def vessel(self, *, name: Optional[str] = None, callSign: Optional[str] = None, officialNumber: Optional[str] = None,
+               hullNumber: Optional[str] = None, flag: Optional[str] = None, service: Optional[str] = None,
+               buildYear: Optional[str] = None, vesselId: Optional[str] = None) -> CallResult:
+        """Search the USCG PSIX vessel registry by name/callsign/official number/HIN/flag/etc."""
+        q: dict[str, Any] = {}
+        for k, v in {"name": name, "callSign": callSign, "officialNumber": officialNumber, "hullNumber": hullNumber,
+                     "flag": flag, "service": service, "buildYear": buildYear, "vesselId": vesselId}.items():
+            if v is not None:
+                q[k] = v
+        return self._c.request("GET", "/api/maritime/vessel", endpoint="maritime.vessel", query=q)
+
+    def cases(self, *, vesselId: str) -> CallResult:
+        """USCG activity / port-state-control case history for a vessel id."""
+        return self._c.request("GET", "/api/maritime/cases", endpoint="maritime.cases", query={"vesselId": vesselId})
+
+
 class _Music(_Group):
     def recording(self, *, artist: Optional[str] = None, title: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
         """Resolve a recording/song from MusicBrainz (CC0) by artist+title or query."""
@@ -4295,6 +4312,7 @@ class TwoS:
         self.agriculture = _Agriculture(self)
         self.soil = _Soil(self)
         self.music = _Music(self)
+        self.maritime = _Maritime(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)

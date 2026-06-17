@@ -101,6 +101,33 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agriculture.stats(a as never),
     },
 
+    // ── Maritime (USCG PSIX) ─────────────────────────────────────────
+    {
+      name: 'maritime.vessel',
+      description:
+        'Search the US Coast Guard PSIX vessel registry by name (partial), call sign, official number, hull number (HIN), flag, service type, or build year. Returns vessels with USCG vessel id, name, call sign, service type, build year, status, official number, HIN, flag. Keyless, public-domain. US-flagged vessels + foreign vessels with US PSC activity. Pair vesselId with maritime.cases.',
+      inputSchema: s('Vessel search', {
+        name: { type: 'string', description: 'Vessel name (partial match).' },
+        callSign: { type: 'string' },
+        officialNumber: { type: 'string', description: 'USCG official number (VIN).' },
+        hullNumber: { type: 'string', description: 'Manufacturer hull number (HIN).' },
+        flag: { type: 'string' },
+        service: { type: 'string' },
+        buildYear: { type: 'string' },
+        vesselId: { type: 'string', description: 'USCG vessel id (exact).' },
+      }),
+      invoke: (a) => c.maritime.vessel(a as never),
+    },
+    {
+      name: 'maritime.cases',
+      description:
+        'US Coast Guard activity / port-state-control case history for a vessel, by USCG vessel id (from maritime.vessel). Returns cases newest-first with activity id, start date, type (Boarding, Inspection, Investigation…), and process status. Keyless, public-domain. The compliance/inspection record behind a vessel.',
+      inputSchema: s('Vessel cases', {
+        vesselId: { type: 'string', description: 'USCG vessel id (from maritime.vessel).' },
+      }, ['vesselId']),
+      invoke: (a) => c.maritime.cases(a as never),
+    },
+
     // ── Music (MusicBrainz, CC0) ─────────────────────────────────────
     {
       name: 'music.recording',

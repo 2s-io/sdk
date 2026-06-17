@@ -57,6 +57,13 @@ export interface Endpoints {
     /** USDA plant hardiness zone for a US ZIP code. */
     hardinessZone(input: { zip: string }): R<Normalized>
   }
+  /** USCG PSIX vessel registry + port-state-control. */
+  maritime: {
+    /** Search the USCG PSIX vessel registry by name/callsign/official number/HIN/flag/etc. */
+    vessel(input: { name?: string; callSign?: string; officialNumber?: string; hullNumber?: string; flag?: string; service?: string; buildYear?: string; vesselId?: string }): R<Normalized>
+    /** USCG activity / port-state-control case history for a vessel id. */
+    cases(input: { vesselId: string }): R<Normalized>
+  }
   /** MusicBrainz music metadata (CC0). */
   music: {
     /** Resolve a recording/song by artist+title or free-text query. */
@@ -1274,6 +1281,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       recording: (i) => get('music.recording', '/api/music/recording', i),
       artist: (i) => get('music.artist', '/api/music/artist', i),
       release: (i) => get('music.release', '/api/music/release', i),
+    },
+    maritime: {
+      vessel: (i) => get('maritime.vessel', '/api/maritime/vessel', i),
+      cases: (i) => get('maritime.cases', '/api/maritime/cases', i),
     },
     ai: {
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),
