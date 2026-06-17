@@ -1,6 +1,6 @@
 {
   "name": "@2sio/sdk",
-  "version": "1.57.0",
+  "version": "1.57.1",
   "description": "Typed client for 2s \u2014 the (most) everything API. Pay-per-call AI-agent data APIs, settled in USDC on Base or Solana via x402.",
   "license": "MIT",
   "homepage": "https://2s.io",
