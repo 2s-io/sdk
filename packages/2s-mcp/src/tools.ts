@@ -1903,6 +1903,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.disasterDeclarations(a as never),
     },
     {
+      name: 'gov.disaster-assistance',
+      description: 'FEMA disaster assistance dollars — how much federal aid was approved or obligated for a declared disaster, by place. program=individuals (default) returns Individuals & Households Program (IHP) approved housing assistance, one record per ZIP per disaster, with FEMA-approved repair/replace, rental, and other-needs dollars and valid-registration counts (tenancy=owner default, or renter). program=public returns Public Assistance funded-project summaries, one record per applicant (state/local government, tribe, or eligible nonprofit) per disaster, with the federally obligated grant amount and project count. Filter by disasterNumber (the join key to gov.disaster-declarations), state (2-letter), and zipCode (5-digit, IHP only); ordered by approved/obligated dollars (highest first) with the total matching count + a normalized approvedAmountUSD per record. Free, public-domain (OpenFEMA). Distinct from gov.disaster-declarations (what was declared/authorized), gov.risk-index (modeled risk), gov.nfip-claims (flood-insurance losses) — the realized federal-spend record.',
+      inputSchema: s('FEMA disaster assistance', {
+        program: { type: 'string', enum: ['individuals', 'public'], description: "'individuals' (IHP, default) or 'public' (Public Assistance)." },
+        tenancy: { type: 'string', enum: ['owner', 'renter'], description: "For program=individuals: 'owner' (default) or 'renter'." },
+        disasterNumber: { type: 'integer', description: 'FEMA disaster number, e.g. 4673.' },
+        state: { type: 'string', description: '2-letter US state/territory code.' },
+        zipCode: { type: 'string', description: '5-digit ZIP code (program=individuals only).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, []),
+      invoke: (a) => c.gov.disasterAssistance(a as never),
+    },
+    {
       name: 'gov.carrier-safety',
       description: 'FMCSA motor-carrier (trucking/bus) safety profile. Pass dot (USDOT number) for the full record: legal/DBA name, state, interstate/intrastate, operating-authority status (allowedToOperate), FMCSA safety rating, fleet size, crash history (total/fatal/injury/tow-away), roadside-inspection history with driver+vehicle out-of-service rates, and CSA BASIC measures (Unsafe Driving, Hours-of-Service, Driver Fitness, Controlled Substances, Vehicle Maintenance, Hazmat, Crash Indicator). Or pass name to search → matching carriers + DOT numbers. Free, public-domain US DOT data. For commercial-auto/freight underwriting, broker/shipper vetting, vendor diligence.',
       inputSchema: s('FMCSA carrier safety', {

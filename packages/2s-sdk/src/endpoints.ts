@@ -1105,6 +1105,8 @@ export interface Endpoints {
     nfipClaims(input: { state: string; county?: string; zip?: string; yearFrom?: number; yearTo?: number; limit?: number }): R<unknown>
     /** FEMA federal disaster & emergency declarations (every declaration since 1953): filter by state/disasterNumber/declarationType/incidentType/county/year/date range. */
     disasterDeclarations(input?: { state?: string; disasterNumber?: number; declarationType?: string; incidentType?: string; county?: string; fyDeclared?: number; fromDate?: string; toDate?: string; limit?: number }): R<unknown>
+    /** FEMA disaster assistance dollars by disaster/place: program=individuals (IHP approved $ per ZIP) or public (Public Assistance obligated $ per applicant). */
+    disasterAssistance(input?: { program?: 'individuals' | 'public'; tenancy?: 'owner' | 'renter'; disasterNumber?: number; state?: string; zipCode?: string; limit?: number }): R<unknown>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
     carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US Congress members for a location: address (or state[+district]) → House rep + 2 senators with party, IDs, phone, office, contact form. */
@@ -1692,6 +1694,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       fccId: (i) => get('gov.fcc-id', '/api/gov/fcc-id', i),
       nfipClaims: (i) => get('gov.nfip-claims', '/api/gov/nfip-claims', i),
       disasterDeclarations: (i) => get('gov.disaster-declarations', '/api/gov/disaster-declarations', i ?? {}),
+      disasterAssistance: (i) => get('gov.disaster-assistance', '/api/gov/disaster-assistance', i ?? {}),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),

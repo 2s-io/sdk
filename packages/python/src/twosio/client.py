@@ -2811,6 +2811,35 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/disaster-declarations", endpoint="gov.disaster-declarations", query=q)
 
+    def disaster_assistance(
+        self,
+        *,
+        program: Optional[str] = None,
+        tenancy: Optional[str] = None,
+        disaster_number: Optional[int] = None,
+        state: Optional[str] = None,
+        zip_code: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FEMA disaster assistance dollars by disaster/place.
+
+        program='individuals' (default) → Individuals & Households Program (IHP)
+        approved housing assistance, one record per ZIP per disaster (tenancy=
+        'owner' default or 'renter'). program='public' → Public Assistance
+        funded-project summaries, one record per applicant per disaster with the
+        federally obligated amount. Filter by disaster_number (join key to
+        gov.disaster-declarations), state (2-letter), zip_code (5-digit, IHP only).
+        Public-domain (OpenFEMA).
+        """
+        q: dict[str, Any] = {}
+        if program is not None: q["program"] = program
+        if tenancy is not None: q["tenancy"] = tenancy
+        if disaster_number is not None: q["disasterNumber"] = disaster_number
+        if state is not None: q["state"] = state
+        if zip_code is not None: q["zipCode"] = zip_code
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/disaster-assistance", endpoint="gov.disaster-assistance", query=q)
+
     def carrier_safety(
         self,
         *,
