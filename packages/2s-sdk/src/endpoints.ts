@@ -57,6 +57,15 @@ export interface Endpoints {
     /** USDA plant hardiness zone for a US ZIP code. */
     hardinessZone(input: { zip: string }): R<Normalized>
   }
+  /** US Bureau of Labor Statistics — wages, openings, unemployment. */
+  labor: {
+    /** OEWS occupational wages by SOC code, nationally or by state. */
+    wages(input: { soc: string; state?: string }): R<Normalized>
+    /** JOLTS labor-market turnover (openings/hires/quits/layoffs/separations), national monthly. */
+    openings(input?: { measure?: 'openings' | 'hires' | 'quits' | 'layoffs' | 'separations'; months?: number }): R<Normalized>
+    /** Unemployment (rate/counts) for "US" or a 2-letter state, monthly. */
+    unemployment(input: { area: string; measure?: 'rate' | 'unemployed' | 'employed' | 'laborforce'; months?: number }): R<Normalized>
+  }
   /** USCG PSIX vessel registry + port-state-control. */
   maritime: {
     /** Search the USCG PSIX vessel registry by name/callsign/official number/HIN/flag/etc. */
@@ -1289,6 +1298,11 @@ export function createEndpoints(client: TwoS): Endpoints {
     maritime: {
       vessel: (i) => get('maritime.vessel', '/api/maritime/vessel', i),
       cases: (i) => get('maritime.cases', '/api/maritime/cases', i),
+    },
+    labor: {
+      wages: (i) => get('labor.wages', '/api/labor/wages', i),
+      openings: (i) => get('labor.openings', '/api/labor/openings', i ?? {}),
+      unemployment: (i) => get('labor.unemployment', '/api/labor/unemployment', i),
     },
     ai: {
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),

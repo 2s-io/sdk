@@ -1961,6 +1961,33 @@ class _Soil(_Group):
         return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
 
 
+class _Labor(_Group):
+    def wages(self, *, soc: str, state: Optional[str] = None) -> CallResult:
+        """BLS OEWS occupational wages by SOC code, nationally or by US state."""
+        q: dict[str, Any] = {"soc": soc}
+        if state is not None:
+            q["state"] = state
+        return self._c.request("GET", "/api/labor/wages", endpoint="labor.wages", query=q)
+
+    def openings(self, *, measure: Optional[str] = None, months: Optional[int] = None) -> CallResult:
+        """BLS JOLTS turnover (openings/hires/quits/layoffs/separations), national monthly."""
+        q: dict[str, Any] = {}
+        if measure is not None:
+            q["measure"] = measure
+        if months is not None:
+            q["months"] = months
+        return self._c.request("GET", "/api/labor/openings", endpoint="labor.openings", query=q)
+
+    def unemployment(self, *, area: str, measure: Optional[str] = None, months: Optional[int] = None) -> CallResult:
+        """BLS unemployment for 'US' or a 2-letter state, monthly."""
+        q: dict[str, Any] = {"area": area}
+        if measure is not None:
+            q["measure"] = measure
+        if months is not None:
+            q["months"] = months
+        return self._c.request("GET", "/api/labor/unemployment", endpoint="labor.unemployment", query=q)
+
+
 class _Maritime(_Group):
     def vessel(self, *, name: Optional[str] = None, callSign: Optional[str] = None, officialNumber: Optional[str] = None,
                hullNumber: Optional[str] = None, flag: Optional[str] = None, service: Optional[str] = None,
@@ -4369,6 +4396,7 @@ class TwoS:
         self.soil = _Soil(self)
         self.music = _Music(self)
         self.maritime = _Maritime(self)
+        self.labor = _Labor(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)

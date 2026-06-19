@@ -101,6 +101,39 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agriculture.stats(a as never),
     },
 
+    // ── Labor (BLS) ──────────────────────────────────────────────────
+    {
+      name: 'labor.wages',
+      description:
+        'Occupational employment + wages from BLS OEWS by SOC code, nationally or by US state. Pass soc (e.g. 15-1252 Software Developers) + optional 2-letter state. Returns employment, hourly mean, and annual mean + 10th/25th/median/75th/90th-percentile wages (latest survey year). Authoritative ground-truth wages for comp benchmarking. Public-domain.',
+      inputSchema: s('Occupational wages', {
+        soc: { type: 'string', description: '6-digit SOC code (e.g. 15-1252 or 151252).' },
+        state: { type: 'string', description: 'Optional 2-letter US state code; omit for national.' },
+      }, ['soc']),
+      invoke: (a) => c.labor.wages(a as never),
+    },
+    {
+      name: 'labor.openings',
+      description:
+        'US labor-market turnover from BLS JOLTS (total nonfarm, national), monthly newest-first. measure = openings (default) / hires / quits / layoffs / separations. Returns level in thousands per month. The standard labor-tightness (openings) + worker-confidence (quits) signal. Public-domain.',
+      inputSchema: s('JOLTS turnover', {
+        measure: { type: 'string', enum: ['openings', 'hires', 'quits', 'layoffs', 'separations'] },
+        months: { type: 'integer', minimum: 1, maximum: 60 },
+      }),
+      invoke: (a) => c.labor.openings(a as never),
+    },
+    {
+      name: 'labor.unemployment',
+      description:
+        'US unemployment from BLS, monthly newest-first — national (CPS, area="US") or by state (LAUS). measure = rate (default) / unemployed / employed / laborforce. Seasonally adjusted; rate in percent, counts in thousands. Public-domain.',
+      inputSchema: s('Unemployment', {
+        area: { type: 'string', description: '"US" or a 2-letter US state code.' },
+        measure: { type: 'string', enum: ['rate', 'unemployed', 'employed', 'laborforce'] },
+        months: { type: 'integer', minimum: 1, maximum: 60 },
+      }, ['area']),
+      invoke: (a) => c.labor.unemployment(a as never),
+    },
+
     // ── Maritime (USCG PSIX) ─────────────────────────────────────────
     {
       name: 'maritime.vessel',
