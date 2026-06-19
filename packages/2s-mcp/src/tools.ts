@@ -101,6 +101,29 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agriculture.stats(a as never),
     },
 
+    // ── Telecom (FCC) ────────────────────────────────────────────────
+    {
+      name: 'telecom.fcc-filings',
+      description:
+        'Search FCC ECFS filings for a proceeding/docket (e.g. 17-108 net neutrality, 11-42 Lifeline), optionally by filer. Returns newest filings with submission id, filer, type, lead bureau, received/disseminated dates, doc count. Track FCC regulatory dockets, comments, ex-parte filings. Public-domain.',
+      inputSchema: s('FCC ECFS filings', {
+        proceeding: { type: 'string', description: 'FCC docket number, e.g. 17-108.' },
+        filer: { type: 'string', description: 'Optional filer name filter.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['proceeding']),
+      invoke: (a) => c.telecom.fccFilings(a as never),
+    },
+    {
+      name: 'telecom.market-area',
+      description:
+        'Map a US lat/lon to its FCC spectrum-licensing geographies — Cellular Market Area (CMA), Basic/Major Trading Area (BTA/MTA), Partial Economic Area (PEA), and BEA/EAG/MEA/REAG economic areas — plus 2020 Census block FIPS, county, and block population. These define spectrum-license boundaries; distinct from ordinary geocoding. Keyless, public-domain.',
+      inputSchema: s('FCC market area', {
+        lat: { type: 'number', minimum: -90, maximum: 90 },
+        lon: { type: 'number', minimum: -180, maximum: 180 },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.telecom.marketArea(a as never),
+    },
+
     // ── Occupation (O*NET) ───────────────────────────────────────────
     {
       name: 'occupation.profile',

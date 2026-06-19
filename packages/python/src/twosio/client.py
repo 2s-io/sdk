@@ -1961,6 +1961,21 @@ class _Soil(_Group):
         return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
 
 
+class _Telecom(_Group):
+    def fcc_filings(self, *, proceeding: str, filer: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Search FCC ECFS filings for a proceeding/docket."""
+        q: dict[str, Any] = {"proceeding": proceeding}
+        if filer is not None:
+            q["filer"] = filer
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/telecom/fcc-filings", endpoint="telecom.fcc-filings", query=q)
+
+    def market_area(self, *, lat: float, lon: float) -> CallResult:
+        """Map a lat/lon to its FCC spectrum market areas (CMA/BTA/MTA/PEA) + census block."""
+        return self._c.request("GET", "/api/telecom/market-area", endpoint="telecom.market-area", query={"lat": lat, "lon": lon})
+
+
 class _Occupation(_Group):
     def profile(self, *, code: str) -> CallResult:
         """Full O*NET occupation dossier (skills/knowledge/abilities/tasks/tech) by SOC/O*NET-SOC code."""
@@ -4418,6 +4433,7 @@ class TwoS:
         self.maritime = _Maritime(self)
         self.labor = _Labor(self)
         self.occupation = _Occupation(self)
+        self.telecom = _Telecom(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)

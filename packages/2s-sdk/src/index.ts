@@ -154,6 +154,7 @@ export class TwoS {
   public readonly maritime: Endpoints['maritime']
   public readonly labor: Endpoints['labor']
   public readonly occupation: Endpoints['occupation']
+  public readonly telecom: Endpoints['telecom']
   public readonly ai: Endpoints['ai']
   public readonly aircraft: Endpoints['aircraft']
   public readonly airport: Endpoints['airport']
@@ -278,6 +279,7 @@ export class TwoS {
     this.maritime = this.endpoints.maritime
     this.labor = this.endpoints.labor
     this.occupation = this.endpoints.occupation
+    this.telecom = this.endpoints.telecom
     this.ai = this.endpoints.ai
     this.aircraft = this.endpoints.aircraft
     this.airport = this.endpoints.airport

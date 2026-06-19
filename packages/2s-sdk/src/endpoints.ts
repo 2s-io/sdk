@@ -57,6 +57,13 @@ export interface Endpoints {
     /** USDA plant hardiness zone for a US ZIP code. */
     hardinessZone(input: { zip: string }): R<Normalized>
   }
+  /** FCC public data — docket filings + spectrum market areas. */
+  telecom: {
+    /** Search FCC ECFS filings for a proceeding/docket. */
+    fccFilings(input: { proceeding: string; filer?: string; limit?: number }): R<Normalized>
+    /** Map a lat/lon to its FCC spectrum market areas (CMA/BTA/MTA/PEA…) + census block. */
+    marketArea(input: { lat: number; lon: number }): R<Normalized>
+  }
   /** O*NET occupations (US DOL) — profile, search, related. */
   occupation: {
     /** Full occupation dossier (skills/knowledge/abilities/tasks/tech) by SOC/O*NET-SOC code. */
@@ -1307,6 +1314,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     maritime: {
       vessel: (i) => get('maritime.vessel', '/api/maritime/vessel', i),
       cases: (i) => get('maritime.cases', '/api/maritime/cases', i),
+    },
+    telecom: {
+      fccFilings: (i) => get('telecom.fcc-filings', '/api/telecom/fcc-filings', i),
+      marketArea: (i) => get('telecom.market-area', '/api/telecom/market-area', i),
     },
     occupation: {
       profile: (i) => get('occupation.profile', '/api/occupation/profile', i),
