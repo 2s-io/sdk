@@ -2866,6 +2866,52 @@ class _Gov(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/nfip-claims", endpoint="gov.nfip-claims", query=q)
 
+    def hazard_mitigation(
+        self,
+        *,
+        state: Optional[str] = None,
+        disaster_number: Optional[int] = None,
+        program_fy: Optional[int] = None,
+        program_area: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FEMA Hazard Mitigation Assistance (HMA) funded projects.
+
+        Pre/post-disaster mitigation grants (HMGP, BRIC/PDM, FMA). At least one
+        filter required: state (2-letter), disaster_number, program_fy, program_area.
+        Returns total match count + projects (federal share, benefit-cost ratio,
+        project type, recipient). Public-domain (OpenFEMA).
+        """
+        q: dict[str, Any] = {}
+        if state is not None: q["state"] = state
+        if disaster_number is not None: q["disasterNumber"] = disaster_number
+        if program_fy is not None: q["programFy"] = program_fy
+        if program_area is not None: q["programArea"] = program_area
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/hazard-mitigation", endpoint="gov.hazard-mitigation", query=q)
+
+    def public_assistance(
+        self,
+        *,
+        state: Optional[str] = None,
+        disaster_number: Optional[int] = None,
+        incident_type: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """FEMA Public Assistance (PA) funded project details.
+
+        Post-disaster infrastructure-recovery grants. Provide state and/or
+        disaster_number (one required); optionally refine by incident_type.
+        Returns total match count + projects (federal share, damage category,
+        applicant, county). Public-domain (OpenFEMA).
+        """
+        q: dict[str, Any] = {}
+        if state is not None: q["state"] = state
+        if disaster_number is not None: q["disasterNumber"] = disaster_number
+        if incident_type is not None: q["incidentType"] = incident_type
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/public-assistance", endpoint="gov.public-assistance", query=q)
+
     def disaster_declarations(
         self,
         *,

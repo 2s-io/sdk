@@ -1134,6 +1134,10 @@ export interface Endpoints {
     disasterDeclarations(input?: { state?: string; disasterNumber?: number; declarationType?: string; incidentType?: string; county?: string; fyDeclared?: number; fromDate?: string; toDate?: string; limit?: number }): R<unknown>
     /** FEMA disaster assistance dollars by disaster/place: program=individuals (IHP approved $ per ZIP) or public (Public Assistance obligated $ per applicant). */
     disasterAssistance(input?: { program?: 'individuals' | 'public'; tenancy?: 'owner' | 'renter'; disasterNumber?: number; state?: string; zipCode?: string; limit?: number }): R<unknown>
+    /** FEMA Hazard Mitigation Assistance (HMA) funded projects (HMGP/BRIC/FMA): filter by state/disasterNumber/programFy/programArea → federal share, benefit-cost ratio, project type. */
+    hazardMitigation(input?: { state?: string; disasterNumber?: number; programFy?: number; programArea?: string; limit?: number }): R<unknown>
+    /** FEMA Public Assistance (PA) funded project details — post-disaster infrastructure-recovery grants: filter by state and/or disasterNumber → federal share, damage category, applicant. */
+    publicAssistance(input?: { state?: string; disasterNumber?: number; incidentType?: string; limit?: number }): R<unknown>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
     carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US Congress members for a location: address (or state[+district]) → House rep + 2 senators with party, IDs, phone, office, contact form. */
@@ -1737,6 +1741,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       nfipClaims: (i) => get('gov.nfip-claims', '/api/gov/nfip-claims', i),
       disasterDeclarations: (i) => get('gov.disaster-declarations', '/api/gov/disaster-declarations', i ?? {}),
       disasterAssistance: (i) => get('gov.disaster-assistance', '/api/gov/disaster-assistance', i ?? {}),
+      hazardMitigation: (i) => get('gov.hazard-mitigation', '/api/gov/hazard-mitigation', i ?? {}),
+      publicAssistance: (i) => get('gov.public-assistance', '/api/gov/public-assistance', i ?? {}),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),

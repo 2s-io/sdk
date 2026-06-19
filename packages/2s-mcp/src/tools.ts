@@ -1986,6 +1986,29 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.gov.nfipClaims(a as never),
     },
     {
+      name: 'gov.hazard-mitigation',
+      description: 'FEMA Hazard Mitigation Assistance (HMA) funded projects — the pre- and post-disaster mitigation grants FEMA has actually obligated (HMGP, BRIC/PDM, FMA). Filter by state (2-letter), disasterNumber, programFy (fiscal year), and/or programArea; at least one filter required. Returns total matching project count + projects (identifier, program area, project type, status, recipient/subrecipient, county, project amount + federal share obligated USD, cost-share %, benefit-cost ratio, number of properties, approval/close dates), largest federal share first. Free, public-domain (OpenFEMA). Distinct from gov.public-assistance (recovery grants) and gov.nfip-claims (flood losses) — this is mitigation funding to reduce future risk.',
+      inputSchema: s('FEMA hazard mitigation grants', {
+        state: { type: 'string', description: '2-letter US state/territory code.' },
+        disasterNumber: { type: 'integer', description: 'FEMA disaster declaration number.' },
+        programFy: { type: 'integer', description: 'Program fiscal year, e.g. 2022.' },
+        programArea: { type: 'string', description: 'Program area, e.g. HMGP, PDMC, FMA.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.gov.hazardMitigation(a as never),
+    },
+    {
+      name: 'gov.public-assistance',
+      description: 'FEMA Public Assistance (PA) funded project details — the post-disaster grants FEMA obligates to state/local/tribal governments and eligible nonprofits to repair public infrastructure and cover emergency response (debris removal, roads, buildings, utilities). Filter by state (2-letter) and/or disasterNumber (one required); optionally refine by incidentType. Returns total matching worksheet count + projects (disaster number, declaration date, incident type, project worksheet number, applicant, damage category, project size, status, county, federal share obligated / total obligated / project amount USD, obligation date), largest federal share first. Free, public-domain (OpenFEMA). Distinct from gov.hazard-mitigation (future-risk grants) and gov.nfip-claims (flood losses) — disaster recovery funding for public infrastructure.',
+      inputSchema: s('FEMA public assistance grants', {
+        state: { type: 'string', description: '2-letter US state/territory code.' },
+        disasterNumber: { type: 'integer', description: 'FEMA disaster declaration number.' },
+        incidentType: { type: 'string', description: 'Incident type refinement, e.g. Hurricane, Flood.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.gov.publicAssistance(a as never),
+    },
+    {
       name: 'gov.disaster-declarations',
       description: 'FEMA federal disaster & emergency declarations — every federally declared disaster since 1953, including ones declared this week. Filter by state (2-letter), disasterNumber, declarationType (DR=major disaster, EM=emergency, FM/FS/FW=fire management), incidentType (Hurricane, Fire, Flood, Severe Storm, …), county (5-digit FIPS), fiscal year (fyDeclared), and declaration date range (fromDate/toDate, YYYY-MM-DD). No filter → most recent declarations nationwide. Returns total matching count + records (one per designated county/area) with declaration string, disaster number, title, incident type, declaration/incident/closeout dates, designated area, county FIPS, FEMA region, and authorized assistance programs (Individuals & Households, Individual Assistance, Public Assistance, Hazard Mitigation). Free, public-domain (OpenFEMA). Distinct from gov.risk-index (modeled future risk) and gov.nfip-claims (realized flood losses) — the official federal-response record, for disaster logistics, eligibility checks, insurance, emergency management.',
       inputSchema: s('FEMA disaster declarations', {
