@@ -2445,6 +2445,33 @@ class _Business(_Group):
             q["offset"] = offset
         return self._c.request("GET", "/api/business/sos-search", endpoint="business.sos-search", query=q)
 
+    def entity_profile(
+        self,
+        *,
+        state: str,
+        entity_id: Optional[str] = None,
+        account_number: Optional[str] = None,
+        name: Optional[str] = None,
+        filings_limit: Optional[int] = None,
+    ) -> CallResult:
+        """Full business-entity dossier (v1: CT) — master + officers + registered agent + filings.
+
+        Resolve by entity_id, account_number, or name. Server params:
+        state, entityId, accountNumber, name, filingsLimit.
+        """
+        if entity_id is None and account_number is None and name is None:
+            raise ValueError("entity_profile() requires one of entity_id, account_number, or name.")
+        q: dict[str, Any] = {"state": state}
+        if entity_id is not None:
+            q["entityId"] = entity_id
+        if account_number is not None:
+            q["accountNumber"] = account_number
+        if name is not None:
+            q["name"] = name
+        if filings_limit is not None:
+            q["filingsLimit"] = filings_limit
+        return self._c.request("GET", "/api/business/entity-profile", endpoint="business.entity-profile", query=q)
+
     def naics(
         self,
         *,

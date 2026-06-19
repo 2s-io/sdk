@@ -67,25 +67,25 @@ The SDK auto-detects 402 responses, signs the payment, retries, and returns type
 
 ## What's included
 
-An ever-expanding catalog of 300+ endpoints across 95 groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
+An ever-expanding catalog of 190+ endpoints (live count in the [directory](https://2s.io/api/directory)), currently spanning:
 
-- **AI** — summarize, translate, extract, describe-image, screenshot, audio transcription, HTML/URL → markdown
-- **Agent primitives** — persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement, natural-language endpoint search
+- **AI** — summarize, translate, extract, describe-image, screenshot
+- **Agent primitives** — persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y")
 - **Patents & trademarks** — USPTO Open Data Portal patent search + file-wrapper detail + documents; trademark full-text search + status
 - **Law** — case search, citation verification, OFAC sanctions screening, Federal Register, CFR & USC sections, opinions, dockets, attorney/judge lookup (CourtListener / Free Law Project)
-- **Government & public records** — Congress bills/votes/members, FEC campaign finance, FDA drug/device/food events + recalls, FEMA disaster declarations + risk index, OSHA/MSHA, USAspending, EPA, lobbying & foreign-agent filings, inmate locator
-- **Finance & treasury** — SEC EDGAR company facts, filings, insider trades (Form 4), 13F holdings; US Treasury debt & statements; stock quotes; FX & currency conversion; bank routing; sales/income tax
-- **Vehicles & transport** — VIN decode, recalls, complaints, fuel economy, NCAP safety (NHTSA); aircraft registry; live flights; airports; maritime vessels & USCG cases
-- **Health & medical** — ICD-10 + RxNorm + drug pricing, hospital quality, Medicare provider + open-payments, clinical-trial search, professional-license lookup, gene/protein/species, chemical compounds
-- **Business & registries** — Secretary-of-State entity search, KYB-360 screening, IRS nonprofit search, npm/PyPI package lookup, email/phone validation, domain intel, bank routing
-- **Agriculture, soil & energy** — NASS crop stats, USDM drought, SSURGO soil profiles + hardiness zones; electricity generation mix, utility & electricity rates
-- **Security** — CVE + CISA KEV + EPSS, email-security posture, HTTP headers, password-exposure (HIBP), RPKI validity, CT logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
-- **Geo / weather / earth** — forward + reverse geocoding, US weather, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, natural-event feed, timezones, points of interest, parks & recreation, IP geolocation (single + bulk)
-- **Space & science** — launches, close approaches, satellites, exoplanets, space weather; Wikipedia + Wikidata; multi-source paper search (arXiv + PubMed + Semantic Scholar)
-- **Reference data** — Census demographics, College Scorecard, USAJOBS + BLS, food/nutrition, books, music (MusicBrainz), country & ISO codes, news
-- **Internet & dev** — dns.lookup, domain.whois (RDAP), TLS inspection, url.unfurl, url.clean, code & dev tools, unit/currency conversion, EDI/EDIFACT, hashing, barcodes, IP info
+- **Government** — Congress bills/votes/members/hearings, FEC campaign finance, FDA drug/device/food events + recalls, OSHA/MSHA, USAspending, EPA facilities, USGS water, lobbying filings, inmate locator
+- **Finance & treasury** — SEC EDGAR company facts, filings, insider trades (Form 4), 13F holdings; US Treasury debt, cash & monthly statements; stock quotes; FX rates
+- **Vehicles** — VIN decode, recalls, complaints, investigations, manufacturers, models (NHTSA)
+- **Health & medical** — ICD-10 + RxNorm lookup, hospital quality, Medicare provider + open-payments, clinical-trial search, professional-license lookup
+- **Business & registries** — Secretary-of-State entity search, entity screening, IRS nonprofit search, npm/PyPI package lookup, bank routing
+- **Geo / weather / earth** — forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, natural-event feed, IP geolocation (single + bulk)
+- **Space** — launches, close approaches, satellites, exoplanets, sky-tonight, space weather
+- **Science** — Wikipedia summaries, multi-source paper search (arXiv + PubMed + Semantic Scholar), gene/protein/species, chemical compounds
+- **Property** — NYC parcel lookup, deed history, permits, violations
+- **Internet** — dns.lookup, domain.whois (RDAP), url.unfurl, url.clean, geo.ip, ipinfo.bulk
 - **Crypto** — multi-chain address validation, live EVM gas oracle
-- **Property** — parcel lookup, deed history, permits, violations
+- **Reference data** — airport lookup/nearest (OurAirports CC0), Census demographics, College Scorecard, USAJOBS + BLS, food/nutrition
+- **Utilities** — hash.compute, image.compress, barcode.generate, countdown.gif
 
 New groups and endpoints land regularly. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the goal is to keep widening the surface autonomous software can reach behind a single payment-aware interface.
 

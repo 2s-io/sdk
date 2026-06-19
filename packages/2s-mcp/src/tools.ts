@@ -1151,6 +1151,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.business.sosSearch(a as never),
     },
     {
+      name: 'business.entity-profile',
+      description: 'Full business-entity dossier from a state registry — master record plus officers/principals, registered agent (name, phone, email, address), and filing history. v1 state: CT (Connecticut). Resolve by entityId (registry record id), accountNumber, or name (partial; most recent registration wins). Returns status, type, registration date, mailing address, minority/woman/veteran/disability/LGBTQI ownership flags, officers, registered agent, and recent filings. KYB / counterparty due-diligence; official state open-data portal.',
+      inputSchema: s('CT business entity profile', {
+        state: { type: 'string', enum: ['CT'], description: 'State registry (v1: CT only).' },
+        entityId: { type: 'string', description: 'State registry record id (canonical join key).' },
+        accountNumber: { type: 'string', description: 'State business account number.' },
+        name: { type: 'string', description: 'Entity name, partial match.' },
+        filingsLimit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }, ['state']),
+      invoke: (a) => c.business.entityProfile(a as never),
+    },
+    {
       name: 'business.naics',
       description:
         'NAICS 2022 industry classification codes (US Census, public domain). Pass code for an exact NAICS code (2-6 digits, or a sector range like 31-33) → official title, hierarchy path, full description, activity index terms, and direct child codes. Or pass query for free-text search over titles + the official ~20k-entry activity index → ranked candidate codes, optionally filtered by level (2=sector … 6=national industry). Ground truth for industry coding in KYC, registrations, and ERP setup.',

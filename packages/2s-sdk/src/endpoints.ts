@@ -450,6 +450,8 @@ export interface Endpoints {
   business: {
     /** State Secretary-of-State business registry search, normalized (NY, CO). */
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
+    /** Full entity dossier — master record + officers + registered agent + filings (v1: CT). By entityId, accountNumber, or name. */
+    entityProfile(input: { state: 'CT'; entityId?: string; accountNumber?: string; name?: string; filingsLimit?: number }): R<Normalized>
     /** Registry lookup + OFAC sanctions screen of the entity + its agent in one call. */
     entityScreen(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; threshold?: number; limit?: number }): R<unknown>
     /** NAICS 2022 industry-code lookup (exact code + children) or free-text industry search (US Census). */
@@ -1451,6 +1453,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     business: {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
+      entityProfile: (i) => get('business.entity-profile', '/api/business/entity-profile', i),
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
       naics: (i) => get('business.naics', '/api/business/naics', i),
       lei: (i) => get('business.lei', '/api/business/lei', i),

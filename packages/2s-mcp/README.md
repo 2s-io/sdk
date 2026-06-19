@@ -8,25 +8,22 @@
 npx @2sio/mcp --signer 0x...
 ```
 
-No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (300+ endpoints across 95 groups and counting).
+No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (200+ endpoints across 75+ groups and counting).
 
 ### What's exposed
 
 A single MCP install gives the agent tools spanning, among others:
 
 - **Patents & trademarks** — USPTO patent search/detail/documents, trademark full-text search
-- **Legal & courts** — federal & state case search, citation verification, OFAC sanctions screening (CourtListener / Free Law Project)
-- **Financial filings & markets** — SEC EDGAR filings, equities, FX & currency conversion, crypto, treasury rates, bank routing, tax
-- **Government & public records** — Federal Register, Congress, FEC, FEMA disasters, BLS, US Census, nonprofits, licenses, lobbying & foreign-agent filings
-- **Science & medicine** — arXiv / PubMed / Semantic Scholar papers, ICD-10, RxNorm, drug pricing, clinical trials, chemistry, gene/protein/species, nutrition
-- **Vehicles & transport** — NHTSA VIN decode, recalls, fuel economy, NCAP safety; aircraft registry; live flights; airports; maritime vessels
-- **Agriculture, soil & energy** — NASS crop stats, USDM drought, SSURGO soil profiles + hardiness zones, electricity generation mix & rates
-- **Security** — CVE + CISA KEV + EPSS, email-security, HTTP headers, password-exposure (HIBP), RPKI, CT logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
-- **Geospatial & weather** — geocoding, NWS/NOAA forecasts, climate, earthquakes, tides, timezones, places, parks
-- **Reference data** — Census, College Scorecard, USAJOBS + BLS, books, music (MusicBrainz), country & ISO codes, news, space & satellites
-- **Business & property** — company registries, KYB-360 screening, property records, email/phone validation, domain intel
-- **Web & data utilities** — URL → markdown, screenshots, schema extraction, TLS inspection, EDI/EDIFACT, hashing, barcodes, image description, AI summarization, audio transcription
-- **Agent primitives** — memory, marketplace, knowledge-delta, atomic batch settlement, natural-language endpoint search
+- **Legal & courts** — federal & state case search and citation verification (CourtListener / Free Law Project)
+- **Financial filings & markets** — SEC EDGAR filings, equities, FX, crypto, treasury rates
+- **Government & public records** — Federal Register, Congress, FEC, BLS, US Census, nonprofits, licenses
+- **Science & medicine** — arXiv / PubMed / Semantic Scholar papers, ICD-10, clinical trials, chemistry, nutrition
+- **Vehicles & aviation** — NHTSA VIN decode & recalls, aircraft registry, flights, airports
+- **Geospatial & weather** — geocoding, NWS/NOAA forecasts, climate, earthquakes, tides, places, parks
+- **Business & property** — company registries, property records
+- **Web & data utilities** — URL → markdown, screenshots, schema extraction, hashing, barcodes, image description, AI summarization
+- **Agent primitives** — memory, marketplace, knowledge-delta
 
 See the [live catalog](https://2s.io/api/directory) for everything currently shipped.
 
@@ -52,7 +49,7 @@ Add to `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claud
 }
 ```
 
-Restart Claude Desktop. The agent now has 300+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, CVE/KEV security data, structured webpage extraction, geocoding, weather, and much more.
+Restart Claude Desktop. The agent now has 200+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, structured webpage extraction, geocoding, weather, and much more.
 
 ## AgentKit / programmatic use
 
