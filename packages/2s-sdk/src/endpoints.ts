@@ -57,6 +57,15 @@ export interface Endpoints {
     /** USDA plant hardiness zone for a US ZIP code. */
     hardinessZone(input: { zip: string }): R<Normalized>
   }
+  /** O*NET occupations (US DOL) — profile, search, related. */
+  occupation: {
+    /** Full occupation dossier (skills/knowledge/abilities/tasks/tech) by SOC/O*NET-SOC code. */
+    profile(input: { code: string }): R<Normalized>
+    /** Find occupations by keyword (job title, skill, activity). */
+    search(input: { keyword: string; limit?: number }): R<Normalized>
+    /** Related/career-adjacent occupations for a code. */
+    related(input: { code: string; limit?: number }): R<Normalized>
+  }
   /** US Bureau of Labor Statistics — wages, openings, unemployment. */
   labor: {
     /** OEWS occupational wages by SOC code, nationally or by state. */
@@ -1298,6 +1307,11 @@ export function createEndpoints(client: TwoS): Endpoints {
     maritime: {
       vessel: (i) => get('maritime.vessel', '/api/maritime/vessel', i),
       cases: (i) => get('maritime.cases', '/api/maritime/cases', i),
+    },
+    occupation: {
+      profile: (i) => get('occupation.profile', '/api/occupation/profile', i),
+      search: (i) => get('occupation.search', '/api/occupation/search', i),
+      related: (i) => get('occupation.related', '/api/occupation/related', i),
     },
     labor: {
       wages: (i) => get('labor.wages', '/api/labor/wages', i),

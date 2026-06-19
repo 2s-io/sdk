@@ -101,6 +101,37 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agriculture.stats(a as never),
     },
 
+    // ── Occupation (O*NET) ───────────────────────────────────────────
+    {
+      name: 'occupation.profile',
+      description:
+        'Full occupation dossier from O*NET (US DOL) by SOC/O*NET-SOC code (e.g. 15-1252). Returns title, description, bright-outlook flag, sample job titles, and top skills, knowledge, abilities, work tasks, and technology tools. CC-BY. The canonical occupation reference for résumé/JD reasoning + career mapping; pair the code with labor.wages.',
+      inputSchema: s('Occupation profile', {
+        code: { type: 'string', description: 'SOC or O*NET-SOC code (e.g. 15-1252 or 15-1252.00).' },
+      }, ['code']),
+      invoke: (a) => c.occupation.profile(a as never),
+    },
+    {
+      name: 'occupation.search',
+      description:
+        'Find O*NET occupations by keyword (job title, skill, or activity). Returns ranked occupations with SOC/O*NET-SOC code + title. The "occupation code for this job/skill" primitive — every occupation.* / labor.wages call composes on the code. CC-BY.',
+      inputSchema: s('Occupation search', {
+        keyword: { type: 'string', description: 'Job title, skill, or activity (min 2 chars).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['keyword']),
+      invoke: (a) => c.occupation.search(a as never),
+    },
+    {
+      name: 'occupation.related',
+      description:
+        'Occupations related/career-adjacent to a given O*NET occupation, by SOC/O*NET-SOC code. Returns ranked related occupations (code + title). For career-pathing and transferable-skills reasoning. CC-BY.',
+      inputSchema: s('Related occupations', {
+        code: { type: 'string', description: 'SOC or O*NET-SOC code (e.g. 15-1252).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['code']),
+      invoke: (a) => c.occupation.related(a as never),
+    },
+
     // ── Labor (BLS) ──────────────────────────────────────────────────
     {
       name: 'labor.wages',

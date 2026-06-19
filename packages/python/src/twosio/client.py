@@ -1961,6 +1961,26 @@ class _Soil(_Group):
         return self._c.request("GET", "/api/soil/hardiness-zone", endpoint="soil.hardiness-zone", query={"zip": zip})
 
 
+class _Occupation(_Group):
+    def profile(self, *, code: str) -> CallResult:
+        """Full O*NET occupation dossier (skills/knowledge/abilities/tasks/tech) by SOC/O*NET-SOC code."""
+        return self._c.request("GET", "/api/occupation/profile", endpoint="occupation.profile", query={"code": code})
+
+    def search(self, *, keyword: str, limit: Optional[int] = None) -> CallResult:
+        """Find O*NET occupations by keyword."""
+        q: dict[str, Any] = {"keyword": keyword}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/occupation/search", endpoint="occupation.search", query=q)
+
+    def related(self, *, code: str, limit: Optional[int] = None) -> CallResult:
+        """Related/career-adjacent occupations for a code."""
+        q: dict[str, Any] = {"code": code}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/occupation/related", endpoint="occupation.related", query=q)
+
+
 class _Labor(_Group):
     def wages(self, *, soc: str, state: Optional[str] = None) -> CallResult:
         """BLS OEWS occupational wages by SOC code, nationally or by US state."""
@@ -4397,6 +4417,7 @@ class TwoS:
         self.music = _Music(self)
         self.maritime = _Maritime(self)
         self.labor = _Labor(self)
+        self.occupation = _Occupation(self)
         self.poi = _Poi(self)
         self.barcode = _Barcode(self)
         self.countdown = _Countdown(self)
