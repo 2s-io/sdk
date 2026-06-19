@@ -2039,6 +2039,18 @@ class _Maritime(_Group):
         """USCG activity / port-state-control case history for a vessel id."""
         return self._c.request("GET", "/api/maritime/cases", endpoint="maritime.cases", query={"vesselId": vesselId})
 
+    def port(self, *, portName: Optional[str] = None, country: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """NGA World Port Index lookup by port name and/or country.
+
+        Returns ports with location, harbor type, depths, max vessel size, UN/LOCODE.
+        Public-domain (NGA). At least one of portName / country required.
+        """
+        q: dict[str, Any] = {}
+        if portName is not None: q["portName"] = portName
+        if country is not None: q["country"] = country
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/maritime/port", endpoint="maritime.port", query=q)
+
 
 class _Music(_Group):
     def recording(self, *, artist: Optional[str] = None, title: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
@@ -2911,6 +2923,43 @@ class _Gov(_Group):
         if incident_type is not None: q["incidentType"] = incident_type
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/public-assistance", endpoint="gov.public-assistance", query=q)
+
+    def fec(self, *, name: Optional[str] = None, candidate_id: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FEC federal campaign finance.
+
+        name → candidate search (identity). candidate_id → financial totals
+        (receipts, disbursements, cash on hand, contributions). Public-domain (FEC).
+        """
+        q: dict[str, Any] = {}
+        if name is not None: q["name"] = name
+        if candidate_id is not None: q["candidateId"] = candidate_id
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/fec", endpoint="gov.fec", query=q)
+
+    def usajobs(self, *, keyword: Optional[str] = None, location: Optional[str] = None,
+                organization: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Open US federal job postings (USAJOBS).
+
+        Filter by keyword / location / organization (at least one). Returns title,
+        agency, location, salary, grade, close date, apply link. Public-domain (OPM).
+        """
+        q: dict[str, Any] = {}
+        if keyword is not None: q["keyword"] = keyword
+        if location is not None: q["location"] = location
+        if organization is not None: q["organization"] = organization
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/usajobs", endpoint="gov.usajobs", query=q)
+
+    def bea_gdp(self, *, state: str, year: Optional[int] = None, limit: Optional[int] = None) -> CallResult:
+        """Quarterly real GDP by US state (BEA Regional).
+
+        state (2-letter) + optional year → real GDP (millions chained USD) per
+        quarter, newest first. Public-domain (BEA).
+        """
+        q: dict[str, Any] = {"state": state}
+        if year is not None: q["year"] = year
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/bea-gdp", endpoint="gov.bea-gdp", query=q)
 
     def disaster_declarations(
         self,

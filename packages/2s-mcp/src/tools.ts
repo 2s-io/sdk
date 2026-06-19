@@ -214,6 +214,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['vesselId']),
       invoke: (a) => c.maritime.cases(a as never),
     },
+    {
+      name: 'maritime.port',
+      description:
+        'Look up world ports and terminals in the NGA World Port Index (Pub 150, ~2,950 ports) by port name (partial) and/or country (full name, e.g. "Japan"). Returns matching ports with location (lat/lon, country, region), UN/LOCODE, harbor size/type and shelter, max vessel length/draft (m), channel/anchorage/cargo-pier depths, tidal range, and chart number. Keyless, public-domain (NGA). Physical-port reference an LLM cannot recall; complements maritime.vessel + maritime.cases.',
+      inputSchema: s('World Port Index lookup', {
+        portName: { type: 'string', description: 'Port name (partial match).' },
+        country: { type: 'string', description: 'Full country name, e.g. "Japan".' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.maritime.port(a as never),
+    },
 
     // ── Music (MusicBrainz, CC0) ─────────────────────────────────────
     {
@@ -2007,6 +2018,37 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
       }),
       invoke: (a) => c.gov.publicAssistance(a as never),
+    },
+    {
+      name: 'gov.fec',
+      description: 'US federal campaign finance from the FEC (openFEC). Two modes: pass name to search candidates (returns FEC candidate id, party, office, state, district, incumbent/challenger, status, election cycles); or pass candidateId (e.g. P80000722) to get that candidate\'s aggregate financial totals — receipts, disbursements, cash on hand, and individual / PAC / party / self contributions in USD (newest cycle), with identity. Free, public-domain (FEC). Search by name first, then pass a returned candidateId back in for the money.',
+      inputSchema: s('FEC campaign finance', {
+        name: { type: 'string', description: 'Candidate name to search (partial).' },
+        candidateId: { type: 'string', description: 'FEC candidate id (e.g. P80000722) → financial totals.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.gov.fec(a as never),
+    },
+    {
+      name: 'gov.usajobs',
+      description: 'Search open US federal government job postings from the official USAJOBS API. Filter by keyword (title/skills), location (e.g. "Austin, Texas" or a state), and/or hiring organization; at least one required. Returns total matching count + current openings with title, agency and department, location(s), salary range (USD) and pay interval, GS pay grade, work schedule, posting/close dates, and the official apply link. Public-domain (OPM). Live federal hiring data an LLM cannot recall.',
+      inputSchema: s('USAJOBS federal openings', {
+        keyword: { type: 'string', description: 'Search terms (title/skills).' },
+        location: { type: 'string', description: 'Location name, e.g. "Austin, Texas" or a state.' },
+        organization: { type: 'string', description: 'Hiring agency name or code.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.gov.usajobs(a as never),
+    },
+    {
+      name: 'gov.bea-gdp',
+      description: 'Quarterly real GDP by US state from the Bureau of Economic Analysis (BEA) Regional accounts — all-industry total, in millions of chained (inflation-adjusted) dollars. Requires state (2-letter); optional year (defaults to last 5 years). Returns the state name + GDP observations (period like 2025Q2, real GDP millions USD, unit), newest quarter first. Free, public-domain (BEA). Authoritative state economic-output data an LLM cannot recall.',
+      inputSchema: s('BEA state GDP', {
+        state: { type: 'string', description: '2-letter US state/territory code (required).' },
+        year: { type: 'integer', description: 'Specific year (e.g. 2024). Default: last 5 years.' },
+        limit: { type: 'integer', minimum: 1, maximum: 40, default: 8 },
+      }, ['state']),
+      invoke: (a) => c.gov.beaGdp(a as never),
     },
     {
       name: 'gov.disaster-declarations',

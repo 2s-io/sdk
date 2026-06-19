@@ -88,6 +88,8 @@ export interface Endpoints {
     vessel(input: { name?: string; callSign?: string; officialNumber?: string; hullNumber?: string; flag?: string; service?: string; buildYear?: string; vesselId?: string }): R<Normalized>
     /** USCG activity / port-state-control case history for a vessel id. */
     cases(input: { vesselId: string }): R<Normalized>
+    /** NGA World Port Index lookup by port name and/or country: location, harbor type, depths, max vessel size, UN/LOCODE. */
+    port(input: { portName?: string; country?: string; limit?: number }): R<Normalized>
   }
   /** MusicBrainz music metadata (CC0). */
   music: {
@@ -1138,6 +1140,12 @@ export interface Endpoints {
     hazardMitigation(input?: { state?: string; disasterNumber?: number; programFy?: number; programArea?: string; limit?: number }): R<unknown>
     /** FEMA Public Assistance (PA) funded project details — post-disaster infrastructure-recovery grants: filter by state and/or disasterNumber → federal share, damage category, applicant. */
     publicAssistance(input?: { state?: string; disasterNumber?: number; incidentType?: string; limit?: number }): R<unknown>
+    /** FEC campaign finance: name → candidate search; candidateId → financial totals (receipts/disbursements/cash-on-hand/contributions). */
+    fec(input?: { name?: string; candidateId?: string; limit?: number }): R<unknown>
+    /** Open US federal job postings (USAJOBS): filter by keyword/location/organization → title, agency, salary, grade, close date, apply link. */
+    usajobs(input?: { keyword?: string; location?: string; organization?: string; limit?: number }): R<unknown>
+    /** Quarterly real GDP by US state (BEA Regional): state (2-letter) + optional year → real GDP (millions chained USD) per quarter. */
+    beaGdp(input: { state: string; year?: number; limit?: number }): R<unknown>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
     carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US Congress members for a location: address (or state[+district]) → House rep + 2 senators with party, IDs, phone, office, contact form. */
@@ -1318,6 +1326,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     maritime: {
       vessel: (i) => get('maritime.vessel', '/api/maritime/vessel', i),
       cases: (i) => get('maritime.cases', '/api/maritime/cases', i),
+      port: (i) => get('maritime.port', '/api/maritime/port', i ?? {}),
     },
     telecom: {
       fccFilings: (i) => get('telecom.fcc-filings', '/api/telecom/fcc-filings', i),
@@ -1743,6 +1752,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       disasterAssistance: (i) => get('gov.disaster-assistance', '/api/gov/disaster-assistance', i ?? {}),
       hazardMitigation: (i) => get('gov.hazard-mitigation', '/api/gov/hazard-mitigation', i ?? {}),
       publicAssistance: (i) => get('gov.public-assistance', '/api/gov/public-assistance', i ?? {}),
+      fec: (i) => get('gov.fec', '/api/gov/fec', i ?? {}),
+      usajobs: (i) => get('gov.usajobs', '/api/gov/usajobs', i ?? {}),
+      beaGdp: (i) => get('gov.bea-gdp', '/api/gov/bea-gdp', i),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),
