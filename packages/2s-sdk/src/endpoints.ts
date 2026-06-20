@@ -779,6 +779,16 @@ export interface Endpoints {
     drugLabel(input: { drug?: string; ndc?: string; rxcui?: string; setId?: string; limit?: number }): R<unknown>
     /** CMS NADAC drug acquisition cost by NDC or name (live; current-year dataset auto-resolved). */
     drugPrice(input: { ndc?: string; name?: string; limit?: number }): R<Normalized>
+    /** Drugs@FDA approval history: applications, products (ingredients/strength/form/marketing status) + submissions by drug/applicationNumber/sponsor. */
+    drugApproval(input: { drug?: string; applicationNumber?: string; sponsor?: string; limit?: number }): R<unknown>
+    /** FDA 510(k) premarket clearances by device name / applicant / product code: K-number, decision, clearance type. */
+    device510k(input: { device?: string; applicant?: string; productCode?: string; limit?: number }): R<unknown>
+    /** FDA device classification by device name / product code: class (I/II/III), regulation number, specialty, controls. */
+    deviceClassification(input: { device?: string; productCode?: string; limit?: number }): R<unknown>
+    /** FDA GUDID device lookup by UDI / brand / company: description, Rx/OTC, MRI safety, identifiers, product codes, GMDN. */
+    deviceUdi(input: { device?: string; company?: string; udi?: string; limit?: number }): R<unknown>
+    /** MedlinePlus Genetics reference for a condition or gene: summary, sections, inheritance, related genes, cross-refs. */
+    genetics(input: { term: string }): R<Normalized>
   }
   net: {
     /** Autonomous System (BGP) intelligence by AS number: holder, allocation block, announced prefixes, routing visibility (RIPEstat). */
@@ -1572,6 +1582,11 @@ export function createEndpoints(client: TwoS): Endpoints {
       drugStatus: (i) => get('medical.drug-status', '/api/medical/drug-status', i),
       drugLabel: (i) => get('medical.drug-label', '/api/medical/drug-label', i),
       drugPrice: (i) => get('medical.drug-price', '/api/medical/drug-price', i),
+      drugApproval: (i) => get('medical.drug-approval', '/api/medical/drug-approval', i),
+      device510k: (i) => get('medical.device-510k', '/api/medical/device-510k', i),
+      deviceClassification: (i) => get('medical.device-classification', '/api/medical/device-classification', i),
+      deviceUdi: (i) => get('medical.device-udi', '/api/medical/device-udi', i),
+      genetics: (i) => get('medical.genetics', '/api/medical/genetics', i),
     },
     net: {
       asn: (i) => get('net.asn', '/api/net/asn', i),

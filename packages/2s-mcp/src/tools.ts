@@ -1871,6 +1871,57 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.medical.drugLabel(a as never),
     },
     {
+      name: 'medical.drug-approval',
+      description: 'FDA drug approval history from Drugs@FDA. Give a drug name (brand/generic), an FDA application number (e.g. NDA019872), or a sponsor, and get each approved application with its products (brand, active ingredients + strengths, dosage form, route, marketing status, TE code) and full submission history (approvals/supplements + dates, review priority). Free, public-domain FDA data.',
+      inputSchema: s('Drug approval (Drugs@FDA)', {
+        drug: { type: 'string', description: 'Drug name — brand or generic.' },
+        applicationNumber: { type: 'string', description: 'FDA application number, e.g. NDA019872.' },
+        sponsor: { type: 'string', description: 'Sponsor / applicant name.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 5 },
+      }),
+      invoke: (a) => c.medical.drugApproval(a as never),
+    },
+    {
+      name: 'medical.device-510k',
+      description: 'FDA 510(k) premarket clearances — medical devices cleared for US marketing via substantial equivalence. Search by device name, applicant (manufacturer), or FDA product code; returns K-number, device name, applicant, decision date + description, clearance type, product code, advisory committee, newest first. Free, public-domain FDA data.',
+      inputSchema: s('Device 510(k) clearances', {
+        device: { type: 'string', description: 'Device name (partial).' },
+        applicant: { type: 'string', description: 'Applicant / manufacturer.' },
+        productCode: { type: 'string', description: 'FDA product code (3-letter).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.medical.device510k(a as never),
+    },
+    {
+      name: 'medical.device-classification',
+      description: 'FDA medical device classification — regulatory class and controls for a device type. Search by device name or FDA product code; returns device class (I/II/III), CFR regulation number, medical specialty/review panel, official definition, and flags for life-sustaining/support, implant, GMP-exempt, third-party-review. Free, public-domain FDA data.',
+      inputSchema: s('Device classification', {
+        device: { type: 'string', description: 'Device name (partial).' },
+        productCode: { type: 'string', description: 'FDA product code (3-letter).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.medical.deviceClassification(a as never),
+    },
+    {
+      name: 'medical.device-udi',
+      description: 'FDA GUDID device lookup — identify a marketed medical device by UDI/device identifier, brand, or company. Returns device description, version/model, Rx vs OTC, single-use/kit/combination flags, MRI safety, sterilization, commercial-distribution status, device identifiers (with GS1/HIBCC/ICCBBA issuing agency), FDA product codes, and GMDN terms. Free, public-domain FDA data.',
+      inputSchema: s('Device UDI (GUDID)', {
+        device: { type: 'string', description: 'Brand name (partial).' },
+        company: { type: 'string', description: 'Company / labeler.' },
+        udi: { type: 'string', description: 'UDI / device identifier (exact).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.medical.deviceUdi(a as never),
+    },
+    {
+      name: 'medical.genetics',
+      description: 'MedlinePlus Genetics (NLM) reference for a genetic condition or gene. Give a term (e.g. "cystic fibrosis", "BRCA1") and get the authoritative NLM record: name, plain-language summary, sections (description/causes/frequency/inheritance/treatment), inheritance pattern(s), related genes, synonyms, and cross-references (OMIM/GTR/ICD-10-CM). Free, public-domain (NLM). Educational reference, not medical advice.',
+      inputSchema: s('Genetics reference', {
+        term: { type: 'string', description: 'Condition or gene name (e.g. "cystic fibrosis", "BRCA1").' },
+      }, ['term']),
+      invoke: (a) => c.medical.genetics(a as never),
+    },
+    {
       name: 'net.asn',
       description: 'Autonomous System (BGP) intelligence by AS number (e.g. AS3333). Returns the AS holder/operator, IANA/RIR allocation block, whether it is announced, and live routing status: announced IPv4/IPv6 prefixes + address counts, RIS peer visibility, and observed neighbour count. RIPEstat (RIPE NCC), free. Distinct from geo.ip and dns/whois — who owns and routes an AS, observed live.',
       inputSchema: s('ASN/BGP lookup', {

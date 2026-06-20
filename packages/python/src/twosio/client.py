@@ -1814,6 +1814,49 @@ class _Medical(_Group):
             query["limit"] = limit
         return self._c.request("GET", "/api/medical/icd10", endpoint="medical.icd10", query=query)
 
+    def drug_approval(self, *, drug: Optional[str] = None, application_number: Optional[str] = None,
+                      sponsor: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """Drugs@FDA approval history (applications, products, submissions)."""
+        q: dict[str, Any] = {}
+        if drug is not None: q["drug"] = drug
+        if application_number is not None: q["applicationNumber"] = application_number
+        if sponsor is not None: q["sponsor"] = sponsor
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/drug-approval", endpoint="medical.drug-approval", query=q)
+
+    def device_510k(self, *, device: Optional[str] = None, applicant: Optional[str] = None,
+                    product_code: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FDA 510(k) premarket clearances by device/applicant/product code."""
+        q: dict[str, Any] = {}
+        if device is not None: q["device"] = device
+        if applicant is not None: q["applicant"] = applicant
+        if product_code is not None: q["productCode"] = product_code
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/device-510k", endpoint="medical.device-510k", query=q)
+
+    def device_classification(self, *, device: Optional[str] = None, product_code: Optional[str] = None,
+                              limit: Optional[int] = None) -> CallResult:
+        """FDA device classification (class, regulation, controls)."""
+        q: dict[str, Any] = {}
+        if device is not None: q["device"] = device
+        if product_code is not None: q["productCode"] = product_code
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/device-classification", endpoint="medical.device-classification", query=q)
+
+    def device_udi(self, *, device: Optional[str] = None, company: Optional[str] = None,
+                   udi: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FDA GUDID device lookup by UDI/brand/company."""
+        q: dict[str, Any] = {}
+        if device is not None: q["device"] = device
+        if company is not None: q["company"] = company
+        if udi is not None: q["udi"] = udi
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/device-udi", endpoint="medical.device-udi", query=q)
+
+    def genetics(self, *, term: str) -> CallResult:
+        """MedlinePlus Genetics reference for a condition or gene."""
+        return self._c.request("GET", "/api/medical/genetics", endpoint="medical.genetics", query={"term": term})
+
 
 class _Timezone(_Group):
     def lookup(
