@@ -172,6 +172,10 @@ class _Crypto(_Group):
             query={"chain": chain},
         )
 
+    def btc_fees(self) -> CallResult:
+        """Current Bitcoin fee rates (sat/vByte) + mempool backlog."""
+        return self._c.request("GET", "/api/crypto/btc-fees", endpoint="crypto.btc-fees", query={})
+
     def token_price(self, *, ids: str, vs: Optional[str] = None) -> CallResult:
         """Spot price + market data by CoinGecko asset ids.
 
@@ -691,6 +695,10 @@ class _Finance(_Group):
             endpoint="finance.insider-trades",
             query=query,
         )
+
+    def ifsc_india(self, *, ifsc: str) -> CallResult:
+        """Indian bank branch lookup by IFSC code."""
+        return self._c.request("GET", "/api/finance/ifsc-india", endpoint="finance.ifsc-india", query={"ifsc": ifsc})
 
     def thirteen_f(
         self,
@@ -2645,6 +2653,10 @@ class _Business(_Group):
             q["offset"] = offset
         return self._c.request("GET", "/api/business/sos-search", endpoint="business.sos-search", query=q)
 
+    def br_cnpj(self, *, cnpj: str) -> CallResult:
+        """Brazilian company registry lookup by CNPJ."""
+        return self._c.request("GET", "/api/business/br-cnpj", endpoint="business.br-cnpj", query={"cnpj": cnpj})
+
     def entity_profile(
         self,
         *,
@@ -3075,6 +3087,13 @@ class _Gov(_Group):
         if organization is not None: q["organization"] = organization
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/usajobs", endpoint="gov.usajobs", query=q)
+
+    def uk_crime(self, *, lat: float, lng: float, month: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """UK street-level crime around a lat/lng (+optional month)."""
+        q: dict[str, Any] = {"lat": lat, "lng": lng}
+        if month is not None: q["month"] = month
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/gov/uk-crime", endpoint="gov.uk-crime", query=q)
 
     def bea_gdp(self, *, state: str, year: Optional[int] = None, limit: Optional[int] = None) -> CallResult:
         """Quarterly real GDP by US state (BEA Regional).
@@ -4205,6 +4224,10 @@ class _Energy(_Group):
         if months is not None: q["months"] = months
         return self._c.request("GET", "/api/energy/electricity-rates", endpoint="energy.electricity-rates", query=q)
 
+    def carbon_intensity_uk(self) -> CallResult:
+        """Great Britain grid carbon intensity + generation mix."""
+        return self._c.request("GET", "/api/energy/carbon-intensity-uk", endpoint="energy.carbon-intensity-uk", query={})
+
     def utility_rates(self, *, lat: float, lon: float, limit: Optional[int] = None) -> CallResult:
         """Serving utility + rate-plan summaries for a lat/lon (OpenEI URDB, CC0)."""
         q: dict[str, Any] = {"lat": lat, "lon": lon}
@@ -4352,6 +4375,14 @@ class _Food(_Group):
             "GET", "/api/food/barcode-lookup", endpoint="food.barcode-lookup",
             query={"barcode": barcode},
         )
+
+    def hygiene_uk(self, *, name: Optional[str] = None, postcode: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """UK Food Standards Agency hygiene ratings."""
+        q: dict[str, Any] = {}
+        if name is not None: q["name"] = name
+        if postcode is not None: q["postcode"] = postcode
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/food/hygiene-uk", endpoint="food.hygiene-uk", query=q)
 
 
 class _Word(_Group):

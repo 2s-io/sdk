@@ -224,6 +224,8 @@ export interface Endpoints {
       address: string
     }): R<Normalized>
     gasOracle(input?: { chain?: string }): R<Normalized>
+    /** Current Bitcoin fee rates (sat/vByte) + mempool backlog from mempool.space. */
+    btcFees(): R<Normalized>
     /** ENS forward + reverse resolution on Ethereum mainnet (live RPC). */
     ensResolve(input: { query: string }): R<unknown>
     /** Spot price + market data by CoinGecko asset ids (comma-separated, lowercase). */
@@ -417,6 +419,8 @@ export interface Endpoints {
     }): R<Normalized>
     /** SEC XBRL Frames — one concept (e.g. Revenues) across ALL filers for a period, for cross-company screening. */
     xbrlFrames(input: { tag: string; period: string; unit?: string; taxonomy?: string; sort?: 'desc' | 'asc'; limit?: number }): R<Normalized>
+    /** Indian bank branch by IFSC code: bank, branch, address, MICR, payment rails. */
+    ifscIndia(input: { ifsc: string }): R<Normalized>
     /** Recent SEC Form 4 insider transactions by ticker. */
     insiderTrades(input: {
       ticker: string
@@ -483,6 +487,8 @@ export interface Endpoints {
   business: {
     /** State Secretary-of-State business registry search, normalized (NY, CO). */
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
+    /** Brazilian company registry by CNPJ: legal/trade name, status, activity, address, partners. */
+    brCnpj(input: { cnpj: string }): R<Normalized>
     /** Full entity dossier — master record + officers + registered agent + filings (v1: CT). By entityId, accountNumber, or name. */
     entityProfile(input: { state: 'CT'; entityId?: string; accountNumber?: string; name?: string; filingsLimit?: number }): R<Normalized>
     /** Registry lookup + OFAC sanctions screen of the entity + its agent in one call. */
@@ -684,6 +690,8 @@ export interface Endpoints {
   food: {
     /** Food product lookup by UPC/EAN barcode (Open Food Facts, CC0). */
     barcodeLookup(input: { barcode: string }): R<unknown>
+    /** UK Food Standards Agency hygiene ratings by business name/postcode. */
+    hygieneUk(input?: { name?: string; postcode?: string; limit?: number }): R<Normalized>
   }
   edu: {
     /** US college + university search (Department of Education College Scorecard). */
@@ -702,6 +710,8 @@ export interface Endpoints {
     generationMix(input: { location: string }): R<Normalized>
     /** Retail electricity price + sales for a US state by sector, monthly (EIA). */
     electricityRates(input: { state: string; sector?: 'residential' | 'commercial' | 'industrial' | 'transportation' | 'all'; months?: number }): R<Normalized>
+    /** Great Britain grid carbon intensity (gCO2/kWh) + live generation mix. */
+    carbonIntensityUk(): R<Normalized>
     /** Serving utility + rate-plan summaries for a lat/lon (OpenEI URDB, CC0). */
     utilityRates(input: { lat: number; lon: number; limit?: number }): R<Normalized>
   }
@@ -1172,6 +1182,8 @@ export interface Endpoints {
     fec(input?: { name?: string; candidateId?: string; limit?: number }): R<unknown>
     /** Open US federal job postings (USAJOBS): filter by keyword/location/organization → title, agency, salary, grade, close date, apply link. */
     usajobs(input?: { keyword?: string; location?: string; organization?: string; limit?: number }): R<unknown>
+    /** UK street-level crime by lat/lng (+month): total, by-category breakdown, recent records. */
+    ukCrime(input: { lat: number; lng: number; month?: string; limit?: number }): R<Normalized>
     /** Quarterly real GDP by US state (BEA Regional): state (2-letter) + optional year → real GDP (millions chained USD) per quarter. */
     beaGdp(input: { state: string; year?: number; limit?: number }): R<unknown>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
@@ -1412,6 +1424,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       global: (i) => get('crypto.global', '/api/crypto/global', i ?? {}),
       trending: (i) => get('crypto.trending', '/api/crypto/trending', i ?? {}),
       gasOracle: (i) => get('crypto.gas-oracle', '/api/crypto/gas-oracle', i),
+      btcFees: () => get('crypto.btc-fees', '/api/crypto/btc-fees', {}),
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
       tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
       tx: (i) => get('crypto.tx', '/api/crypto/tx', i),
@@ -1507,6 +1520,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
       xbrlFrames: (i) => get('finance.xbrl-frames', '/api/finance/xbrl-frames', i),
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
+      ifscIndia: (i) => get('finance.ifsc-india', '/api/finance/ifsc-india', i),
       thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
       companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
     },
@@ -1536,6 +1550,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     business: {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
+      brCnpj: (i) => get('business.br-cnpj', '/api/business/br-cnpj', i),
       entityProfile: (i) => get('business.entity-profile', '/api/business/entity-profile', i),
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
       naics: (i) => get('business.naics', '/api/business/naics', i),
@@ -1772,6 +1787,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     food: {
       barcodeLookup: (i) => get('food.barcode-lookup', '/api/food/barcode-lookup', i),
+      hygieneUk: (i) => get('food.hygiene-uk', '/api/food/hygiene-uk', i),
     },
     word: {
       define: (i) => get('word.define', '/api/word/define', i),
@@ -1796,6 +1812,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       publicAssistance: (i) => get('gov.public-assistance', '/api/gov/public-assistance', i ?? {}),
       fec: (i) => get('gov.fec', '/api/gov/fec', i ?? {}),
       usajobs: (i) => get('gov.usajobs', '/api/gov/usajobs', i ?? {}),
+      ukCrime: (i) => get('gov.uk-crime', '/api/gov/uk-crime', i),
       beaGdp: (i) => get('gov.bea-gdp', '/api/gov/bea-gdp', i),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
@@ -1845,6 +1862,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       prices: (i) => get('energy.prices', '/api/energy/prices', i ?? {}),
       generationMix: (i) => get('energy.generation-mix', '/api/energy/generation-mix', i),
       electricityRates: (i) => get('energy.electricity-rates', '/api/energy/electricity-rates', i),
+      carbonIntensityUk: () => get('energy.carbon-intensity-uk', '/api/energy/carbon-intensity-uk', {}),
       utilityRates: (i) => get('energy.utility-rates', '/api/energy/utility-rates', i),
     },
     park: {

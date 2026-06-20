@@ -911,6 +911,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.crypto.gasOracle(a as never),
     },
+    {
+      name: 'crypto.btc-fees',
+      description: 'Current Bitcoin network fee rates and mempool backlog from mempool.space. Returns recommended fee rates (sat/vByte) for fastest/half-hour/hour/economy/minimum confirmation, plus mempool size (tx count, vsize, total fees waiting). Keyless, live. The BTC counterpart to crypto.gas-oracle.',
+      inputSchema: s('Bitcoin fees + mempool', {}),
+      invoke: () => c.crypto.btcFees(),
+    },
 
     // ── AI ───────────────────────────────────────────────────────────
     {
@@ -1281,6 +1287,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
         offset: { type: 'integer', minimum: 0, default: 0 },
       }, ['state']),
       invoke: (a) => c.business.sosSearch(a as never),
+    },
+    {
+      name: 'business.br-cnpj',
+      description: 'Brazilian company registry lookup by CNPJ (14-digit company tax ID). Returns legal + trade name, registration status, start date, legal nature, size, share capital (BRL), primary CNAE activity, contact, address, and partners/officers (QSA). Free, open Receita Federal data (BrasilAPI). KYB/diligence for Brazilian companies.',
+      inputSchema: s('Brazilian company (CNPJ)', { cnpj: { type: 'string', description: '14-digit CNPJ.' } }, ['cnpj']),
+      invoke: (a) => c.business.brCnpj(a as never),
     },
     {
       name: 'business.entity-profile',
@@ -1743,6 +1755,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.finance.insiderTrades(a as never),
     },
     {
+      name: 'finance.ifsc-india',
+      description: 'Indian bank branch lookup by IFSC code (11-char Indian Financial System Code). Returns bank + branch, centre, district, state, city, address, contact, MICR, and supported payment rails (IMPS/RTGS/NEFT/UPI). Free, open data. Deterministic bank-branch reference for India payments/KYC.',
+      inputSchema: s('Indian bank branch (IFSC)', { ifsc: { type: 'string', description: '11-char IFSC, e.g. HDFC0000001.' } }, ['ifsc']),
+      invoke: (a) => c.finance.ifscIndia(a as never),
+    },
+    {
       name: 'finance.thirteen-f',
       description:
         "Parsed institutional holdings (Form 13F-HR) for an investment manager by CIK. Returns each holding's nameOfIssuer, cusip, market value (USD; converted from SEC's $000s convention), shares or principal amount + type, putCall flag for options, and voting authority (sole/shared/none). Sorted by value descending. Common manager CIKs: Berkshire Hathaway=1067983, Renaissance=1037389, Bridgewater=1350694, Vanguard=102909, BlackRock=1364742.",
@@ -2149,6 +2167,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
       }),
       invoke: (a) => c.gov.usajobs(a as never),
+    },
+    {
+      name: 'gov.uk-crime',
+      description: 'UK street-level crime around a lat/lng (+optional month YYYY-MM, defaults latest, data lags ~2mo) from Home Office data.police.uk. Returns total count, by-category breakdown, and recent records (category, street, lat/lon, outcome). Free, Open Government Licence. Location-risk signal for property/insurance/safety agents.',
+      inputSchema: s('UK street-level crime', { lat: { type: 'number' }, lng: { type: 'number' }, month: { type: 'string', description: 'YYYY-MM (default latest).' }, limit: { type: 'integer', minimum: 1, maximum: 50, default: 20 } }, ['lat', 'lng']),
+      invoke: (a) => c.gov.ukCrime(a as never),
     },
     {
       name: 'gov.bea-gdp',
@@ -2950,6 +2974,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.food.barcodeLookup(a as never),
     },
     {
+      name: 'food.hygiene-uk',
+      description: 'UK Food Standards Agency food hygiene ratings (FHRS). Search by business name and/or postcode; returns rating (0-5 or Scotland Pass/Improvement Required), rating date, component scores (hygiene/structural/management, lower=better), business type, local authority, address, geocode. Free, Open Government Licence.',
+      inputSchema: s('UK food hygiene ratings', { name: { type: 'string', description: 'Business name (partial).' }, postcode: { type: 'string', description: 'Postcode/area.' }, limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 } }),
+      invoke: (a) => c.food.hygieneUk(a as never),
+    },
+    {
       name: 'word.define',
       description: 'English dictionary entry via dictionaryapi.dev (Wiktionary, CC BY-SA). Returns IPA phonetic transcription(s), audio URLs, and meanings grouped by part of speech with definitions, examples, synonyms, antonyms.',
       inputSchema: s('Word define', { word: { type: 'string', description: '1-50 English alphabetic characters.' } }, ['word']),
@@ -3503,6 +3533,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
         months: { type: 'integer', minimum: 1, maximum: 120 },
       }, ['state']),
       invoke: (a) => c.energy.electricityRates(a as never),
+    },
+    {
+      name: 'energy.carbon-intensity-uk',
+      description: 'Great Britain electricity grid carbon intensity (current half-hour) from National Grid ESO. Returns forecast + actual gCO2/kWh, qualitative index (very low…very high), and live generation mix by fuel. Free, CC BY / OGL. Grid-decarbonisation signal for energy/sustainability agents.',
+      inputSchema: s('GB grid carbon intensity', {}),
+      invoke: () => c.energy.carbonIntensityUk(),
     },
     {
       name: 'energy.utility-rates',
