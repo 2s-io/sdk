@@ -554,6 +554,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.econ.indicator(a as never),
     },
     {
+      name: 'econ.fred',
+      description: "Any series in the Federal Reserve's FRED database (800k+ economic time series). Pass seriesId (e.g. UNRATE, CPIAUCSL, GDP, DGS10, MORTGAGE30US) for metadata + recent observations (optionally bounded by start/end), or query to full-text search the catalog. Free, public-domain for most series (FRED attribution). Distinct from econ.indicator (curated headline set) — this is the full FRED catalog by id or search.",
+      inputSchema: s('FRED series (full catalog)', { seriesId: { type: 'string', description: 'FRED series id, e.g. UNRATE, GDP, DGS10.' }, query: { type: 'string', description: 'Full-text catalog search (alt to seriesId).' }, limit: { type: 'integer', minimum: 1, maximum: 100, default: 12 }, start: { type: 'string', description: 'Earliest obs date YYYY-MM-DD.' }, end: { type: 'string', description: 'Latest obs date YYYY-MM-DD.' } }),
+      invoke: (a) => c.econ.fred(a as never),
+    },
+    {
       name: 'econ.yield-curve',
       description: 'Current US Treasury yield curve (1M–30Y constant-maturity yields) plus the 2s10s and 3m10y spreads and an inversion flag (recession signal). Daily data. Source: US Treasury via FRED.',
       inputSchema: s('Treasury yield curve', {}),
@@ -1293,6 +1299,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       description: 'Brazilian company registry lookup by CNPJ (14-digit company tax ID). Returns legal + trade name, registration status, start date, legal nature, size, share capital (BRL), primary CNAE activity, contact, address, and partners/officers (QSA). Free, open Receita Federal data (BrasilAPI). KYB/diligence for Brazilian companies.',
       inputSchema: s('Brazilian company (CNPJ)', { cnpj: { type: 'string', description: '14-digit CNPJ.' } }, ['cnpj']),
       invoke: (a) => c.business.brCnpj(a as never),
+    },
+    {
+      name: 'business.uk-companies',
+      description: 'Official UK company registry (Companies House). Pass query to search by name, or companyNumber for the full profile — legal name, status, type, jurisdiction, incorporation/cessation dates, SIC codes, registered office, accounts + confirmation-statement due dates, charges/insolvency flags, previous names, and officers (name, role, appointed/resigned, nationality, occupation). Free, Open Government Licence. Authoritative UK KYB lookup.',
+      inputSchema: s('UK Companies House', { query: { type: 'string', description: 'Company name to search.' }, companyNumber: { type: 'string', description: 'Companies House number, e.g. 09446231.' }, limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 } }),
+      invoke: (a) => c.business.ukCompanies(a as never),
     },
     {
       name: 'business.entity-profile',

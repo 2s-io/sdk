@@ -292,6 +292,8 @@ export interface Endpoints {
   }
   /** US macroeconomic indicators (FRED-backed). */
   econ: {
+    /** Any FRED series by id (→ metadata + observations) or full-text catalog search. */
+    fred(input: { seriesId?: string; query?: string; limit?: number; start?: string; end?: string }): R<Normalized>
     /** Curated macro indicator latest reading + YoY (unemployment, fed funds, GDP, yields, payrolls...). Pass `indicator` or omit for all. */
     indicator(input?: { indicator?: string }): R<Normalized>
     /** Current US Treasury yield curve across maturities + 2s10s/3m10y spreads + inversion flag. */
@@ -495,6 +497,8 @@ export interface Endpoints {
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
     /** Brazilian company registry by CNPJ: legal/trade name, status, activity, address, partners. */
     brCnpj(input: { cnpj: string }): R<Normalized>
+    /** UK Companies House: name search OR companyNumber → full profile + officers. */
+    ukCompanies(input: { query?: string; companyNumber?: string; limit?: number }): R<Normalized>
     /** Full entity dossier — master record + officers + registered agent + filings (v1: CT). By entityId, accountNumber, or name. */
     entityProfile(input: { state: 'CT'; entityId?: string; accountNumber?: string; name?: string; filingsLimit?: number }): R<Normalized>
     /** Registry lookup + OFAC sanctions screen of the entity + its agent in one call. */
@@ -1460,6 +1464,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       hicp: (i) => get('inflation.hicp', '/api/inflation/hicp', i ?? {}),
     },
     econ: {
+      fred: (i) => get('econ.fred', '/api/econ/fred', i),
       indicator: (i) => get('econ.indicator', '/api/econ/indicator', i ?? {}),
       yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
       commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),
@@ -1562,6 +1567,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     business: {
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
       brCnpj: (i) => get('business.br-cnpj', '/api/business/br-cnpj', i),
+      ukCompanies: (i) => get('business.uk-companies', '/api/business/uk-companies', i),
       entityProfile: (i) => get('business.entity-profile', '/api/business/entity-profile', i),
       entityScreen: (i) => get('business.entity-screen', '/api/business/entity-screen', i),
       naics: (i) => get('business.naics', '/api/business/naics', i),

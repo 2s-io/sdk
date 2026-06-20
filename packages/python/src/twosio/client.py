@@ -1241,6 +1241,17 @@ class _Econ(_Group):
             q["indicator"] = indicator
         return self._c.request("GET", "/api/econ/indicator", endpoint="econ.indicator", query=q)
 
+    def fred(self, *, series_id: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None,
+             start: Optional[str] = None, end: Optional[str] = None) -> CallResult:
+        """Any FRED series by id (metadata + observations) or full-text catalog search."""
+        q: dict[str, Any] = {}
+        if series_id is not None: q["seriesId"] = series_id
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        if start is not None: q["start"] = start
+        if end is not None: q["end"] = end
+        return self._c.request("GET", "/api/econ/fred", endpoint="econ.fred", query=q)
+
     def yield_curve(self) -> CallResult:
         """Current US Treasury yield curve (1M-30Y) + 2s10s/3m10y spreads + inversion flag."""
         return self._c.request("GET", "/api/econ/yield-curve", endpoint="econ.yield-curve", query={})
@@ -2694,6 +2705,14 @@ class _Business(_Group):
     def br_cnpj(self, *, cnpj: str) -> CallResult:
         """Brazilian company registry lookup by CNPJ."""
         return self._c.request("GET", "/api/business/br-cnpj", endpoint="business.br-cnpj", query={"cnpj": cnpj})
+
+    def uk_companies(self, *, query: Optional[str] = None, company_number: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """UK Companies House: name search OR companyNumber -> profile + officers."""
+        q: dict[str, Any] = {}
+        if query is not None: q["query"] = query
+        if company_number is not None: q["companyNumber"] = company_number
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/business/uk-companies", endpoint="business.uk-companies", query=q)
 
     def entity_profile(
         self,
