@@ -766,6 +766,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.aviation.taf(a as never),
     },
     {
+      name: 'aviation.sigmet',
+      description: 'Active in-flight weather hazard advisories (SIGMETs/AIRMETs) from the NOAA Aviation Weather Center. Returns current advisories over a 1-24h window, optionally filtered by hazard (CONVECTIVE, TURB, ICE, IFR, MTN OBSCN, ASH). Each carries issuing office, type, hazard, severity, valid-from/to, altitude band (ft MSL), movement (dir/speed), and raw bulletin. Keyless, public-domain. The active-hazard layer beyond aviation.metar/taf. Not for navigation.',
+      inputSchema: s('In-flight hazard advisories', {
+        hazard: { type: 'string', description: 'CONVECTIVE, TURB, ICE, IFR, MTN OBSCN, ASH.' },
+        hours: { type: 'integer', minimum: 1, maximum: 24, default: 3 },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+      }),
+      invoke: (a) => c.aviation.sigmet(a as never),
+    },
+    {
       name: 'aviation.accidents',
       description: 'Search NTSB civil aviation accident/incident history (CAROL database). Filter by registration (N-number), state, make, model, city, and/or date range (dateFrom/dateTo YYYY-MM-DD). Returns events with date, location, aircraft, injury severity/counts, flight phase, and an NTSB report URL. Free, US public-domain. At least one filter required.',
       inputSchema: s('NTSB accidents', {
@@ -1710,6 +1720,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.finance.companyFacts(a as never),
     },
     {
+      name: 'finance.xbrl-frames',
+      description: 'SEC EDGAR XBRL Frames — one financial concept across ALL public filers for one period, for cross-company screening. Give an XBRL tag (Revenues, NetIncomeLoss, Assets), period (CY2023 annual, CY2023Q1 quarter, CY2023Q4I instant), optional unit (default USD), and get every filer\'s value (company, CIK, location, period, value) sorted high-to-low (or asc), plus total filer count. Free, public-domain (SEC). Distinct from finance.company-facts (one company, many metrics) — this is one metric across all companies.',
+      inputSchema: s('SEC XBRL frames (cross-company)', {
+        tag: { type: 'string', description: 'XBRL concept, e.g. Revenues, NetIncomeLoss, Assets.' },
+        period: { type: 'string', description: 'CY2023 (annual), CY2023Q1 (quarter), CY2023Q4I (instant).' },
+        unit: { type: 'string', description: 'Unit (default USD).' },
+        taxonomy: { type: 'string', description: 'Taxonomy (default us-gaap).' },
+        sort: { type: 'string', enum: ['desc', 'asc'], description: 'Sort by value (default desc).' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }, ['tag', 'period']),
+      invoke: (a) => c.finance.xbrlFrames(a as never),
+    },
+    {
       name: 'finance.insider-trades',
       description:
         'Recent SEC Form 4 insider transactions for a US public company by ticker. Returns parsed transactions: insider name + relationship (director, officer/title, 10%+ owner), date, SEC transaction code (P=purchase, S=sale, A=grant, D=disposition, M=exercise, F=tax-withholding, G=gift), security title, shares, price/share, total USD value, post-transaction balance, direct vs indirect ownership, derivative flag.',
@@ -2377,6 +2400,16 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.census.zipcode(a as never),
     },
     {
+      name: 'census.demographics',
+      description: 'US Census ACS 5-year demographics for a state or county. Give a state (2-letter or 2-digit FIPS), optionally a 3-digit county FIPS, and get population, median age, median household + per-capita income, poverty rate (computed), households, owner-occupancy rate (computed), median home value, and median gross rent. Free, public-domain (US Census). Complements census.zipcode (ZIP-level) with state/county geography.',
+      inputSchema: s('Census ACS demographics', {
+        state: { type: 'string', description: '2-letter state code or 2-digit FIPS.' },
+        county: { type: 'string', description: '3-digit county FIPS (omit for state-level).' },
+        year: { type: 'integer', description: 'ACS data year (default latest).' },
+      }, ['state']),
+      invoke: (a) => c.census.demographics(a as never),
+    },
+    {
       name: 'hash.compute',
       description: 'Compute one or more cryptographic hashes (sha256, sha512, md5, sha1, sha3, etc.) over an input.',
       inputSchema: s('Hash compute', {
@@ -2802,6 +2835,14 @@ export function buildToolList(c: TwoS): ToolDef[] {
         pageToken: { type: 'string' },
       }),
       invoke: (a) => c.clinical.trialSearch(a as never),
+    },
+    {
+      name: 'clinical.study-detail',
+      description: 'Full ClinicalTrials.gov study record by NCT id — the deep detail beyond clinical.trial-search. Returns description, status, phases, conditions, design (allocation/model/purpose/masking), enrollment, interventions, primary + secondary outcome measures (with time frames), full eligibility criteria (text, sex, age range, healthy-volunteers), lead sponsor + collaborators, all facility locations, results-posted flag, and key dates. Free, public-domain (NIH NLM). Find an NCT id with clinical.trial-search, then use this.',
+      inputSchema: s('Clinical study detail', {
+        nctId: { type: 'string', description: 'ClinicalTrials.gov NCT id, e.g. NCT04280705.' },
+      }, ['nctId']),
+      invoke: (a) => c.clinical.studyDetail(a as never),
     },
     {
       name: 'paper.doi-lookup',

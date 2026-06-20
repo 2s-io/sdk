@@ -176,6 +176,8 @@ export interface Endpoints {
   }
   census: {
     zipcode(input: { zip: string }): R<Normalized>
+    /** US Census ACS 5-year demographics for a state or county (population, income, poverty, housing). */
+    demographics(input: { state: string; county?: string; year?: number }): R<Normalized>
   }
   climate: {
     stationNear(input: {
@@ -321,6 +323,8 @@ export interface Endpoints {
     metar(input: { ids: string }): R<Normalized>
     /** Terminal Aerodrome Forecast (TAF) for ICAO station id(s). Pass `ids`. */
     taf(input: { ids: string }): R<Normalized>
+    /** Active in-flight hazard advisories (SIGMETs/AIRMETs) from NOAA: convective/turbulence/icing/IFR, with valid times, altitudes, movement. */
+    sigmet(input?: { hazard?: string; hours?: number; limit?: number }): R<Normalized>
     /** NTSB civil aviation accident/incident history. Filter by registration/state/make/model/city/date range. */
     accidents(input: { registration?: string; state?: string; make?: string; model?: string; city?: string; dateFrom?: string; dateTo?: string; limit?: number }): R<unknown>
   }
@@ -411,6 +415,8 @@ export interface Endpoints {
       annualLimit?: number
       quarterlyLimit?: number
     }): R<Normalized>
+    /** SEC XBRL Frames — one concept (e.g. Revenues) across ALL filers for a period, for cross-company screening. */
+    xbrlFrames(input: { tag: string; period: string; unit?: string; taxonomy?: string; sort?: 'desc' | 'asc'; limit?: number }): R<Normalized>
     /** Recent SEC Form 4 insider transactions by ticker. */
     insiderTrades(input: {
       ticker: string
@@ -1108,6 +1114,8 @@ export interface Endpoints {
       pageSize?: number
       pageToken?: string
     }): R<unknown>
+    /** Full ClinicalTrials.gov study record by NCT id: eligibility, locations, outcomes, design, sponsors, results flag. */
+    studyDetail(input: { nctId: string }): R<Normalized>
   }
   code: {
     /** GitHub repository lookup by "owner/name". */
@@ -1386,6 +1394,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     census: {
       zipcode: (i) => get('census.zipcode', '/api/census/zipcode', i),
+      demographics: (i) => get('census.demographics', '/api/census/demographics', i),
     },
     climate: {
       stationNear: (i) => get('climate.station-near', '/api/climate/station-near', i),
@@ -1452,6 +1461,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     aviation: {
       metar: (i) => get('aviation.metar', '/api/aviation/metar', i),
       taf: (i) => get('aviation.taf', '/api/aviation/taf', i),
+      sigmet: (i) => get('aviation.sigmet', '/api/aviation/sigmet', i ?? {}),
       accidents: (i) => get('aviation.accidents', '/api/aviation/accidents', i),
     },
     water: {
@@ -1495,6 +1505,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       amortize: (i) => get('finance.amortize', '/api/finance/amortize', i),
       secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
       companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
+      xbrlFrames: (i) => get('finance.xbrl-frames', '/api/finance/xbrl-frames', i),
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
       thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
       companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
@@ -1699,6 +1710,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     clinical: {
       trialSearch: (i) => get('clinical.trial-search', '/api/clinical/trial-search', i),
+      studyDetail: (i) => get('clinical.study-detail', '/api/clinical/study-detail', i),
     },
     code: {
       repoLookup: (i) => get('code.repo-lookup', '/api/code/repo-lookup', i),

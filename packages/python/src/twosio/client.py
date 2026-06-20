@@ -662,6 +662,16 @@ class _Finance(_Group):
             query=query,
         )
 
+    def xbrl_frames(self, *, tag: str, period: str, unit: Optional[str] = None, taxonomy: Optional[str] = None,
+                    sort: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """SEC XBRL Frames — one concept across ALL filers for a period (cross-company)."""
+        q: dict[str, Any] = {"tag": tag, "period": period}
+        if unit is not None: q["unit"] = unit
+        if taxonomy is not None: q["taxonomy"] = taxonomy
+        if sort is not None: q["sort"] = sort
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/finance/xbrl-frames", endpoint="finance.xbrl-frames", query=q)
+
     def insider_trades(
         self,
         *,
@@ -1319,6 +1329,14 @@ class _Aviation(_Group):
     def taf(self, *, ids: str) -> CallResult:
         """Terminal Aerodrome Forecast(s) (TAF) for comma-separated ICAO ids."""
         return self._c.request("GET", "/api/aviation/taf", endpoint="aviation.taf", query={"ids": ids})
+
+    def sigmet(self, *, hazard: Optional[str] = None, hours: Optional[int] = None, limit: Optional[int] = None) -> CallResult:
+        """Active in-flight hazard advisories (SIGMETs/AIRMETs) from NOAA."""
+        q: dict[str, Any] = {}
+        if hazard is not None: q["hazard"] = hazard
+        if hours is not None: q["hours"] = hours
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/aviation/sigmet", endpoint="aviation.sigmet", query=q)
 
     def accidents(
         self,
@@ -2024,6 +2042,13 @@ class _Tld(_Group):
 class _Census(_Group):
     def zipcode(self, *, zip: str) -> CallResult:
         return self._c.request("GET", "/api/census/zipcode", endpoint="census.zipcode", query={"zip": zip})
+
+    def demographics(self, *, state: str, county: Optional[str] = None, year: Optional[int] = None) -> CallResult:
+        """US Census ACS 5-year demographics for a state or county."""
+        q: dict[str, Any] = {"state": state}
+        if county is not None: q["county"] = county
+        if year is not None: q["year"] = year
+        return self._c.request("GET", "/api/census/demographics", endpoint="census.demographics", query=q)
 
 
 class _Account(_Group):
@@ -4025,6 +4050,10 @@ class _Clinical(_Group):
         if country is not None: q["country"] = country
         if page_token is not None: q["pageToken"] = page_token
         return self._c.request("GET", "/api/clinical/trial-search", endpoint="clinical.trial-search", query=q)
+
+    def study_detail(self, *, nct_id: str) -> CallResult:
+        """Full ClinicalTrials.gov study record by NCT id."""
+        return self._c.request("GET", "/api/clinical/study-detail", endpoint="clinical.study-detail", query={"nctId": nct_id})
 
 
 class _Code(_Group):
