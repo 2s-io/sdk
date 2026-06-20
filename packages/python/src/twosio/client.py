@@ -1393,6 +1393,36 @@ class _Security(_Group):
         """Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP)."""
         return self._c.request("GET", "/api/security/ioc-reputation", endpoint="security.ioc-reputation", query={"ioc": ioc})
 
+    def ip_reputation(self, *, ip: str) -> CallResult:
+        """Multi-source IP reputation + combined authority score (AbuseIPDB + abuse.ch + blocklist.de + StopForumSpam)."""
+        return self._c.request("GET", "/api/security/ip-reputation", endpoint="security.ip-reputation", query={"ip": ip})
+
+    def ip_abuse(self, *, ip: str, max_age_in_days: int | None = None, verbose: bool | None = None) -> CallResult:
+        """AbuseIPDB single-IP abuse check — confidence score, reports, usage type, ISP (verbose adds report records)."""
+        q: dict = {"ip": ip}
+        if max_age_in_days is not None: q["maxAgeInDays"] = max_age_in_days
+        if verbose is not None: q["verbose"] = verbose
+        return self._c.request("GET", "/api/security/ip-abuse", endpoint="security.ip-abuse", query=q)
+
+    def ip_blacklist(self, *, confidence_minimum: int | None = None, limit: int | None = None,
+                     ip_version: int | None = None, only_countries: str | None = None,
+                     except_countries: str | None = None) -> CallResult:
+        """AbuseIPDB bulk blacklist — worst-offender IPs above a confidence threshold (fail2ban firewall feed)."""
+        q: dict = {}
+        if confidence_minimum is not None: q["confidenceMinimum"] = confidence_minimum
+        if limit is not None: q["limit"] = limit
+        if ip_version is not None: q["ipVersion"] = ip_version
+        if only_countries is not None: q["onlyCountries"] = only_countries
+        if except_countries is not None: q["exceptCountries"] = except_countries
+        return self._c.request("GET", "/api/security/ip-blacklist", endpoint="security.ip-blacklist", query=q)
+
+    def ip_block(self, *, network: str, max_age_in_days: int | None = None, limit: int | None = None) -> CallResult:
+        """AbuseIPDB subnet (CIDR) check — which IPs inside a network block have been reported."""
+        q: dict = {"network": network}
+        if max_age_in_days is not None: q["maxAgeInDays"] = max_age_in_days
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/security/ip-block", endpoint="security.ip-block", query=q)
+
     def cwe(self, *, id: str | None = None, query: str | None = None, limit: int | None = None) -> CallResult:
         """MITRE CWE weakness lookup by id (CWE-79) or keyword search (bundled, anti-hallucination)."""
         q: dict = {}
@@ -1728,6 +1758,34 @@ class _Medical(_Group):
         if ndc is not None: q["ndc"] = ndc
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/medical/drug-status", endpoint="medical.drug-status", query=q)
+
+    def drug_label(
+        self,
+        *,
+        drug: Optional[str] = None,
+        ndc: Optional[str] = None,
+        rxcui: Optional[str] = None,
+        set_id: Optional[str] = None,
+        limit: Optional[int] = None,
+    ) -> CallResult:
+        """Authoritative FDA drug label (Structured Product Labeling / SPL).
+
+        Provide one of drug (brand/generic/substance name), ndc, rxcui, or
+        set_id. Returns the FDA-approved label split into sections (boxed
+        warning, indications, dosage, contraindications, warnings, adverse
+        reactions, drug interactions, special populations, pregnancy,
+        mechanism of action, ingredients) plus identity metadata and a
+        hasBoxedWarning flag. Free, public-domain FDA data.
+        """
+        if drug is None and ndc is None and rxcui is None and set_id is None:
+            raise ValueError("drug_label() requires one of drug, ndc, rxcui, or set_id.")
+        q: dict[str, Any] = {}
+        if drug is not None: q["drug"] = drug
+        if ndc is not None: q["ndc"] = ndc
+        if rxcui is not None: q["rxcui"] = rxcui
+        if set_id is not None: q["setId"] = set_id
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/drug-label", endpoint="medical.drug-label", query=q)
 
     def icd10(
         self,

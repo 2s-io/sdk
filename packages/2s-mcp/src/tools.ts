@@ -622,6 +622,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.security.iocReputation(a as never),
     },
     {
+      name: 'security.ip-reputation',
+      description: "Multi-source IP reputation with one combined authority score (0-100). Polls AbuseIPDB (crowd abuse confidence), abuse.ch threat-lists (Feodo C2 + ThreatFox + Spamhaus DROP + Tor), blocklist.de (fail2ban network), and StopForumSpam in parallel and blends them into a verdict (clean/low/suspicious/malicious) + flaggedBy + per-source opinions + enrichment (ISP, usage type, country, ASN, Tor). Authoritative threat-list hits hard-floor the verdict at malicious. The one-call 'should I trust this IP?'.",
+      inputSchema: s('Multi-source IP reputation', { ip: { type: 'string', description: 'IPv4 or IPv6 address.' } }, ['ip']),
+      invoke: (a) => c.security.ipReputation(a as never),
+    },
+    {
+      name: 'security.ip-abuse',
+      description: 'AbuseIPDB single-IP abuse check. Pass ip (IPv4/IPv6). Returns abuseConfidenceScore (0-100), totalReports, numDistinctUsers, lastReportedAt, usageType, ISP, domain, hostnames, isTor, isWhitelisted, country. verbose=true adds individual report records; maxAgeInDays (1-365, default 90) bounds the window. Live crowd data for SOC triage and login-abuse blocking.',
+      inputSchema: s('AbuseIPDB IP check', { ip: { type: 'string', description: 'IPv4 or IPv6 address.' }, maxAgeInDays: { type: 'integer', minimum: 1, maximum: 365, default: 90 }, verbose: { type: 'boolean', default: false } }, ['ip']),
+      invoke: (a) => c.security.ipAbuse(a as never),
+    },
+    {
+      name: 'security.ip-blacklist',
+      description: 'AbuseIPDB bulk blacklist — most-reported abusive IPs above a confidence threshold (the fail2ban / firewall block-feed). Tune confidenceMinimum (25-100, default 90), limit (1-10000), ipVersion (4/6), onlyCountries / exceptCountries (ISO-2). Returns each IP with country, confidence, lastReportedAt + the list generatedAt.',
+      inputSchema: s('AbuseIPDB blacklist', { confidenceMinimum: { type: 'integer', minimum: 25, maximum: 100, default: 90 }, limit: { type: 'integer', minimum: 1, maximum: 10000, default: 100 }, ipVersion: { type: 'integer', enum: [4, 6] }, onlyCountries: { type: 'string' }, exceptCountries: { type: 'string' } }, []),
+      invoke: (a) => c.security.ipBlacklist(a as never),
+    },
+    {
+      name: 'security.ip-block',
+      description: 'AbuseIPDB subnet (CIDR) check — which IPs inside a network block have been reported. Pass network as a CIDR (e.g. 118.25.0.0/24; up to /16 IPv4, /112 IPv6). Returns block metadata + reportedAddress (each flagged IP with numReports, confidence, mostRecentReport, country). Optional maxAgeInDays (default 30), limit. Vet a hosting range or sweep your own allocation.',
+      inputSchema: s('AbuseIPDB CIDR check', { network: { type: 'string', description: 'CIDR network, e.g. 118.25.0.0/24.' }, maxAgeInDays: { type: 'integer', minimum: 1, maximum: 365, default: 30 }, limit: { type: 'integer', minimum: 1, maximum: 1000, default: 100 } }, ['network']),
+      invoke: (a) => c.security.ipBlock(a as never),
+    },
+    {
       name: 'security.cwe',
       description: 'Authoritative MITRE CWE (Common Weakness Enumeration) lookup. Pass id (CWE-79 or 79) for the canonical weakness — name, abstraction, description, ChildOf/ParentOf relationships, mapped CAPEC patterns (all with names) — or query for keyword search. Bundled (~970), zero external calls. Anti-hallucination: agents cite CWE IDs/names that must be exact. Pairs with security.cve + security.capec.',
       inputSchema: s('CWE lookup', { id: { type: 'string', description: 'CWE id (CWE-79 or 79).' }, query: { type: 'string' }, limit: { type: 'integer' } }, []),
@@ -1833,6 +1857,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
       }, []),
       invoke: (a) => c.medical.drugStatus(a as never),
+    },
+    {
+      name: 'medical.drug-label',
+      description: 'Authoritative FDA drug label (Structured Product Labeling). Give a drug name (brand/generic/substance), or an exact ndc, rxcui, or SPL setId, and get the FDA-approved label split into sections: boxed warning, indications, dosage, contraindications, warnings, adverse reactions, drug interactions, special populations, pregnancy, mechanism of action, ingredients — plus identity metadata and a hasBoxedWarning flag. Free, public-domain FDA data.',
+      inputSchema: s('Drug label', {
+        drug: { type: 'string', description: 'Drug name — brand, generic, or substance.' },
+        ndc: { type: 'string', description: 'Exact product NDC.' },
+        rxcui: { type: 'string', description: 'Exact RxNorm RxCUI.' },
+        setId: { type: 'string', description: 'Exact SPL set_id.' },
+        limit: { type: 'integer', minimum: 1, maximum: 25, default: 1 },
+      }, []),
+      invoke: (a) => c.medical.drugLabel(a as never),
     },
     {
       name: 'net.asn',

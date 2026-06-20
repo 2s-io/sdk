@@ -639,6 +639,14 @@ export interface Endpoints {
     passwordExposure(input: { password?: string; sha1?: string }): R<Normalized>
     /** Threat-intel reputation for an IP/domain/URL/hash (abuse.ch + Feodo + Tor + Spamhaus DROP). */
     iocReputation(input: { ioc: string }): R<Normalized>
+    /** Multi-source IP reputation + combined authority score (AbuseIPDB + abuse.ch + blocklist.de + StopForumSpam). */
+    ipReputation(input: { ip: string }): R<Normalized>
+    /** AbuseIPDB single-IP abuse check — confidence score, reports, usage type, ISP (verbose adds report records). */
+    ipAbuse(input: { ip: string; maxAgeInDays?: number; verbose?: boolean }): R<Normalized>
+    /** AbuseIPDB bulk blacklist — worst-offender IPs above a confidence threshold (the fail2ban firewall feed). */
+    ipBlacklist(input: { confidenceMinimum?: number; limit?: number; ipVersion?: 4 | 6; onlyCountries?: string; exceptCountries?: string }): R<Normalized>
+    /** AbuseIPDB subnet (CIDR) check — which IPs inside a network block have been reported. */
+    ipBlock(input: { network: string; maxAgeInDays?: number; limit?: number }): R<Normalized>
     /** MITRE CWE weakness lookup by id (CWE-79) or keyword search (bundled, anti-hallucination). */
     cwe(input: { id?: string; query?: string; limit?: number }): R<Normalized>
     /** MITRE ATT&CK Enterprise technique lookup by id (T1059) or keyword search (bundled). */
@@ -767,6 +775,8 @@ export interface Endpoints {
     rxnorm(input: { term?: string; rxcui?: string; limit?: number }): R<unknown>
     /** Drug situational awareness: FDA shortage + recall status + NDC metadata for a drug name / rxcui / ndc (composed on RxNorm). */
     drugStatus(input: { drug?: string; rxcui?: string; ndc?: string; limit?: number }): R<unknown>
+    /** Authoritative FDA drug label (SPL): indications, dosage, warnings, interactions, boxed warning + identity metadata for a drug name / ndc / rxcui / setId. */
+    drugLabel(input: { drug?: string; ndc?: string; rxcui?: string; setId?: string; limit?: number }): R<unknown>
     /** CMS NADAC drug acquisition cost by NDC or name (live; current-year dataset auto-resolved). */
     drugPrice(input: { ndc?: string; name?: string; limit?: number }): R<Normalized>
   }
@@ -1560,6 +1570,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
       rxnorm: (i) => get('medical.rxnorm', '/api/medical/rxnorm', i),
       drugStatus: (i) => get('medical.drug-status', '/api/medical/drug-status', i),
+      drugLabel: (i) => get('medical.drug-label', '/api/medical/drug-label', i),
       drugPrice: (i) => get('medical.drug-price', '/api/medical/drug-price', i),
     },
     net: {
@@ -1712,6 +1723,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       httpHeaders: (i) => get('security.http-headers', '/api/security/http-headers', i),
       passwordExposure: (i) => post('security.password-exposure', '/api/security/password-exposure', i),
       iocReputation: (i) => get('security.ioc-reputation', '/api/security/ioc-reputation', i),
+      ipReputation: (i) => get('security.ip-reputation', '/api/security/ip-reputation', i),
+      ipAbuse: (i) => get('security.ip-abuse', '/api/security/ip-abuse', i),
+      ipBlacklist: (i) => get('security.ip-blacklist', '/api/security/ip-blacklist', i ?? {}),
+      ipBlock: (i) => get('security.ip-block', '/api/security/ip-block', i),
       cwe: (i) => get('security.cwe', '/api/security/cwe', i ?? {}),
       attack: (i) => get('security.attack', '/api/security/attack', i ?? {}),
       capec: (i) => get('security.capec', '/api/security/capec', i ?? {}),
