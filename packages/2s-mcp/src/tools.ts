@@ -560,6 +560,18 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.econ.fred(a as never),
     },
     {
+      name: 'econ.fred-releases',
+      description: "US economic-data release CALENDAR from FRED — when official reports are published. Returns upcoming release dates (date, release name, release id) from `from` (default today), ascending. Filter by name (e.g. \"Consumer Price Index\" for next CPI, \"Employment Situation\" for jobs) or releaseId. Free, public-domain. Future release dates an LLM cannot know — for trading/scheduling/macro agents. Pair with econ.fred for the numbers.",
+      inputSchema: s('FRED release calendar', { from: { type: 'string', description: 'Earliest date YYYY-MM-DD (default today).' }, name: { type: 'string', description: 'Filter by release name.' }, releaseId: { type: 'integer', description: 'Filter by FRED release id.' }, limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 } }),
+      invoke: (a) => c.econ.fredReleases(a as never),
+    },
+    {
+      name: 'econ.fred-vintage',
+      description: "Point-in-time (vintage) economic data from FRED's ALFRED archive — what a figure was AS FIRST REPORTED / as known on a past date, before revisions. Give seriesId (GDP, GDPC1, PAYEMS…) + asOf date for the values as they stood then (omit asOf for current); also returns the series' revision dates. Free, public-domain. Eliminates look-ahead bias for backtesting/macro research — unavailable from any LLM or real-time API.",
+      inputSchema: s('FRED vintage / point-in-time', { seriesId: { type: 'string', description: 'FRED series id, e.g. GDP, PAYEMS.' }, asOf: { type: 'string', description: 'Vintage date YYYY-MM-DD (omit for current).' }, start: { type: 'string', description: 'Earliest obs date YYYY-MM-DD.' }, end: { type: 'string', description: 'Latest obs date YYYY-MM-DD.' }, limit: { type: 'integer', minimum: 1, maximum: 100, default: 12 } }, ['seriesId']),
+      invoke: (a) => c.econ.fredVintage(a as never),
+    },
+    {
       name: 'econ.yield-curve',
       description: 'Current US Treasury yield curve (1M–30Y constant-maturity yields) plus the 2s10s and 3m10y spreads and an inversion flag (recession signal). Daily data. Source: US Treasury via FRED.',
       inputSchema: s('Treasury yield curve', {}),

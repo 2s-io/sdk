@@ -294,6 +294,10 @@ export interface Endpoints {
   econ: {
     /** Any FRED series by id (→ metadata + observations) or full-text catalog search. */
     fred(input: { seriesId?: string; query?: string; limit?: number; start?: string; end?: string }): R<Normalized>
+    /** FRED economic-data release calendar — upcoming report dates (filter by name/releaseId). */
+    fredReleases(input?: { from?: string; name?: string; releaseId?: number; limit?: number }): R<Normalized>
+    /** FRED ALFRED point-in-time / vintage data — values as known on a past date + revision dates. */
+    fredVintage(input: { seriesId: string; asOf?: string; start?: string; end?: string; limit?: number }): R<Normalized>
     /** Curated macro indicator latest reading + YoY (unemployment, fed funds, GDP, yields, payrolls...). Pass `indicator` or omit for all. */
     indicator(input?: { indicator?: string }): R<Normalized>
     /** Current US Treasury yield curve across maturities + 2s10s/3m10y spreads + inversion flag. */
@@ -1465,6 +1469,8 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     econ: {
       fred: (i) => get('econ.fred', '/api/econ/fred', i),
+      fredReleases: (i) => get('econ.fred-releases', '/api/econ/fred-releases', i ?? {}),
+      fredVintage: (i) => get('econ.fred-vintage', '/api/econ/fred-vintage', i),
       indicator: (i) => get('econ.indicator', '/api/econ/indicator', i ?? {}),
       yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
       commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),

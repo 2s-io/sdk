@@ -1252,6 +1252,26 @@ class _Econ(_Group):
         if end is not None: q["end"] = end
         return self._c.request("GET", "/api/econ/fred", endpoint="econ.fred", query=q)
 
+    def fred_releases(self, *, from_date: Optional[str] = None, name: Optional[str] = None,
+                      release_id: Optional[int] = None, limit: Optional[int] = None) -> CallResult:
+        """FRED economic-data release calendar — upcoming report dates."""
+        q: dict[str, Any] = {}
+        if from_date is not None: q["from"] = from_date
+        if name is not None: q["name"] = name
+        if release_id is not None: q["releaseId"] = release_id
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/econ/fred-releases", endpoint="econ.fred-releases", query=q)
+
+    def fred_vintage(self, *, series_id: str, as_of: Optional[str] = None, start: Optional[str] = None,
+                     end: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FRED ALFRED point-in-time / vintage data — values as known on a past date."""
+        q: dict[str, Any] = {"seriesId": series_id}
+        if as_of is not None: q["asOf"] = as_of
+        if start is not None: q["start"] = start
+        if end is not None: q["end"] = end
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/econ/fred-vintage", endpoint="econ.fred-vintage", query=q)
+
     def yield_curve(self) -> CallResult:
         """Current US Treasury yield curve (1M-30Y) + 2s10s/3m10y spreads + inversion flag."""
         return self._c.request("GET", "/api/econ/yield-curve", endpoint="econ.yield-curve", query={})
