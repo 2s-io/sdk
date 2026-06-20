@@ -1883,6 +1883,20 @@ class _Medical(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/medical/device-udi", endpoint="medical.device-udi", query=q)
 
+    def npi(self, *, npi: Optional[str] = None, first_name: Optional[str] = None, last_name: Optional[str] = None,
+            organization: Optional[str] = None, state: Optional[str] = None, taxonomy: Optional[str] = None,
+            limit: Optional[int] = None) -> CallResult:
+        """CMS NPPES provider lookup by NPI / name / organization (+state/taxonomy)."""
+        q: dict[str, Any] = {}
+        if npi is not None: q["npi"] = npi
+        if first_name is not None: q["firstName"] = first_name
+        if last_name is not None: q["lastName"] = last_name
+        if organization is not None: q["organization"] = organization
+        if state is not None: q["state"] = state
+        if taxonomy is not None: q["taxonomy"] = taxonomy
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/npi", endpoint="medical.npi", query=q)
+
     def genetics(self, *, term: str) -> CallResult:
         """MedlinePlus Genetics reference for a condition or gene."""
         return self._c.request("GET", "/api/medical/genetics", endpoint="medical.genetics", query={"term": term})

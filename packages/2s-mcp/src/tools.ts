@@ -1961,6 +1961,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.medical.deviceUdi(a as never),
     },
     {
+      name: 'medical.npi',
+      description: 'US healthcare provider lookup in the CMS NPPES registry (~9.6M providers). Give an exact 10-digit NPI, or search by provider last name (+ first name), or organization name, optionally narrowed by state and taxonomy/specialty. Returns NPI, entity type (individual/organization), status, name/credential or org name, taxonomies (code + description + state license), and practice address with phone. Free, public-domain (CMS).',
+      inputSchema: s('NPI / provider lookup', {
+        npi: { type: 'string', description: 'Exact 10-digit NPI.' },
+        firstName: { type: 'string', description: 'Provider first name (with lastName).' },
+        lastName: { type: 'string', description: 'Provider last name.' },
+        organization: { type: 'string', description: 'Organization (NPI-2) name.' },
+        state: { type: 'string', description: '2-letter state.' },
+        taxonomy: { type: 'string', description: 'Taxonomy/specialty, e.g. "Cardiology".' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 },
+      }),
+      invoke: (a) => c.medical.npi(a as never),
+    },
+    {
       name: 'medical.genetics',
       description: 'MedlinePlus Genetics (NLM) reference for a genetic condition or gene. Give a term (e.g. "cystic fibrosis", "BRCA1") and get the authoritative NLM record: name, plain-language summary, sections (description/causes/frequency/inheritance/treatment), inheritance pattern(s), related genes, synonyms, and cross-references (OMIM/GTR/ICD-10-CM). Free, public-domain (NLM). Educational reference, not medical advice.',
       inputSchema: s('Genetics reference', {
