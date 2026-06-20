@@ -830,6 +830,10 @@ export interface Endpoints {
     /** RPKI route-origin validation for an (ASN, prefix) pair — valid/invalid/unknown BGP-hijack signal (RIPEstat). */
     rpkiValidity(input: { asn: string; prefix: string }): R<Normalized>
   }
+  product: {
+    /** Decode/validate a product barcode (UPC/EAN/GTIN/ISBN): check digit, symbology, GS1 prefix → issuing org/country, + fresh best-effort identity (open ODbL federation). */
+    gtin(input: { gtin: string; identity?: boolean }): R<Normalized>
+  }
   research: {
     /** Resolve a research organization via ROR (id or name): location, external ids, relationships. */
     org(input: { id?: string; name?: string; limit?: number }): R<unknown>
@@ -1642,6 +1646,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       asn: (i) => get('net.asn', '/api/net/asn', i),
       macVendor: (i) => get('net.mac-vendor', '/api/net/mac-vendor', i),
       rpkiValidity: (i) => get('net.rpki-validity', '/api/net/rpki-validity', i),
+    },
+    product: {
+      gtin: (i) => get('product.gtin', '/api/product/gtin', i),
     },
     research: {
       org: (i) => get('research.org', '/api/research/org', i),

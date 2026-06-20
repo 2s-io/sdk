@@ -2040,6 +2040,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.net.asn(a as never),
     },
     {
+      name: 'product.gtin',
+      description: "Decode/validate a product barcode (UPC-A/EAN-13/EAN-8/GTIN-14/ISBN-13/ISSN): GS1 mod-10 check-digit validation (an LLM can't reliably compute it), symbology, GTIN-14 canonical form, and GS1 prefix → issuing GS1 member org + country (the org's country, NOT necessarily country of manufacture). Flags restricted-distribution and Bookland/ISSN ranges. Plus a FRESH best-effort product-identity lookup (name/brand/category/image) across the open Open Food/Beauty/Products/Pet Food Facts federation (ODbL) — good for food/beverage/beauty, sparse for general retail, may be null. Always live, no caching. identity=false = decode only.",
+      inputSchema: s('Decode/validate a product barcode', { gtin: { type: 'string', description: 'Barcode digits — UPC-A(12)/EAN-13(13)/EAN-8(8)/GTIN-14(14)/ISBN-13. Spaces & hyphens stripped.' }, identity: { type: 'boolean', description: 'Live identity lookup in the open federation (default true).' } }, ['gtin']),
+      invoke: (a) => c.product.gtin(a as never),
+    },
+    {
       name: 'net.mac-vendor',
       description: 'Resolve a MAC address (or bare OUI prefix) to its IEEE-registered hardware vendor. Accepts any format (FC:FB:FB:01:02:03, fc-fb-fb-01-02-03, fcfb.fb01.0203, fcfbfb, or a 9-hex MA-S prefix). Longest-prefix match across the IEEE MA-L/MA-M/MA-S registries, so subdivided blocks resolve to the real manufacturer. Returns the vendor, matched OUI + registry, and decoded address bits: multicast/group, locally administered, or randomized (privacy) MAC. Bundled authoritative IEEE data, free.',
       inputSchema: s('MAC vendor lookup', {

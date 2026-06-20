@@ -2888,6 +2888,15 @@ class _Net(_Group):
         return self._c.request("GET", "/api/net/rpki-validity", endpoint="net.rpki-validity", query={"asn": asn, "prefix": prefix})
 
 
+class _Product(_Group):
+    def gtin(self, *, gtin: str, identity: Optional[bool] = None) -> CallResult:
+        """Decode/validate a UPC/EAN/GTIN/ISBN barcode + fresh best-effort product identity."""
+        q: dict[str, Any] = {"gtin": gtin}
+        if identity is not None:
+            q["identity"] = identity
+        return self._c.request("GET", "/api/product/gtin", endpoint="product.gtin", query=q)
+
+
 class _Research(_Group):
     def org(
         self,
@@ -4749,6 +4758,7 @@ class TwoS:
         self.tides = _Tides(self)
         self.medical = _Medical(self)
         self.net = _Net(self)
+        self.product = _Product(self)
         self.research = _Research(self)
         self.timezone = _Timezone(self)
         self.earth = _Earth(self)

@@ -204,6 +204,7 @@ export class TwoS {
   public readonly tides: Endpoints['tides']
   public readonly medical: Endpoints['medical']
   public readonly net: Endpoints['net']
+  public readonly product: Endpoints['product']
   public readonly research: Endpoints['research']
   public readonly timezone: Endpoints['timezone']
   public readonly url: Endpoints['url']
@@ -329,6 +330,7 @@ export class TwoS {
     this.tides = this.endpoints.tides
     this.medical = this.endpoints.medical
     this.net = this.endpoints.net
+    this.product = this.endpoints.product
     this.research = this.endpoints.research
     this.timezone = this.endpoints.timezone
     this.url = this.endpoints.url
