@@ -423,6 +423,10 @@ export interface Endpoints {
     ifscIndia(input: { ifsc: string }): R<Normalized>
     /** Card BIN/IIN lookup: brand, card type, issuing bank, country (longest-prefix match). */
     bin(input: { bin: string }): R<Normalized>
+    /** OpenFIGI mapping: identifier (ISIN/CUSIP/SEDOL/TICKER/FIGI…) → FIGI(s) + security metadata across listings. */
+    figi(input: { idType: string; idValue: string; exchCode?: string; currency?: string; limit?: number }): R<Normalized>
+    /** OpenFIGI free-text security search (+ exchange/type/sector filters + cursor). */
+    figiSearch(input: { query: string; exchCode?: string; securityType?: string; marketSector?: string; start?: string; limit?: number }): R<Normalized>
     /** Recent SEC Form 4 insider transactions by ticker. */
     insiderTrades(input: {
       ticker: string
@@ -1526,6 +1530,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
       ifscIndia: (i) => get('finance.ifsc-india', '/api/finance/ifsc-india', i),
       bin: (i) => get('finance.bin', '/api/finance/bin', i),
+      figi: (i) => get('finance.figi', '/api/finance/figi', i),
+      figiSearch: (i) => get('finance.figi-search', '/api/finance/figi-search', i),
       thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
       companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
     },

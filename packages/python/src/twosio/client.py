@@ -704,6 +704,26 @@ class _Finance(_Group):
         """Card BIN/IIN lookup: brand, card type, issuing bank, country."""
         return self._c.request("GET", "/api/finance/bin", endpoint="finance.bin", query={"bin": bin})
 
+    def figi(self, *, id_type: str, id_value: str, exch_code: Optional[str] = None,
+             currency: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """OpenFIGI mapping: identifier (ISIN/CUSIP/SEDOL/TICKER/FIGI) -> FIGI(s) + metadata."""
+        q: dict[str, Any] = {"idType": id_type, "idValue": id_value}
+        if exch_code is not None: q["exchCode"] = exch_code
+        if currency is not None: q["currency"] = currency
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/finance/figi", endpoint="finance.figi", query=q)
+
+    def figi_search(self, *, query: str, exch_code: Optional[str] = None, security_type: Optional[str] = None,
+                    market_sector: Optional[str] = None, start: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """OpenFIGI free-text security search (+ filters + cursor)."""
+        q: dict[str, Any] = {"query": query}
+        if exch_code is not None: q["exchCode"] = exch_code
+        if security_type is not None: q["securityType"] = security_type
+        if market_sector is not None: q["marketSector"] = market_sector
+        if start is not None: q["start"] = start
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/finance/figi-search", endpoint="finance.figi-search", query=q)
+
     def thirteen_f(
         self,
         *,

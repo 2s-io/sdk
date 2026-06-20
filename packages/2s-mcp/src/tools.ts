@@ -1767,6 +1767,31 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.finance.bin(a as never),
     },
     {
+      name: 'finance.figi',
+      description: 'Map a security identifier to its FIGI (Financial Instrument Global Identifier) + metadata via OpenFIGI. Give idType (ISIN, CUSIP, SEDOL, TICKER, FIGI, COMMON, WKN, CINS, or raw OpenFIGI ID_* type) and idValue, optionally narrowed by exchCode/currency. Returns each listing with FIGI, composite/share-class FIGI, name, ticker, exchange, security type, market sector, description. Free, open symbology (Bloomberg OpenFIGI).',
+      inputSchema: s('Security identifier → FIGI', {
+        idType: { type: 'string', description: 'ISIN, CUSIP, SEDOL, TICKER, FIGI, COMMON, WKN, CINS, or raw ID_* type.' },
+        idValue: { type: 'string', description: 'Identifier value, e.g. US0378331005.' },
+        exchCode: { type: 'string', description: 'Exchange code (e.g. US, LN).' },
+        currency: { type: 'string', description: 'Currency (e.g. USD).' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
+      }, ['idType', 'idValue']),
+      invoke: (a) => c.finance.figi(a as never),
+    },
+    {
+      name: 'finance.figi-search',
+      description: 'Free-text security search across global exchanges via OpenFIGI. Give a query (name/ticker/description), optionally narrow by exchCode/securityType/marketSector (Equity, Corp, Govt, Mtge, Muni, Pfd, Comdty, Index, Curncy). Returns relevance-ranked FIGIs + metadata and a next cursor (pass back as start). Free, open symbology. Distinct from finance.figi (exact id → FIGI) — this is discovery by name.',
+      inputSchema: s('Security text search (FIGI)', {
+        query: { type: 'string', description: 'Search text.' },
+        exchCode: { type: 'string', description: 'Exchange code (e.g. US).' },
+        securityType: { type: 'string', description: 'e.g. "Common Stock".' },
+        marketSector: { type: 'string', description: 'Equity, Corp, Govt, …' },
+        start: { type: 'string', description: 'Pagination cursor (previous next).' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+      }, ['query']),
+      invoke: (a) => c.finance.figiSearch(a as never),
+    },
+    {
       name: 'finance.thirteen-f',
       description:
         "Parsed institutional holdings (Form 13F-HR) for an investment manager by CIK. Returns each holding's nameOfIssuer, cusip, market value (USD; converted from SEC's $000s convention), shares or principal amount + type, putCall flag for options, and voting authority (sole/shared/none). Sorted by value descending. Common manager CIKs: Berkshire Hathaway=1067983, Renaissance=1037389, Bridgewater=1350694, Vanguard=102909, BlackRock=1364742.",
