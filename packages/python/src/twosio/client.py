@@ -700,6 +700,10 @@ class _Finance(_Group):
         """Indian bank branch lookup by IFSC code."""
         return self._c.request("GET", "/api/finance/ifsc-india", endpoint="finance.ifsc-india", query={"ifsc": ifsc})
 
+    def bin(self, *, bin: str) -> CallResult:
+        """Card BIN/IIN lookup: brand, card type, issuing bank, country."""
+        return self._c.request("GET", "/api/finance/bin", endpoint="finance.bin", query={"bin": bin})
+
     def thirteen_f(
         self,
         *,

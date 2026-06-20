@@ -1761,6 +1761,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.finance.ifscIndia(a as never),
     },
     {
+      name: 'finance.bin',
+      description: 'Identify a payment card from its BIN/IIN (leading 6-8 digits). Pass the BIN or leading card digits and get card brand (Visa/Mastercard/…), card type (debit/credit), category, issuing bank, and country (ISO alpha-2 + name). Longest-prefix match against an open CC-BY dataset. Identifies issuer/brand/country only — never the cardholder or account. For payment routing, fraud checks, checkout UX.',
+      inputSchema: s('Card BIN/IIN lookup', { bin: { type: 'string', description: 'BIN/IIN or leading card digits (6-8+).' } }, ['bin']),
+      invoke: (a) => c.finance.bin(a as never),
+    },
+    {
       name: 'finance.thirteen-f',
       description:
         "Parsed institutional holdings (Form 13F-HR) for an investment manager by CIK. Returns each holding's nameOfIssuer, cusip, market value (USD; converted from SEC's $000s convention), shares or principal amount + type, putCall flag for options, and voting authority (sole/shared/none). Sorted by value descending. Common manager CIKs: Berkshire Hathaway=1067983, Renaissance=1037389, Bridgewater=1350694, Vanguard=102909, BlackRock=1364742.",

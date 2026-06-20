@@ -421,6 +421,8 @@ export interface Endpoints {
     xbrlFrames(input: { tag: string; period: string; unit?: string; taxonomy?: string; sort?: 'desc' | 'asc'; limit?: number }): R<Normalized>
     /** Indian bank branch by IFSC code: bank, branch, address, MICR, payment rails. */
     ifscIndia(input: { ifsc: string }): R<Normalized>
+    /** Card BIN/IIN lookup: brand, card type, issuing bank, country (longest-prefix match). */
+    bin(input: { bin: string }): R<Normalized>
     /** Recent SEC Form 4 insider transactions by ticker. */
     insiderTrades(input: {
       ticker: string
@@ -1521,6 +1523,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       xbrlFrames: (i) => get('finance.xbrl-frames', '/api/finance/xbrl-frames', i),
       insiderTrades: (i) => get('finance.insider-trades', '/api/finance/insider-trades', i),
       ifscIndia: (i) => get('finance.ifsc-india', '/api/finance/ifsc-india', i),
+      bin: (i) => get('finance.bin', '/api/finance/bin', i),
       thirteenF: (i) => get('finance.thirteen-f', '/api/finance/thirteen-f', i),
       companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
     },
