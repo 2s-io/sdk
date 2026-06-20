@@ -298,6 +298,8 @@ export interface Endpoints {
     fredReleases(input?: { from?: string; name?: string; releaseId?: number; limit?: number }): R<Normalized>
     /** FRED ALFRED point-in-time / vintage data — values as known on a past date + revision dates. */
     fredVintage(input: { seriesId: string; asOf?: string; start?: string; end?: string; limit?: number }): R<Normalized>
+    /** Browse the FRED category tree to discover series (category + children + popular series). */
+    fredCategories(input?: { categoryId?: number; seriesLimit?: number }): R<Normalized>
     /** Curated macro indicator latest reading + YoY (unemployment, fed funds, GDP, yields, payrolls...). Pass `indicator` or omit for all. */
     indicator(input?: { indicator?: string }): R<Normalized>
     /** Current US Treasury yield curve across maturities + 2s10s/3m10y spreads + inversion flag. */
@@ -1206,6 +1208,8 @@ export interface Endpoints {
     ukCrime(input: { lat: number; lng: number; month?: string; limit?: number }): R<Normalized>
     /** Quarterly real GDP by US state (BEA Regional): state (2-letter) + optional year → real GDP (millions chained USD) per quarter. */
     beaGdp(input: { state: string; year?: number; limit?: number }): R<unknown>
+    /** Search EU public-procurement notices (TED) by country/cpv/keyword or a raw expert query. */
+    euTenders(input: { country?: string; cpv?: string; keyword?: string; query?: string; limit?: number; page?: number }): R<Normalized>
     /** FMCSA motor-carrier safety profile by USDOT number (or name search): authority/status, safety rating, crash + inspection history, CSA BASICs. */
     carrierSafety(input: { dot?: number; name?: string; limit?: number }): R<unknown>
     /** US Congress members for a location: address (or state[+district]) → House rep + 2 senators with party, IDs, phone, office, contact form. */
@@ -1475,6 +1479,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       fred: (i) => get('econ.fred', '/api/econ/fred', i),
       fredReleases: (i) => get('econ.fred-releases', '/api/econ/fred-releases', i ?? {}),
       fredVintage: (i) => get('econ.fred-vintage', '/api/econ/fred-vintage', i),
+      fredCategories: (i) => get('econ.fred-categories', '/api/econ/fred-categories', i ?? {}),
       indicator: (i) => get('econ.indicator', '/api/econ/indicator', i ?? {}),
       yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
       commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),
@@ -1845,6 +1850,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       usajobs: (i) => get('gov.usajobs', '/api/gov/usajobs', i ?? {}),
       ukCrime: (i) => get('gov.uk-crime', '/api/gov/uk-crime', i),
       beaGdp: (i) => get('gov.bea-gdp', '/api/gov/bea-gdp', i),
+      euTenders: (i) => get('gov.eu-tenders', '/api/gov/eu-tenders', i),
       carrierSafety: (i) => get('gov.carrier-safety', '/api/gov/carrier-safety', i),
       representatives: (i) => get('gov.representatives', '/api/gov/representatives', i),
       congressFilings: (i) => get('gov.congress-filings', '/api/gov/congress-filings', i ?? {}),

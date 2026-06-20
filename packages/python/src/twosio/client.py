@@ -1272,6 +1272,13 @@ class _Econ(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/econ/fred-vintage", endpoint="econ.fred-vintage", query=q)
 
+    def fred_categories(self, *, category_id: Optional[int] = None, series_limit: Optional[int] = None) -> CallResult:
+        """Browse the FRED category tree to discover series."""
+        q: dict[str, Any] = {}
+        if category_id is not None: q["categoryId"] = category_id
+        if series_limit is not None: q["seriesLimit"] = series_limit
+        return self._c.request("GET", "/api/econ/fred-categories", endpoint="econ.fred-categories", query=q)
+
     def yield_curve(self) -> CallResult:
         """Current US Treasury yield curve (1M-30Y) + 2s10s/3m10y spreads + inversion flag."""
         return self._c.request("GET", "/api/econ/yield-curve", endpoint="econ.yield-curve", query={})
@@ -3191,6 +3198,18 @@ class _Gov(_Group):
         if year is not None: q["year"] = year
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/gov/bea-gdp", endpoint="gov.bea-gdp", query=q)
+
+    def eu_tenders(self, *, country: Optional[str] = None, cpv: Optional[str] = None, keyword: Optional[str] = None,
+                   query: Optional[str] = None, limit: Optional[int] = None, page: Optional[int] = None) -> CallResult:
+        """Search EU public-procurement notices (TED)."""
+        q: dict[str, Any] = {}
+        if country is not None: q["country"] = country
+        if cpv is not None: q["cpv"] = cpv
+        if keyword is not None: q["keyword"] = keyword
+        if query is not None: q["query"] = query
+        if limit is not None: q["limit"] = limit
+        if page is not None: q["page"] = page
+        return self._c.request("GET", "/api/gov/eu-tenders", endpoint="gov.eu-tenders", query=q)
 
     def disaster_declarations(
         self,

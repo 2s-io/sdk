@@ -572,6 +572,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.econ.fredVintage(a as never),
     },
     {
+      name: 'econ.fred-categories',
+      description: "Browse the FRED category tree to DISCOVER economic series. Pass categoryId for that category (name+parent) + its child categories + its most-popular series (id/title/units/frequency); omit (or 0) for the 8 top-level categories. Walk down via child ids, then fetch with econ.fred. Free, public-domain.",
+      inputSchema: s('Browse the FRED category tree', { categoryId: { type: 'integer', description: 'FRED category id (0/omitted = top level).' }, seriesLimit: { type: 'integer', minimum: 0, maximum: 50, default: 10, description: 'Series to list (0 = none).' } }),
+      invoke: (a) => c.econ.fredCategories(a as never),
+    },
+    {
       name: 'econ.yield-curve',
       description: 'Current US Treasury yield curve (1M–30Y constant-maturity yields) plus the 2s10s and 3m10y spreads and an inversion flag (recession signal). Daily data. Source: US Treasury via FRED.',
       inputSchema: s('Treasury yield curve', {}),
@@ -2258,6 +2264,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
         limit: { type: 'integer', minimum: 1, maximum: 40, default: 8 },
       }, ['state']),
       invoke: (a) => c.gov.beaGdp(a as never),
+    },
+    {
+      name: 'gov.eu-tenders',
+      description: "Search EU public-procurement notices from TED (Tenders Electronic Daily). Filter by country (ISO 3-letter buyer country e.g. DEU/FRA), cpv (Common Procurement Vocabulary code, e.g. 72000000 IT services), and/or keyword (full-text); or pass a raw TED expert `query`. Each result: publication number, English title, buyer + country, dates, deadline, CPV codes, notice/procedure type, value, notice + PDF links. Free reusable EU open data — live procurement intel for bid discovery + supplier monitoring.",
+      inputSchema: s('Search EU public tenders (TED)', { country: { type: 'string', description: 'Buyer country ISO 3-letter (DEU, FRA, ESP…).' }, cpv: { type: 'string', description: 'CPV code/prefix, e.g. 72000000.' }, keyword: { type: 'string', description: 'Full-text search.' }, query: { type: 'string', description: 'Raw TED expert query (overrides the above).' }, limit: { type: 'integer', minimum: 1, maximum: 50, default: 10 }, page: { type: 'integer', minimum: 1, default: 1 } }),
+      invoke: (a) => c.gov.euTenders(a as never),
     },
     {
       name: 'gov.disaster-declarations',
