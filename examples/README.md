@@ -16,6 +16,8 @@ Install: `npm i @2sio/sdk`
 | [disaster-situational-awareness.ts](./disaster-situational-awareness.ts) | Real-time weather + quakes + tides + sun for a coordinate via the `/api/earth/now` composite. |
 | [url-to-clean-markdown.ts](./url-to-clean-markdown.ts) | Fetch a web page, strip chrome, return article body as markdown — ready for RAG/summarization. |
 | [typed-extraction.ts](./typed-extraction.ts) | Pass a URL + JSON Schema, get back data that matches the schema exactly. |
+| [security-cve-triage.ts](./security-cve-triage.ts) | Vulnerability triage — enrich a scanner's CVE list with CISA KEV + EPSS + public-exploit signals and rank by real patch urgency. |
+| [company-kyb-dossier.ts](./company-kyb-dossier.ts) | KYB onboarding — fuzzy-resolve a free-text company name to a GLEIF LEI, then pull a one-call SAM/OFAC/GLEIF/SEC dossier. |
 
 ## Python
 
