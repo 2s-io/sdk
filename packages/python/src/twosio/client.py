@@ -1279,6 +1279,12 @@ class _Econ(_Group):
         if series_limit is not None: q["seriesLimit"] = series_limit
         return self._c.request("GET", "/api/econ/fred-categories", endpoint="econ.fred-categories", query=q)
 
+    def fred_regional(self, *, series_id: str, date: Optional[str] = None) -> CallResult:
+        """FRED regional data — one series across all US states/counties/metros for a period."""
+        q: dict[str, Any] = {"seriesId": series_id}
+        if date is not None: q["date"] = date
+        return self._c.request("GET", "/api/econ/fred-regional", endpoint="econ.fred-regional", query=q)
+
     def yield_curve(self) -> CallResult:
         """Current US Treasury yield curve (1M-30Y) + 2s10s/3m10y spreads + inversion flag."""
         return self._c.request("GET", "/api/econ/yield-curve", endpoint="econ.yield-curve", query={})
@@ -2651,6 +2657,7 @@ class _Vehicle(_Group):
             "GET", "/api/vehicle/safety-ratings", endpoint="vehicle.safety-ratings",
             query={"make": make, "model": model, "modelYear": model_year},
         )
+
 
     def models(self, *, make: str, model_year: int) -> CallResult:
         """List all models offered by a make in a given model year (vPIC)."""

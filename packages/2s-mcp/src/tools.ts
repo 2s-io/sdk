@@ -578,6 +578,12 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.econ.fredCategories(a as never),
     },
     {
+      name: 'econ.fred-regional',
+      description: "FRED regional economic data — one snapshot of a regional FRED series across ALL its geographies (every U.S. state, county, or metro) for a single period. Pass a regional series id (e.g. WIPCPI = per-capita personal income by state) and get each region's name, FIPS region code, value, and per-region series id, plus units/frequency/available date range. Add date (YYYY-MM-DD) for a point-in-time cross-section; omit for latest. Authoritative St. Louis Fed (GeoFRED) data agents can't recite. Free, public-domain.",
+      inputSchema: s('FRED regional cross-section', { seriesId: { type: 'string', description: 'A FRED regional series id (e.g. WIPCPI).' }, date: { type: 'string', description: 'Optional period YYYY-MM-DD (default: latest).' } }, ['seriesId']),
+      invoke: (a) => c.econ.fredRegional(a as never),
+    },
+    {
       name: 'econ.yield-curve',
       description: 'Current US Treasury yield curve (1M–30Y constant-maturity yields) plus the 2s10s and 3m10y spreads and an inversion flag (recession signal). Daily data. Source: US Treasury via FRED.',
       inputSchema: s('Treasury yield curve', {}),

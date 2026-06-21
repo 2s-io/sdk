@@ -300,6 +300,8 @@ export interface Endpoints {
     fredVintage(input: { seriesId: string; asOf?: string; start?: string; end?: string; limit?: number }): R<Normalized>
     /** Browse the FRED category tree to discover series (category + children + popular series). */
     fredCategories(input?: { categoryId?: number; seriesLimit?: number }): R<Normalized>
+    /** FRED regional data — one series across all U.S. states/counties/metros for a period (income, unemployment, regional GDP). */
+    fredRegional(input: { seriesId: string; date?: string }): R<Normalized>
     /** Curated macro indicator latest reading + YoY (unemployment, fed funds, GDP, yields, payrolls...). Pass `indicator` or omit for all. */
     indicator(input?: { indicator?: string }): R<Normalized>
     /** Current US Treasury yield curve across maturities + 2s10s/3m10y spreads + inversion flag. */
@@ -1480,6 +1482,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       fredReleases: (i) => get('econ.fred-releases', '/api/econ/fred-releases', i ?? {}),
       fredVintage: (i) => get('econ.fred-vintage', '/api/econ/fred-vintage', i),
       fredCategories: (i) => get('econ.fred-categories', '/api/econ/fred-categories', i ?? {}),
+      fredRegional: (i) => get('econ.fred-regional', '/api/econ/fred-regional', i),
       indicator: (i) => get('econ.indicator', '/api/econ/indicator', i ?? {}),
       yieldCurve: (i) => get('econ.yield-curve', '/api/econ/yield-curve', i ?? {}),
       commodity: (i) => get('econ.commodity', '/api/econ/commodity', i ?? {}),
