@@ -2099,10 +2099,6 @@ class _Water(_Group):
 
 
 class _Tax(_Group):
-    def vat_validate(self, *, vat: str) -> CallResult:
-        """Validate an EU VAT identification number against the official VIES service (European Commission, keyless). Returns whether the number is currently valid and, where the member state discloses it, the r"""
-        query: dict = {"vat": vat}
-        return self._c.request("GET", "/api/tax/vat-validate", endpoint="tax.vat-validate", query=query)
 
     def vat(self, *, vat: str | None = None, country: str | None = None, number: str | None = None) -> CallResult:
         """Validate an EU VAT number against the live VIES register. Pass vat (full

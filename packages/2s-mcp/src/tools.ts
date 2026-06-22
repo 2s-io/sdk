@@ -4949,14 +4949,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.search.extract(a as never),
     },
     {
-      name: 'tax.vat-validate',
-      description: 'Validate an EU VAT identification number against the official VIES service (European Commission, keyless). Returns whether the number is currently valid and, where the member state discloses it, the registered trader name and address. The authoritative EU B2B/KYB check (e.g. for reverse-charge eligibility) — complement',
-      inputSchema: s('vat-validate', {
-        vat: { type: 'string', description: 'Full EU VAT number incl. country prefix, e.g. DE811569869, FRXX999999999.' },
-      }, ['vat']),
-      invoke: (a) => c.tax.vatValidate(a as never),
-    },
-    {
       name: 'time.parse',
       description: 'Parse a timestamp or date string into canonical forms — zero-dependency. Accepts unix seconds/millis or any standard date string (ISO-8601, RFC-2822, etc.). Returns UTC ISO, unix seconds + millis, RFC-2822, calendar components (year/month/day/hour/minute/second/weekday), ISO weekday, ISO year+week, and day-of-year. Pas',
       inputSchema: s('parse', {

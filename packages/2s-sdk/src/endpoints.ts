@@ -345,7 +345,6 @@ export interface Endpoints {
   }
   /** Tax-identifier validation. */
   tax: {
-    vatValidate(input: { vat: string }): R<Normalized>
     /** Validate an EU VAT number against the live VIES register. Pass `vat` (full id) OR `country`+`number`. */
     vat(input: { vat?: string; country?: string; number?: string }): R<Normalized>
     /** EU VAT rates by member state (standard + reduced/etc). Pass `country` (ISO 2-letter, Greece=EL) or omit for all 27. */
@@ -1708,7 +1707,6 @@ export function createEndpoints(client: TwoS): Endpoints {
       batch: (i) => post('validate.batch', '/api/validate/batch', i),
     },
     tax: {
-      vatValidate: (i) => get('tax.vat-validate', '/api/tax/vat-validate', i),
       vat: (i) => get('tax.vat', '/api/tax/vat', i),
       vatRates: (i) => get('tax.vat-rates', '/api/tax/vat-rates', i ?? {}),
     },
