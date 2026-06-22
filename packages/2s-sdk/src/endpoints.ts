@@ -140,6 +140,16 @@ export interface Endpoints {
       deviceScaleFactor?: number
       blockAds?: boolean
     }): R<AiScreenshotResponse>
+    /** Zero-shot text classification — assign text to your labels (or several when multiLabel) with confidence + rationale. POST { text, labels[], multiLabel? }. */
+    classify(input: { text: string; labels: string[]; multiLabel?: boolean }): R<Normalized>
+    /** Named-entity recognition — extract people/orgs/locations/dates/money/etc with type + mention count. POST { text }. */
+    entities(input: { text: string }): R<Normalized>
+    /** Content moderation — per-category boolean + 0..1 severity score + overall flagged verdict. POST { text }. */
+    moderate(input: { text: string }): R<Normalized>
+    /** PII detection — finds names/emails/phones/SSNs/cards/etc with type + exact substring for redaction. POST { text }. */
+    pii(input: { text: string }): R<Normalized>
+    /** Sentiment analysis — polarity (positive/negative/neutral/mixed), -1..1 score, confidence + rationale. POST { text }. */
+    sentiment(input: { text: string }): R<Normalized>
   }
   aircraft: {
     /** US aircraft by tail (N-number) or icao24 Mode-S hex. Pass exactly one. */
@@ -232,6 +242,48 @@ export interface Endpoints {
     tokenPrice(input: { ids: string; vs?: string }): R<unknown>
     /** Live EVM transaction status + receipt by hash. Chains: base, ethereum, polygon, arbitrum, optimism. */
     tx(input: { chain: 'base' | 'ethereum' | 'polygon' | 'arbitrum' | 'optimism'; hash: string }): R<Normalized>
+    /** EVM address transaction history (Etherscan-family). chainId defaults to 1 (Ethereum). */
+    addressHistory(input: { address: string; chainId?: number; page?: number; offset?: number; sort?: 'asc' | 'desc'; startBlock?: number; endBlock?: number }): R<Normalized>
+    /** Address safety report — risk signals/labels for an EVM address by chainId. */
+    addressSafety(input: { chainId: string; address: string }): R<Normalized>
+    /** OFAC sanctions screen for a wallet address (any chain, case-insensitive). */
+    addressScreen(input: { address: string }): R<Normalized>
+    /** Daily TVL history for a chain (DefiLlama). Pass chain (+ limit for most-recent N points). */
+    chainTvlHistory(input: { chain: string; limit?: number }): R<Normalized>
+    /** Full coin profile by CoinGecko id (price, market data, links, description). */
+    coin(input: { id: string }): R<Normalized>
+    /** Historical price/marketcap/volume series for a coin by CoinGecko id. */
+    coinHistory(input: { id: string; days?: number; vs?: string }): R<Normalized>
+    /** DeFi chains ranked by TVL (DefiLlama). */
+    defiChains(input?: { limit?: number }): R<Normalized>
+    /** DeFi protocol fees/revenue ranked (DefiLlama). kind fees|dexs, sort by window. */
+    defiFees(input?: { kind?: 'fees' | 'dexs'; sort?: 'total24h' | 'total7d' | 'total30d'; limit?: number }): R<Normalized>
+    /** Daily TVL history for a DefiLlama protocol slug (+ limit for most-recent N points). */
+    defiProtocolHistory(input: { slug: string; limit?: number }): R<Normalized>
+    /** DeFi yield pools (DefiLlama) — filter by chain/project/symbol/minApy/minTvl, sort by apy|tvl. */
+    defiYields(input?: { chain?: string; project?: string; symbol?: string; minApy?: number; minTvlUsd?: number; sort?: 'apy' | 'tvl'; limit?: number }): R<Normalized>
+    /** Supported DEX networks (GeckoTerminal). */
+    dexNetworks(input?: { limit?: number }): R<Normalized>
+    /** OHLCV candles for a DEX pool (GeckoTerminal). network + pool address + timeframe. */
+    dexOhlcv(input: { network: string; address: string; timeframe?: 'day' | 'hour' | 'minute'; aggregate?: number; limit?: number }): R<Normalized>
+    /** Trending/new DEX pools for a network (GeckoTerminal). */
+    dexPools(input: { network: string; kind?: 'trending' | 'new'; limit?: number }): R<Normalized>
+    /** Search DEX pools by token name/symbol/contract (GeckoTerminal), optional network scope. */
+    dexSearch(input: { query: string; network?: string; limit?: number }): R<Normalized>
+    /** Pools trading a given token on a network (GeckoTerminal). */
+    dexTokenPools(input: { network: string; address: string; limit?: number }): R<Normalized>
+    /** Hyperliquid perps — open interest, volume, funding (sort by oi|volume|funding). */
+    hyperliquidFunding(input?: { coin?: string; sort?: 'oi' | 'volume' | 'funding'; limit?: number }): R<Normalized>
+    /** Hyperliquid predicted next-hour funding rates per coin across venues. */
+    hyperliquidPredictedFunding(input?: { coin?: string; limit?: number }): R<Normalized>
+    /** Stablecoins by circulating USD (DefiLlama). */
+    stablecoins(input?: { limit?: number }): R<Normalized>
+    /** Token info by network + contract address (GeckoTerminal). */
+    tokenInfo(input: { network: string; address: string }): R<Normalized>
+    /** Token safety report by EVM chainId + contract address. */
+    tokenSafety(input: { chainId: string; address: string }): R<Normalized>
+    /** ERC-20 token transfers for an EVM address (Etherscan-family). chainId defaults to 1. */
+    tokenTransfers(input: { address: string; chainId?: number; contractAddress?: string; page?: number; offset?: number; sort?: 'asc' | 'desc' }): R<Normalized>
   }
   /** Deterministic validation/normalization primitives (no upstream). */
   validate: {
@@ -642,6 +694,97 @@ export interface Endpoints {
     hnItem(input: { id: number }): R<unknown>
     /** Live news search: headlines with source, age, breaking flag. freshness: pd|pw|pm|py. */
     search(input: { q: string; count?: number; offset?: number; country?: string; freshness?: 'pd' | 'pw' | 'pm' | 'py' }): R<unknown>
+    /** Full-text Hacker News search (Algolia) — stories/comments by keyword, tags, author, sort. */
+    hnSearch(input?: { query?: string; tags?: 'story' | 'comment' | 'ask_hn' | 'show_hn' | 'poll'; sort?: 'relevance' | 'date'; author?: string; limit?: number }): R<Normalized>
+    /** Hacker News user profile by username — karma, about, created, submitted count. */
+    hnUser(input: { username: string }): R<Normalized>
+  }
+  /** Chinese-language deterministic primitives (OpenCC + pinyin, keyless). */
+  chinese: {
+    /** Convert Chinese between Simplified/Traditional variants. from/to: cn|tw|twp|hk|t|jp. */
+    convert(input: { text: string; from: string; to: string }): R<Normalized>
+    /** Detect Chinese in text — Han presence, count, and script classification (simplified/traditional/mixed/han-common). */
+    detect(input: { text: string }): R<Normalized>
+    /** Convert Hanzi to pinyin — tone marks, numbered tones, or none; auto-segments words. */
+    pinyin(input: { text: string; tone?: 'symbol' | 'num' | 'none'; segmented?: boolean }): R<Normalized>
+  }
+  /** Contact the 2s team. */
+  feedback: {
+    /** Send a message to the 2s team (feedback/bug/endpoint request). Flat $0.10. POST { message, subject?, name?, from? }. */
+    send(input: { message: string; subject?: string; name?: string; from?: string }): R<Normalized>
+  }
+  /** GitHub read API (no caller key needed). */
+  github: {
+    /** Repository metadata: stars, forks, language, topics, license, timestamps. */
+    repo(input: { owner: string; repo: string }): R<Normalized>
+    /** List a user/org's repositories. Sort updated|created|pushed|full_name; type owner|member|all. */
+    repos(input: { owner: string; sort?: 'updated' | 'created' | 'pushed' | 'full_name'; type?: 'owner' | 'member' | 'all'; perPage?: number; page?: number }): R<Normalized>
+    /** GitHub code search (code-search syntax) — total count + file name/path/repo/url per hit. */
+    searchCode(input: { q: string; perPage?: number; page?: number }): R<Normalized>
+    /** GitHub repository search (full query syntax). Sort stars|forks|help-wanted-issues|updated. */
+    searchRepos(input: { q: string; sort?: 'stars' | 'forks' | 'help-wanted-issues' | 'updated'; order?: 'asc' | 'desc'; perPage?: number; page?: number }): R<Normalized>
+    /** GitHub user/org profile: name, company, bio, followers, repo counts, created date. */
+    user(input: { username: string }): R<Normalized>
+    /** Commit history for a repo. Filter by branch/tag (sha), file path, or author; paginate. */
+    commits(input: { owner: string; repo: string; sha?: string; path?: string; author?: string; perPage?: number; page?: number }): R<Normalized>
+    /** Issues for a repo (PRs excluded). Filter state open|closed|all + labels; paginate. */
+    issues(input: { owner: string; repo: string; state?: 'open' | 'closed' | 'all'; labels?: string; perPage?: number; page?: number }): R<Normalized>
+    /** Pull requests for a repo. Filter state open|closed|all; paginate. */
+    pulls(input: { owner: string; repo: string; state?: 'open' | 'closed' | 'all'; perPage?: number; page?: number }): R<Normalized>
+    /** Branches of a repo: name, head sha, protection flag. */
+    branches(input: { owner: string; repo: string; perPage?: number; page?: number }): R<Normalized>
+    /** Git tags of a repo (name + commit sha), most recent first. */
+    tags(input: { owner: string; repo: string; perPage?: number; page?: number }): R<Normalized>
+    /** A repo's releases: tag, name, draft/prerelease, author, published time, notes. */
+    releases(input: { owner: string; repo: string; perPage?: number; page?: number }): R<Normalized>
+    /** Top contributors to a repo, ranked by commit count. */
+    contributors(input: { owner: string; repo: string; perPage?: number; page?: number }): R<Normalized>
+    /** Programming-language breakdown of a repo (bytes + percent), by size. */
+    languages(input: { owner: string; repo: string }): R<Normalized>
+    /** A repo's README decoded to UTF-8 text. Optional ref (branch/tag/sha). */
+    readme(input: { owner: string; repo: string; ref?: string }): R<Normalized>
+  }
+  /** Prediction markets — Kalshi + Polymarket (read-only). */
+  predict: {
+    /** Browse Kalshi events. Filter status/seriesTicker; page with limit + cursor. */
+    kalshiEvents(input?: { limit?: number; cursor?: string; status?: 'unopened' | 'open' | 'closed' | 'settled'; seriesTicker?: string }): R<Normalized>
+    /** A single Kalshi market by ticker — yes/no bid+ask, last price, volume, OI, result. */
+    kalshiMarket(input: { ticker: string }): R<Normalized>
+    /** Browse Kalshi markets. Filter status/eventTicker/seriesTicker/tickers; page with limit + cursor. */
+    kalshiMarkets(input?: { limit?: number; cursor?: string; eventTicker?: string; seriesTicker?: string; status?: 'unopened' | 'open' | 'closed' | 'settled'; tickers?: string }): R<Normalized>
+    /** Order book for a Kalshi market by ticker — resting yes/no bids (price + size). */
+    kalshiOrderbook(input: { ticker: string; depth?: number }): R<Normalized>
+    /** Recent Kalshi trades, optionally filtered to one ticker. Page with limit + cursor. */
+    kalshiTrades(input?: { ticker?: string; limit?: number; cursor?: string }): R<Normalized>
+    /** A single Polymarket market by conditionId, slug, or id — outcomes + live prices, CLOB token ids. */
+    market(input?: { conditionId?: string; slug?: string; id?: string }): R<Normalized>
+    /** Browse Polymarket markets. Filter active/closed, order, page with limit/offset. */
+    markets(input?: { limit?: number; offset?: number; active?: boolean; closed?: boolean; order?: 'volume' | 'liquidity' | 'endDate' | 'startDate'; ascending?: boolean; tagId?: number }): R<Normalized>
+    /** Full CLOB order book (bids + asks) for a Polymarket outcome token (clobTokenId). */
+    orderbook(input: { tokenId: string }): R<Normalized>
+    /** Live best bid/ask/midpoint for a Polymarket outcome token (midpoint = implied probability). */
+    price(input: { tokenId: string }): R<Normalized>
+    /** Time-series price (implied-probability) history for a Polymarket outcome token. */
+    priceHistory(input: { tokenId: string; interval?: '1h' | '6h' | '1d' | '1w' | '1m' | 'max'; fidelity?: number }): R<Normalized>
+    /** Recent Polymarket trades. Filter by market (conditionId) and/or user (wallet); page with limit. */
+    trades(input?: { market?: string; user?: string; limit?: number }): R<Normalized>
+    /** A Polymarket trader's portfolio by wallet address — value + open positions + unrealized PnL. */
+    wallet(input: { address: string }): R<Normalized>
+    /** Polymarket whale radar — largest recent trades by USD notional, ranked. */
+    whales(input?: { limit?: number; minUsd?: number }): R<Normalized>
+  }
+  /** Sports schedules, scores, standings (official league APIs, keyless). */
+  sports: {
+    /** MLB games for a date (+ optional team) — status, teams, score, venue. Defaults to today. */
+    mlbSchedule(input?: { date?: string; teamId?: number }): R<Normalized>
+    /** MLB regular-season standings for a season (wins/losses/pct/GB/rank/streak). */
+    mlbStandings(input?: { season?: number }): R<Normalized>
+    /** NHL game schedule for the week anchored on a date (+ optional 3-letter team). Defaults to this week. */
+    nhlSchedule(input?: { date?: string; team?: string }): R<Normalized>
+    /** NHL scores/games for a date — state, start time, teams + score. Defaults to today. */
+    nhlScores(input?: { date?: string }): R<Normalized>
+    /** Current NHL standings — conference/division, GP, W/L/OTL, points, diff, streak. */
+    nhlStandings(): R<Normalized>
   }
   /** Live web search + catalog discovery. */
   search: {
@@ -1414,6 +1557,11 @@ export function createEndpoints(client: TwoS): Endpoints {
       extract: (i) => post('ai.extract', '/api/ai/extract', i),
       describeImage: (i) => post('ai.describe-image', '/api/ai/describe-image', i),
       screenshot: (i) => post('ai.screenshot', '/api/ai/screenshot', i),
+      classify: (i) => post('ai.classify', '/api/ai/classify', i),
+      entities: (i) => post('ai.entities', '/api/ai/entities', i),
+      moderate: (i) => post('ai.moderate', '/api/ai/moderate', i),
+      pii: (i) => post('ai.pii', '/api/ai/pii', i),
+      sentiment: (i) => post('ai.sentiment', '/api/ai/sentiment', i),
     },
     aircraft: {
       lookup: (i) => get('aircraft.lookup', '/api/aircraft/lookup', i),
@@ -1454,6 +1602,27 @@ export function createEndpoints(client: TwoS): Endpoints {
       ensResolve: (i) => get('crypto.ens-resolve', '/api/crypto/ens-resolve', i),
       tokenPrice: (i) => get('crypto.token-price', '/api/crypto/token-price', i),
       tx: (i) => get('crypto.tx', '/api/crypto/tx', i),
+      addressHistory: (i) => get('crypto.address-history', '/api/crypto/address-history', i),
+      addressSafety: (i) => get('crypto.address-safety', '/api/crypto/address-safety', i),
+      addressScreen: (i) => get('crypto.address-screen', '/api/crypto/address-screen', i),
+      chainTvlHistory: (i) => get('crypto.chain-tvl-history', '/api/crypto/chain-tvl-history', i),
+      coin: (i) => get('crypto.coin', '/api/crypto/coin', i),
+      coinHistory: (i) => get('crypto.coin-history', '/api/crypto/coin-history', i),
+      defiChains: (i) => get('crypto.defi-chains', '/api/crypto/defi-chains', i ?? {}),
+      defiFees: (i) => get('crypto.defi-fees', '/api/crypto/defi-fees', i ?? {}),
+      defiProtocolHistory: (i) => get('crypto.defi-protocol-history', '/api/crypto/defi-protocol-history', i),
+      defiYields: (i) => get('crypto.defi-yields', '/api/crypto/defi-yields', i ?? {}),
+      dexNetworks: (i) => get('crypto.dex-networks', '/api/crypto/dex-networks', i ?? {}),
+      dexOhlcv: (i) => get('crypto.dex-ohlcv', '/api/crypto/dex-ohlcv', i),
+      dexPools: (i) => get('crypto.dex-pools', '/api/crypto/dex-pools', i),
+      dexSearch: (i) => get('crypto.dex-search', '/api/crypto/dex-search', i),
+      dexTokenPools: (i) => get('crypto.dex-token-pools', '/api/crypto/dex-token-pools', i),
+      hyperliquidFunding: (i) => get('crypto.hyperliquid-funding', '/api/crypto/hyperliquid-funding', i ?? {}),
+      hyperliquidPredictedFunding: (i) => get('crypto.hyperliquid-predicted-funding', '/api/crypto/hyperliquid-predicted-funding', i ?? {}),
+      stablecoins: (i) => get('crypto.stablecoins', '/api/crypto/stablecoins', i ?? {}),
+      tokenInfo: (i) => get('crypto.token-info', '/api/crypto/token-info', i),
+      tokenSafety: (i) => get('crypto.token-safety', '/api/crypto/token-safety', i),
+      tokenTransfers: (i) => get('crypto.token-transfers', '/api/crypto/token-transfers', i),
     },
     validate: {
       iban: (i) => get('validate.iban', '/api/validate/iban', i),
@@ -1793,6 +1962,54 @@ export function createEndpoints(client: TwoS): Endpoints {
       hnTop: (i) => get('news.hn-top', '/api/news/hn-top', i),
       hnItem: (i) => get('news.hn-item', '/api/news/hn-item', i),
       search: (i) => get('news.search', '/api/news/search', i),
+      hnSearch: (i) => get('news.hn-search', '/api/news/hn-search', i ?? {}),
+      hnUser: (i) => get('news.hn-user', '/api/news/hn-user', i),
+    },
+    chinese: {
+      convert: (i) => get('chinese.convert', '/api/chinese/convert', i),
+      detect: (i) => get('chinese.detect', '/api/chinese/detect', i),
+      pinyin: (i) => get('chinese.pinyin', '/api/chinese/pinyin', i),
+    },
+    feedback: {
+      send: (i) => post('feedback.send', '/api/feedback/send', i),
+    },
+    github: {
+      repo: (i) => get('github.repo', '/api/github/repo', i),
+      repos: (i) => get('github.repos', '/api/github/repos', i),
+      searchCode: (i) => get('github.search-code', '/api/github/search-code', i),
+      searchRepos: (i) => get('github.search-repos', '/api/github/search-repos', i),
+      user: (i) => get('github.user', '/api/github/user', i),
+      commits: (i) => get('github.commits', '/api/github/commits', i),
+      issues: (i) => get('github.issues', '/api/github/issues', i),
+      pulls: (i) => get('github.pulls', '/api/github/pulls', i),
+      branches: (i) => get('github.branches', '/api/github/branches', i),
+      tags: (i) => get('github.tags', '/api/github/tags', i),
+      releases: (i) => get('github.releases', '/api/github/releases', i),
+      contributors: (i) => get('github.contributors', '/api/github/contributors', i),
+      languages: (i) => get('github.languages', '/api/github/languages', i),
+      readme: (i) => get('github.readme', '/api/github/readme', i),
+    },
+    predict: {
+      kalshiEvents: (i) => get('predict.kalshi-events', '/api/predict/kalshi-events', i ?? {}),
+      kalshiMarket: (i) => get('predict.kalshi-market', '/api/predict/kalshi-market', i),
+      kalshiMarkets: (i) => get('predict.kalshi-markets', '/api/predict/kalshi-markets', i ?? {}),
+      kalshiOrderbook: (i) => get('predict.kalshi-orderbook', '/api/predict/kalshi-orderbook', i),
+      kalshiTrades: (i) => get('predict.kalshi-trades', '/api/predict/kalshi-trades', i ?? {}),
+      market: (i) => get('predict.market', '/api/predict/market', i ?? {}),
+      markets: (i) => get('predict.markets', '/api/predict/markets', i ?? {}),
+      orderbook: (i) => get('predict.orderbook', '/api/predict/orderbook', i),
+      price: (i) => get('predict.price', '/api/predict/price', i),
+      priceHistory: (i) => get('predict.price-history', '/api/predict/price-history', i),
+      trades: (i) => get('predict.trades', '/api/predict/trades', i ?? {}),
+      wallet: (i) => get('predict.wallet', '/api/predict/wallet', i),
+      whales: (i) => get('predict.whales', '/api/predict/whales', i ?? {}),
+    },
+    sports: {
+      mlbSchedule: (i) => get('sports.mlb-schedule', '/api/sports/mlb-schedule', i ?? {}),
+      mlbStandings: (i) => get('sports.mlb-standings', '/api/sports/mlb-standings', i ?? {}),
+      nhlSchedule: (i) => get('sports.nhl-schedule', '/api/sports/nhl-schedule', i ?? {}),
+      nhlScores: (i) => get('sports.nhl-scores', '/api/sports/nhl-scores', i ?? {}),
+      nhlStandings: () => get('sports.nhl-standings', '/api/sports/nhl-standings', {}),
     },
     search: {
       endpoints: (i) => get('search.endpoints', '/api/search/endpoints', i),

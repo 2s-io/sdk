@@ -244,6 +244,11 @@ export class TwoS {
   public readonly treasury: Endpoints['treasury']
   public readonly email: Endpoints['email']
   public readonly travel: Endpoints['travel']
+  public readonly chinese: Endpoints['chinese']
+  public readonly feedback: Endpoints['feedback']
+  public readonly github: Endpoints['github']
+  public readonly predict: Endpoints['predict']
+  public readonly sports: Endpoints['sports']
 
   constructor(config: TwoSConfig = {}) {
     if (config.privateKey && config.signer) {
@@ -370,6 +375,11 @@ export class TwoS {
     this.treasury = this.endpoints.treasury
     this.email = this.endpoints.email
     this.travel = this.endpoints.travel
+    this.chinese = this.endpoints.chinese
+    this.feedback = this.endpoints.feedback
+    this.github = this.endpoints.github
+    this.predict = this.endpoints.predict
+    this.sports = this.endpoints.sports
   }
 
   /** Base URL with no trailing slash. */

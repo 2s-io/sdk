@@ -3800,6 +3800,711 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.treasury.monthlyStatement(a as never),
     },
+
+    // ── AI / NLP (parity wave) ───────────────────────────────────────
+    {
+      name: 'ai.classify',
+      description:
+        'Zero-shot text classification. POST { text, labels[], multiLabel? }. Assigns the text to one of your labels (or several when multiLabel=true) with a confidence score and a one-line rationale. No training data needed — define the labels at call time. Great for routing, tagging, triage, and intent detection.',
+      inputSchema: s('Zero-shot classify', {
+        text: { type: 'string', description: 'Text to classify (1–12000 chars).' },
+        labels: { type: 'array', description: '2–20 candidate labels to choose from.', items: { type: 'string' } },
+        multiLabel: { type: 'boolean', description: 'Allow multiple labels (default single).' },
+      }, ['text', 'labels']),
+      invoke: (a) => c.ai.classify(a as never),
+    },
+    {
+      name: 'ai.entities',
+      description:
+        'Named-entity recognition. POST { text }. Extracts people, organizations, locations, dates, money, products, laws, events and more — each with a standard type and mention count. For knowledge extraction, redaction prep, and document indexing.',
+      inputSchema: s('Entity extraction', {
+        text: { type: 'string', description: 'Text to analyze (1–12000 chars).' },
+      }, ['text']),
+      invoke: (a) => c.ai.entities(a as never),
+    },
+    {
+      name: 'ai.moderate',
+      description:
+        'Content moderation. POST { text }. Flags content across categories — hate, harassment, sexual, sexual/minors, violence, self-harm, dangerous, illicit — with a per-category boolean and 0..1 severity score, plus an overall flagged verdict. For UGC filtering, trust & safety, and pre-publish checks.',
+      inputSchema: s('Content moderation', {
+        text: { type: 'string', description: 'Text to moderate (1–12000 chars).' },
+      }, ['text']),
+      invoke: (a) => c.ai.moderate(a as never),
+    },
+    {
+      name: 'ai.pii',
+      description:
+        'PII detection. POST { text }. Finds personally identifiable information — names, emails, phones, addresses, SSNs, credit cards, bank/IP/passport/DOB and more — returning each finding with its type and exact substring so you can redact it. For compliance, logging hygiene, and data-minimization before storing or sending text.',
+      inputSchema: s('PII detection', {
+        text: { type: 'string', description: 'Text to scan for PII (1–12000 chars).' },
+      }, ['text']),
+      invoke: (a) => c.ai.pii(a as never),
+    },
+    {
+      name: 'ai.sentiment',
+      description:
+        'Sentiment analysis. POST { text }. Returns overall sentiment (positive/negative/neutral/mixed), a polarity score from -1 to 1, a confidence, and a one-line rationale. For reviews, social posts, support messages, and feedback triage.',
+      inputSchema: s('Sentiment analysis', {
+        text: { type: 'string', description: 'Text to analyze (1–12000 chars).' },
+      }, ['text']),
+      invoke: (a) => c.ai.sentiment(a as never),
+    },
+
+    // ── Chinese language ─────────────────────────────────────────────
+    {
+      name: 'chinese.convert',
+      description:
+        'Convert Chinese text between Simplified and Traditional scripts (and regional variants). from/to take: cn (Mainland Simplified), tw (Taiwan Traditional), twp (Taiwan w/ idioms), hk (Hong Kong Traditional), t (generic Traditional), jp (Japanese Shinjitai). E.g. from=cn to=tw. Deterministic, keyless (OpenCC mappings).',
+      inputSchema: s('Chinese convert', {
+        text: { type: 'string', description: 'Chinese text to convert (1–5000 chars).' },
+        from: { type: 'string', enum: ['cn', 'tw', 'twp', 'hk', 't', 'jp'], description: 'Source variant.' },
+        to: { type: 'string', enum: ['cn', 'tw', 'twp', 'hk', 't', 'jp'], description: 'Target variant.' },
+      }, ['text', 'from', 'to']),
+      invoke: (a) => c.chinese.convert(a as never),
+    },
+    {
+      name: 'chinese.detect',
+      description:
+        'Detect Chinese in text: whether it contains Han characters, how many, total length, and a script classification — simplified, traditional, mixed, or han-common (characters identical in both scripts). Deterministic, keyless. Route text to the right pipeline or pick a conversion direction before calling chinese.convert.',
+      inputSchema: s('Chinese detect', {
+        text: { type: 'string', description: 'Text to inspect (1–5000 chars).' },
+      }, ['text']),
+      invoke: (a) => c.chinese.detect(a as never),
+    },
+    {
+      name: 'chinese.pinyin',
+      description:
+        'Convert Chinese (Hanzi) text to pinyin romanization. Choose tone marks (symbol, e.g. hàn yǔ), numbered tones (han4 yu3), or no tones. Auto-segments words and returns the full pinyin string plus a per-syllable array. Deterministic, keyless — useful for transliteration, pronunciation, search indexing, and TTS prep.',
+      inputSchema: s('Chinese pinyin', {
+        text: { type: 'string', description: 'Chinese text to romanize (1–2000 chars).' },
+        tone: { type: 'string', enum: ['symbol', 'num', 'none'], description: 'Tone rendering (default symbol).' },
+        segmented: { type: 'boolean', description: 'Include the per-word segment array.' },
+      }, ['text']),
+      invoke: (a) => c.chinese.pinyin(a as never),
+    },
+
+    // ── Crypto (parity wave) ─────────────────────────────────────────
+    {
+      name: 'crypto.address-history',
+      description:
+        'Transaction history for an Ethereum address (via Etherscan V2). Returns normal transactions newest-first: hash, block, timestamp, from/to, value (wei + ETH), gas used, gas price, decoded method id + function name, error flag, and any contract created. Paginate with page + offset; bound with startBlock/endBlock. Defaults to Ethereum mainnet; other EVM chains by chainId where upstream coverage allows. Net-new vs crypto.tx (single-hash receipt).',
+      inputSchema: s('EVM address tx history', {
+        chainId: { type: 'integer', minimum: 1, description: 'EVM chain id; defaults to 1 (Ethereum). 8453 Base, 137 Polygon, 42161 Arbitrum…' },
+        address: { type: 'string', description: '0x EVM address.' },
+        page: { type: 'integer', minimum: 1 },
+        offset: { type: 'integer', minimum: 1, maximum: 100 },
+        sort: { type: 'string', enum: ['asc', 'desc'] },
+        startBlock: { type: 'integer', minimum: 0 },
+        endBlock: { type: 'integer', minimum: 0 },
+      }, ['address']),
+      invoke: (a) => c.crypto.addressHistory(a as never),
+    },
+    {
+      name: 'crypto.address-safety',
+      description:
+        'Malicious-wallet screen (via GoPlus, free/keyless). For any EVM address returns risk flags — cybercrime, money laundering, financial crime, darkweb, phishing, stealing/blackmail, fake KYC, mixer, sanctioned, honeypot-related, blacklist doubt and more — plus an overall malicious verdict and hit count. Counterparty risk check before interacting with an address.',
+      inputSchema: s('EVM address safety', {
+        chainId: { type: 'string', description: 'EVM chain id, e.g. 1, 56, 137, 8453.' },
+        address: { type: 'string', description: '0x EVM address.' },
+      }, ['chainId', 'address']),
+      invoke: (a) => c.crypto.addressSafety(a as never),
+    },
+    {
+      name: 'crypto.address-screen',
+      description:
+        "Sanctions-screen a crypto wallet address against the US Treasury OFAC SDN list's published Digital Currency Addresses (BTC/ETH/USDT/XMR and more). Exact match — returns whether the address is sanctioned, and for any hit the listed entity name, OFAC programs, source id, and the currency the address was listed under. Compliance check before transacting. Distinct from crypto.address-safety (GoPlus behavioral risk) — this is regulatory sanctions.",
+      inputSchema: s('OFAC address screen', {
+        address: { type: 'string', description: 'Wallet address (any chain). Case-insensitive.' },
+      }, ['address']),
+      invoke: (a) => c.crypto.addressScreen(a as never),
+    },
+    {
+      name: 'crypto.chain-tvl-history',
+      description:
+        'Historical total DeFi TVL time series for a blockchain (e.g. Ethereum, Solana, Arbitrum), via DefiLlama (free/keyless). Returns daily { date, tvlUsd } points (most recent N, default 90). For charting a chain\'s DeFi capital over time. Pair with crypto.defi-chains for the current cross-chain leaderboard.',
+      inputSchema: s('Chain TVL history', {
+        chain: { type: 'string', description: 'Chain name, e.g. Ethereum, Solana, Arbitrum, Base.' },
+        limit: { type: 'integer', minimum: 1, maximum: 1000, description: 'Most-recent N daily points (default 90).' },
+      }, ['chain']),
+      invoke: (a) => c.crypto.chainTvlHistory(a as never),
+    },
+    {
+      name: 'crypto.coin',
+      description:
+        'Full coin profile by CoinGecko id (e.g. bitcoin, ethereum, solana). Returns price, market cap + rank, FDV, 24h volume, all-time high/low with dates, circulating/total/max supply, price changes (1h/24h/7d/30d/1y), categories, and official links (homepage, X, GitHub, subreddit). Richer than crypto.token-price (spot only) and crypto.markets (list row).',
+      inputSchema: s('Coin profile', {
+        id: { type: 'string', description: 'CoinGecko coin id, e.g. bitcoin, ethereum, solana.' },
+      }, ['id']),
+      invoke: (a) => c.crypto.coin(a as never),
+    },
+    {
+      name: 'crypto.coin-history',
+      description:
+        'Historical market chart for a coin by CoinGecko id: time-series of price, market cap, and volume over the last N days (1-365) in USD or another vs-currency. Granularity is auto-selected by range (hourly for short windows, daily for long). For backtests, charts, and trend analysis.',
+      inputSchema: s('Coin market chart', {
+        id: { type: 'string', description: 'CoinGecko coin id, e.g. bitcoin.' },
+        days: { type: 'integer', minimum: 1, maximum: 365, description: 'Lookback in days (default 7).' },
+        vs: { type: 'string', description: 'vs-currency (default usd).' },
+      }, ['id']),
+      invoke: (a) => c.crypto.coinHistory(a as never),
+    },
+    {
+      name: 'crypto.defi-chains',
+      description:
+        'DeFi TVL leaderboard across all chains (via DefiLlama, free/keyless): every chain ranked by total value locked, with its native token symbol and chain id. Distinct from crypto.defi (which returns one chain\'s TVL by name) — this is the full ranked cross-chain comparison.',
+      inputSchema: s('DeFi chain TVL leaderboard', {
+        limit: { type: 'integer', minimum: 1, maximum: 200 },
+      }),
+      invoke: (a) => c.crypto.defiChains(a as never),
+    },
+    {
+      name: 'crypto.defi-fees',
+      description:
+        'Protocol fees/revenue or DEX trading volume leaderboards (via DefiLlama, free/keyless). kind=fees ranks protocols by fees generated; kind=dexs ranks DEXes by trading volume. Each row has 24h/7d/30d/1y totals + 1-month change, plus catalog totals. Sort by total24h/7d/30d. The protocol-economics layer.',
+      inputSchema: s('DeFi fees / DEX volume', {
+        kind: { type: 'string', enum: ['fees', 'dexs'] },
+        sort: { type: 'string', enum: ['total24h', 'total7d', 'total30d'] },
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+      }),
+      invoke: (a) => c.crypto.defiFees(a as never),
+    },
+    {
+      name: 'crypto.defi-protocol-history',
+      description:
+        'Historical total-value-locked (TVL) time series for a DeFi protocol by slug (e.g. aave, lido, uniswap), via DefiLlama (free/keyless). Returns daily { date, tvlUsd } points (most recent N, default 90) plus the protocol\'s chains. For charting a protocol\'s growth or decline over time. Net-new vs crypto.defi (current TVL only).',
+      inputSchema: s('DeFi protocol TVL history', {
+        slug: { type: 'string', description: 'DefiLlama protocol slug, e.g. aave, lido, uniswap.' },
+        limit: { type: 'integer', minimum: 1, maximum: 1000, description: 'Most-recent N daily points (default 90).' },
+      }, ['slug']),
+      invoke: (a) => c.crypto.defiProtocolHistory(a as never),
+    },
+    {
+      name: 'crypto.defi-yields',
+      description:
+        'DeFi yield & lending rates across protocols (via DefiLlama, free/keyless). Returns pools ranked by APY or TVL with base vs reward APY, TVL, 1d/7d/30d APY trend, stablecoin flag, and IL-risk. Filter by chain, project (aave, compound, lido…), symbol (USDC, ETH…), minApy, minTvlUsd. The yield/lending-rate layer beyond crypto.defi\'s TVL headline.',
+      inputSchema: s('DeFi yields', {
+        chain: { type: 'string' },
+        project: { type: 'string' },
+        symbol: { type: 'string' },
+        minApy: { type: 'number', minimum: 0 },
+        minTvlUsd: { type: 'number', minimum: 0 },
+        sort: { type: 'string', enum: ['apy', 'tvl'] },
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+      }),
+      invoke: (a) => c.crypto.defiYields(a as never),
+    },
+    {
+      name: 'crypto.dex-networks',
+      description:
+        'List the 100+ blockchain networks supported by the on-chain DEX endpoints (via GeckoTerminal, free/keyless). Each entry has the network slug to use with crypto.dex-pools / dex-ohlcv / dex-search / token-info, its display name, and CoinGecko asset-platform id. Call this to discover valid network slugs.',
+      inputSchema: s('DEX supported networks', {
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+      }),
+      invoke: (a) => c.crypto.dexNetworks(a as never),
+    },
+    {
+      name: 'crypto.dex-ohlcv',
+      description:
+        'OHLCV candlesticks for a DEX pool (via GeckoTerminal, free/keyless). Pass network + pool address + timeframe (day/hour/minute) with optional aggregate (e.g. 4 = 4-hour) and limit. Returns time/open/high/low/close/volumeUsd bars for on-chain technical analysis. Pair with crypto.dex-pools / dex-token-pools to find a pool address.',
+      inputSchema: s('DEX pool OHLCV', {
+        network: { type: 'string', description: 'Network slug, e.g. eth, bsc, base, solana.' },
+        address: { type: 'string', description: 'Pool address (not token address).' },
+        timeframe: { type: 'string', enum: ['day', 'hour', 'minute'] },
+        aggregate: { type: 'integer', minimum: 1, maximum: 60, description: 'e.g. 4 = 4-hour bars.' },
+        limit: { type: 'integer', minimum: 1, maximum: 1000 },
+      }, ['network', 'address']),
+      invoke: (a) => c.crypto.dexOhlcv(a as never),
+    },
+    {
+      name: 'crypto.dex-pools',
+      description:
+        'Trending or newly-created DEX liquidity pools on a network (via GeckoTerminal, free/keyless). kind=trending (hot pools) or kind=new (freshly launched — early-token discovery). Each pool: pair name, base/quote USD price, FDV, market cap, reserve, 24h volume, 24h price change, and 24h buys/sells. Networks: eth, bsc, polygon_pos, base, arbitrum, solana, and 100+ more.',
+      inputSchema: s('DEX trending/new pools', {
+        network: { type: 'string', description: 'GeckoTerminal network slug, e.g. eth, bsc, base, solana.' },
+        kind: { type: 'string', enum: ['trending', 'new'] },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['network']),
+      invoke: (a) => c.crypto.dexPools(a as never),
+    },
+    {
+      name: 'crypto.dex-search',
+      description:
+        'Search on-chain DEX liquidity pools by token name, symbol, or address (via GeckoTerminal, free/keyless). Optionally scope to one network. Returns matching pools with pair name, USD price, FDV, market cap, reserve, 24h volume + price change, and buys/sells — the fast way to find the right pool/token before pulling OHLCV or token info.',
+      inputSchema: s('DEX pool search', {
+        query: { type: 'string', description: 'Token name, symbol, or contract address.' },
+        network: { type: 'string', description: 'Optional network slug to scope the search.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['query']),
+      invoke: (a) => c.crypto.dexSearch(a as never),
+    },
+    {
+      name: 'crypto.dex-token-pools',
+      description:
+        'All DEX pools trading a given token, by contract address (via GeckoTerminal, free/keyless). Returns each pool\'s pair, on-chain USD price, FDV/market cap, liquidity reserve, 24h volume + price change, and buys/sells — the on-chain price + liquidity picture for any token across a network\'s DEXes.',
+      inputSchema: s('DEX pools for a token', {
+        network: { type: 'string', description: 'Network slug, e.g. eth, bsc, base, solana.' },
+        address: { type: 'string', description: 'Token contract address.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }, ['network', 'address']),
+      invoke: (a) => c.crypto.dexTokenPools(a as never),
+    },
+    {
+      name: 'crypto.hyperliquid-funding',
+      description:
+        'Live perp funding rates, open interest, and mark/oracle/mid prices across 200+ Hyperliquid perpetuals (free/keyless). Each row: coin, hourly funding rate, open interest, mark/oracle/mid price, premium, prior-day price, 24h notional volume, max leverage. Filter by coin; sort by oi, volume, or funding. On-chain perp microstructure for funding-arb and OI signals.',
+      inputSchema: s('Hyperliquid funding', {
+        coin: { type: 'string' },
+        sort: { type: 'string', enum: ['oi', 'volume', 'funding'] },
+        limit: { type: 'integer', minimum: 1, maximum: 250 },
+      }),
+      invoke: (a) => c.crypto.hyperliquidFunding(a as never),
+    },
+    {
+      name: 'crypto.hyperliquid-predicted-funding',
+      description:
+        'Predicted next funding rates per coin across venues (Hyperliquid + Binance/Bybit perps), free/keyless. For each coin, a list of venues with predicted funding rate, next funding time, and funding interval — for cross-venue funding-rate arbitrage. Filter by coin.',
+      inputSchema: s('Hyperliquid predicted funding', {
+        coin: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 250 },
+      }),
+      invoke: (a) => c.crypto.hyperliquidPredictedFunding(a as never),
+    },
+    {
+      name: 'crypto.stablecoins',
+      description:
+        'Stablecoin supply leaderboard (via DefiLlama, free/keyless): the largest stablecoins by circulating USD, with peg type (USD/EUR/…), peg mechanism (fiat-backed, crypto-backed, algorithmic), and current price. For tracking stablecoin market share and de-peg risk.',
+      inputSchema: s('Stablecoin leaderboard', {
+        limit: { type: 'integer', minimum: 1, maximum: 200 },
+      }),
+      invoke: (a) => c.crypto.stablecoins(a as never),
+    },
+    {
+      name: 'crypto.token-info',
+      description:
+        'On-chain token metrics by contract address (via GeckoTerminal, free/keyless): name, symbol, decimals, on-chain USD price, FDV, market cap, total reserve in USD, 24h volume, total + normalized supply, image, and CoinGecko id. Distinct from crypto.token-price (CoinGecko aggregate spot) — this is DEX-derived on-chain data for any token across 100+ networks.',
+      inputSchema: s('On-chain token info', {
+        network: { type: 'string', description: 'Network slug, e.g. eth, bsc, base, solana.' },
+        address: { type: 'string', description: 'Token contract address.' },
+      }, ['network', 'address']),
+      invoke: (a) => c.crypto.tokenInfo(a as never),
+    },
+    {
+      name: 'crypto.token-safety',
+      description:
+        'Token honeypot & rug-pull risk screen (via GoPlus, free/keyless). For an ERC-20 on any EVM chain, returns honeypot flag, buy/sell tax, open-source/proxy/mintable status, hidden-owner / take-back-ownership / selfdestruct / external-call risks, blacklist/whitelist/anti-whale flags, holder count, and owner/creator concentration. Essential pre-trade safety check.',
+      inputSchema: s('Token safety screen', {
+        chainId: { type: 'string', description: 'EVM chain id, e.g. 1 (Ethereum), 56 (BSC), 137 (Polygon), 8453 (Base).' },
+        address: { type: 'string', description: '0x EVM contract address.' },
+      }, ['chainId', 'address']),
+      invoke: (a) => c.crypto.tokenSafety(a as never),
+    },
+    {
+      name: 'crypto.token-transfers',
+      description:
+        'ERC-20 token transfer history for an Ethereum address (via Etherscan V2). Each transfer: hash, block, timestamp, from/to, token contract, name, symbol, decimals, and value (raw + decimal-adjusted). Optionally filter to one token contract. Paginate with page + offset. Defaults to Ethereum mainnet; other EVM chains by chainId where upstream coverage allows. Trace what tokens a wallet sent/received.',
+      inputSchema: s('ERC-20 transfers', {
+        chainId: { type: 'integer', minimum: 1, description: 'EVM chain id; defaults to 1 (Ethereum).' },
+        address: { type: 'string', description: '0x EVM address.' },
+        contractAddress: { type: 'string', description: 'Filter to one ERC-20 contract (0x address).' },
+        page: { type: 'integer', minimum: 1 },
+        offset: { type: 'integer', minimum: 1, maximum: 100 },
+        sort: { type: 'string', enum: ['asc', 'desc'] },
+      }, ['address']),
+      invoke: (a) => c.crypto.tokenTransfers(a as never),
+    },
+
+    // ── Feedback ─────────────────────────────────────────────────────
+    {
+      name: 'feedback.send',
+      description:
+        'Send a message straight to the 2s team. POST { message } (required) plus optional subject, name, and from (your email — set as reply-to + shown as the sender). Delivers your message by email to the 2s maintainers — use it for feedback, bug reports, endpoint requests, or to get in touch. Flat $0.10 per send; the payment keeps the channel spam-free. One-way contact channel (recipient is fixed). Returns { sent, id }. Trial calls are not accepted — always requires payment.',
+      inputSchema: s('Contact the 2s team', {
+        message: { type: 'string', description: 'Message body to send to the 2s team.' },
+        subject: { type: 'string', description: 'Optional subject line.' },
+        name: { type: 'string', description: 'Optional name to attribute the message to.' },
+        from: { type: 'string', description: 'Your email — set as reply-to + shown as the sender.' },
+      }, ['message']),
+      invoke: (a) => c.feedback.send(a as never),
+    },
+
+    // ── GitHub ───────────────────────────────────────────────────────
+    {
+      name: 'github.branches',
+      description: 'Branches of a repository: name, head commit sha, and protection flag. Read-only; no caller key needed.',
+      inputSchema: s('GitHub branches', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.branches(a as never),
+    },
+    {
+      name: 'github.commits',
+      description:
+        'Commit history for a repository: sha, message, author name + GitHub login, date, and URL. Optionally filter by branch/tag (sha), file path, or author. Paginate. Read-only; no caller key needed.',
+      inputSchema: s('GitHub commits', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        sha: { type: 'string', description: 'Branch, tag, or commit sha to start from.' },
+        path: { type: 'string' },
+        author: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.commits(a as never),
+    },
+    {
+      name: 'github.contributors',
+      description: 'Top contributors to a repository, ranked by commit count: login, contributions, account type, and profile URL. Read-only; no caller key needed.',
+      inputSchema: s('GitHub contributors', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.contributors(a as never),
+    },
+    {
+      name: 'github.issues',
+      description:
+        'List issues for a repository (pull requests excluded): number, title, state, author, labels, comment count, and created/updated times. Filter by state (open/closed/all) and labels; paginate. Read-only; no caller key needed.',
+      inputSchema: s('GitHub issues', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        state: { type: 'string', enum: ['open', 'closed', 'all'] },
+        labels: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.issues(a as never),
+    },
+    {
+      name: 'github.languages',
+      description: 'Programming-language breakdown of a repository: each language with its byte count and percentage of the codebase, sorted by size. Read-only; no caller key needed.',
+      inputSchema: s('GitHub languages', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.languages(a as never),
+    },
+    {
+      name: 'github.pulls',
+      description:
+        'List pull requests for a repository: number, title, state, author, draft flag, merged status + time, head/base branch, and created time. Filter by state (open/closed/all); paginate. Read-only; no caller key needed.',
+      inputSchema: s('GitHub pull requests', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        state: { type: 'string', enum: ['open', 'closed', 'all'] },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.pulls(a as never),
+    },
+    {
+      name: 'github.readme',
+      description:
+        "Fetch a repository's README, decoded to UTF-8 text (name, path, size, content, URL). Optionally pin to a branch/tag/sha via ref. Useful for summarizing or indexing a project. Read-only; no caller key needed.",
+      inputSchema: s('GitHub README', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        ref: { type: 'string', description: 'Branch, tag, or sha.' },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.readme(a as never),
+    },
+    {
+      name: 'github.releases',
+      description:
+        "List a repository's releases: tag, name, draft/prerelease flags, author, published time, and release notes body. Paginate. Track a project's version history. Read-only; no caller key needed.",
+      inputSchema: s('GitHub releases', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.releases(a as never),
+    },
+    {
+      name: 'github.repo',
+      description:
+        'GitHub repository metadata: full name, owner, description, stars, forks, watchers, open issues, primary language, topics, SPDX license, default branch, homepage, archived flag, and created/updated/pushed timestamps. Read-only; no GitHub key needed by the caller.',
+      inputSchema: s('GitHub repo metadata', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.repo(a as never),
+    },
+    {
+      name: 'github.repos',
+      description:
+        "List a user or organization's repositories (each with stars, forks, language, topics, license, timestamps). Sort by updated/created/pushed/full_name; filter type owner/member; paginate. Read-only; no caller key needed.",
+      inputSchema: s('GitHub repos by owner', {
+        owner: { type: 'string' },
+        sort: { type: 'string', enum: ['updated', 'created', 'pushed', 'full_name'] },
+        type: { type: 'string', enum: ['owner', 'member', 'all'] },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner']),
+      invoke: (a) => c.github.repos(a as never),
+    },
+    {
+      name: 'github.search-code',
+      description:
+        "Search code across GitHub with the code-search syntax (e.g. 'defineEndpoint repo:AlleyFord/2s' or 'addEventListener language:js'). Returns total match count + file name, path, repository, and URL for each hit. Read-only; no caller key needed.",
+      inputSchema: s('GitHub code search', {
+        q: { type: 'string', description: 'GitHub code-search query.' },
+        perPage: { type: 'integer', minimum: 1, maximum: 50 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['q']),
+      invoke: (a) => c.github.searchCode(a as never),
+    },
+    {
+      name: 'github.search-repos',
+      description:
+        "Search GitHub repositories with the full query syntax (e.g. 'x402 language:typescript stars:>100'). Sort by stars/forks/updated. Returns total match count + repos with stars, language, topics, license, timestamps. Read-only; no caller key needed.",
+      inputSchema: s('GitHub repo search', {
+        q: { type: 'string', description: 'GitHub repo-search query.' },
+        sort: { type: 'string', enum: ['stars', 'forks', 'help-wanted-issues', 'updated'] },
+        order: { type: 'string', enum: ['asc', 'desc'] },
+        perPage: { type: 'integer', minimum: 1, maximum: 50 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['q']),
+      invoke: (a) => c.github.searchRepos(a as never),
+    },
+    {
+      name: 'github.tags',
+      description: 'Git tags of a repository (name + commit sha), most recent first. Pair with github.releases for published releases. Read-only; no caller key needed.',
+      inputSchema: s('GitHub tags', {
+        owner: { type: 'string' },
+        repo: { type: 'string' },
+        perPage: { type: 'integer', minimum: 1, maximum: 100 },
+        page: { type: 'integer', minimum: 1 },
+      }, ['owner', 'repo']),
+      invoke: (a) => c.github.tags(a as never),
+    },
+    {
+      name: 'github.user',
+      description:
+        'GitHub user or organization profile: login, name, company, blog, location, bio, type (User/Organization), followers, following, public repo + gist counts, and account creation date. Read-only; no caller key needed.',
+      inputSchema: s('GitHub user profile', {
+        username: { type: 'string' },
+      }, ['username']),
+      invoke: (a) => c.github.user(a as never),
+    },
+
+    // ── News (parity wave) ───────────────────────────────────────────
+    {
+      name: 'news.hn-search',
+      description:
+        'Full-text search across all of Hacker News (via the Algolia HN API). Search stories or comments by keyword, sorted by relevance or by date (newest first). Filter by tags (story/comment/ask_hn/show_hn/poll) and by author. Each hit: title, URL, author, points, comment count, story/comment text, created time, and canonical HN URL. Net-new vs news.hn-top (curated feeds) and news.search (general news).',
+      inputSchema: s('HN full-text search', {
+        query: { type: 'string', description: 'Search keywords (may be empty when filtering by tags/author).' },
+        tags: { type: 'string', enum: ['story', 'comment', 'ask_hn', 'show_hn', 'poll'] },
+        sort: { type: 'string', enum: ['relevance', 'date'] },
+        author: { type: 'string', description: 'Restrict to one HN author.' },
+        limit: { type: 'integer', minimum: 1, maximum: 50 },
+      }),
+      invoke: (a) => c.news.hnSearch(a as never),
+    },
+    {
+      name: 'news.hn-user',
+      description:
+        'Hacker News user profile by username. Returns id, account creation time (unix + ISO), karma, the about/bio text, number of items submitted, and the canonical news.ycombinator.com profile URL. Unknown user returns an empty result.',
+      inputSchema: s('HN user profile', {
+        username: { type: 'string', description: 'HN username, e.g. pg, dang.' },
+      }, ['username']),
+      invoke: (a) => c.news.hnUser(a as never),
+    },
+
+    // ── Prediction markets ───────────────────────────────────────────
+    {
+      name: 'predict.kalshi-events',
+      description:
+        'Browse Kalshi events (an event groups related markets, e.g. an election or a game). Filter by status / seriesTicker; page with limit + cursor. Returns event ticker, series, title, category, and market count. Read-only (no Kalshi key needed).',
+      inputSchema: s('Kalshi events', {
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+        cursor: { type: 'string' },
+        status: { type: 'string', enum: ['unopened', 'open', 'closed', 'settled'] },
+        seriesTicker: { type: 'string' },
+      }),
+      invoke: (a) => c.predict.kalshiEvents(a as never),
+    },
+    {
+      name: 'predict.kalshi-market',
+      description:
+        'A single Kalshi market by ticker. Returns yes/no bid+ask and last price (dollars, implied probability), volume, liquidity, open interest, open/close times, and settled result. Read-only (no Kalshi key needed).',
+      inputSchema: s('Kalshi market', {
+        ticker: { type: 'string' },
+      }, ['ticker']),
+      invoke: (a) => c.predict.kalshiMarket(a as never),
+    },
+    {
+      name: 'predict.kalshi-markets',
+      description:
+        'Browse Kalshi regulated prediction markets. Filter by status (open/closed/settled), eventTicker, seriesTicker, or specific tickers; page with limit + cursor. Each market returns yes/no bid+ask and last price (dollars, 0-1 = implied probability), 24h + total volume, liquidity, open interest, open/close times, and result if settled. Read-only mirror of Kalshi\'s market list (no Kalshi key needed).',
+      inputSchema: s('Kalshi markets', {
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+        cursor: { type: 'string' },
+        eventTicker: { type: 'string' },
+        seriesTicker: { type: 'string' },
+        status: { type: 'string', enum: ['unopened', 'open', 'closed', 'settled'] },
+        tickers: { type: 'string', description: 'Comma-separated tickers.' },
+      }),
+      invoke: (a) => c.predict.kalshiMarkets(a as never),
+    },
+    {
+      name: 'predict.kalshi-orderbook',
+      description:
+        'Order book for a Kalshi market by ticker: resting yes and no bids with price (dollars) and size (contracts). Optional depth. Read-only (no Kalshi key needed).',
+      inputSchema: s('Kalshi orderbook', {
+        ticker: { type: 'string' },
+        depth: { type: 'integer', minimum: 1, maximum: 100 },
+      }, ['ticker']),
+      invoke: (a) => c.predict.kalshiOrderbook(a as never),
+    },
+    {
+      name: 'predict.kalshi-trades',
+      description:
+        "Recent trades on Kalshi, optionally filtered to one market ticker. Returns each trade's ticker, contract count, taker side, yes/no price (dollars), and time. Page with limit + cursor. Read-only (no Kalshi key needed).",
+      inputSchema: s('Kalshi trades', {
+        ticker: { type: 'string' },
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+        cursor: { type: 'string' },
+      }),
+      invoke: (a) => c.predict.kalshiTrades(a as never),
+    },
+    {
+      name: 'predict.market',
+      description:
+        'A single Polymarket market by conditionId, slug, or id. Returns the question, outcomes + live prices (implied probabilities), CLOB token ids, USD volume + liquidity, dates, description, and URL. Pass one of conditionId / slug / id.',
+      inputSchema: s('Polymarket market', {
+        conditionId: { type: 'string' },
+        slug: { type: 'string' },
+        id: { type: 'string' },
+      }),
+      invoke: (a) => c.predict.market(a as never),
+    },
+    {
+      name: 'predict.markets',
+      description:
+        'Browse Polymarket prediction markets. Filter by active/closed, order by volume/liquidity/endDate, page with limit/offset. Each market returns its question, outcomes + live outcome prices (implied probabilities), CLOB token ids (use with predict.price / predict.orderbook / predict.price-history), USD volume + liquidity, open/close dates, and the Polymarket URL. Read-only mirror of Polymarket\'s public market list.',
+      inputSchema: s('Polymarket markets', {
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+        offset: { type: 'integer', minimum: 0 },
+        active: { type: 'boolean' },
+        closed: { type: 'boolean' },
+        order: { type: 'string', enum: ['volume', 'liquidity', 'endDate', 'startDate'] },
+        ascending: { type: 'boolean' },
+        tagId: { type: 'integer' },
+      }),
+      invoke: (a) => c.predict.markets(a as never),
+    },
+    {
+      name: 'predict.orderbook',
+      description:
+        'Full CLOB order book (bids + asks with price and size) for a Polymarket outcome token. Use the clobTokenIds from predict.markets. Read-only depth snapshot from Polymarket\'s CLOB.',
+      inputSchema: s('Polymarket orderbook', {
+        tokenId: { type: 'string', description: 'CLOB token id (outcome token).' },
+      }, ['tokenId']),
+      invoke: (a) => c.predict.orderbook(a as never),
+    },
+    {
+      name: 'predict.price',
+      description:
+        "Live best bid, best ask, and midpoint for a Polymarket outcome token (CLOB token id — get it from predict.markets clobTokenIds). The midpoint is the market's implied probability for that outcome. Read-only from Polymarket's CLOB.",
+      inputSchema: s('Polymarket price', {
+        tokenId: { type: 'string', description: 'CLOB token id (outcome token).' },
+      }, ['tokenId']),
+      invoke: (a) => c.predict.price(a as never),
+    },
+    {
+      name: 'predict.price-history',
+      description:
+        "Time-series price (implied-probability) history for a Polymarket outcome token. Pass the CLOB token id and an interval (1h, 6h, 1d, 1w, 1m, max). Returns timestamped price points — for charting how a market's odds moved. Read-only from Polymarket's CLOB.",
+      inputSchema: s('Polymarket price history', {
+        tokenId: { type: 'string', description: 'CLOB token id (outcome token).' },
+        interval: { type: 'string', enum: ['1h', '6h', '1d', '1w', '1m', 'max'] },
+        fidelity: { type: 'integer', minimum: 1, maximum: 1440 },
+      }, ['tokenId']),
+      invoke: (a) => c.predict.priceHistory(a as never),
+    },
+    {
+      name: 'predict.trades',
+      description:
+        "Recent Polymarket trades. Filter by market (conditionId) and/or user (wallet address); page with limit (max 500). Each trade returns wallet, trader name, side (buy/sell), outcome, size, price, USD notional, timestamp, market title, and tx hash. Read-only from Polymarket's Data API.",
+      inputSchema: s('Polymarket trades', {
+        market: { type: 'string', description: 'Market conditionId.' },
+        user: { type: 'string', description: 'Wallet address.' },
+        limit: { type: 'integer', minimum: 1, maximum: 500 },
+      }),
+      invoke: (a) => c.predict.trades(a as never),
+    },
+    {
+      name: 'predict.wallet',
+      description:
+        "A Polymarket trader's portfolio by wallet address: total portfolio USD value plus open positions (market title, outcome, size, average vs current price, current value, and unrealized PnL). For tracking a wallet's prediction-market book. Read-only from Polymarket's Data API.",
+      inputSchema: s('Polymarket wallet', {
+        address: { type: 'string', description: 'Wallet (proxy) address.' },
+      }, ['address']),
+      invoke: (a) => c.predict.wallet(a as never),
+    },
+    {
+      name: 'predict.whales',
+      description:
+        'Polymarket whale radar: the largest recent trades by USD notional across all markets, ranked. Optional minUsd floor and limit. Each entry includes wallet, trader name, market, side, outcome, size, price, USD value, and tx hash — for tracking smart-money / large positioning. Read-only from Polymarket\'s Data API.',
+      inputSchema: s('Polymarket whales', {
+        limit: { type: 'integer', minimum: 1, maximum: 100 },
+        minUsd: { type: 'number', minimum: 0, description: 'Only trades at/above this USD notional.' },
+      }),
+      invoke: (a) => c.predict.whales(a as never),
+    },
+
+    // ── Sports ───────────────────────────────────────────────────────
+    {
+      name: 'sports.mlb-schedule',
+      description:
+        'MLB games for a date (and optionally one team), via the official MLB Stats API (free/keyless). Each game: gamePk, start time, detailed status (Scheduled/In Progress/Final), away and home team + score, and venue. Defaults to today when no date is given. Live scores + schedule for agents.',
+      inputSchema: s('MLB schedule', {
+        date: { type: 'string', description: 'YYYY-MM-DD; defaults to today.' },
+        teamId: { type: 'integer', description: 'MLB team id to filter to one club.' },
+      }),
+      invoke: (a) => c.sports.mlbSchedule(a as never),
+    },
+    {
+      name: 'sports.mlb-standings',
+      description:
+        'MLB regular-season standings for a season (official MLB Stats API, free/keyless). Each team: wins, losses, win %, games back, division + league rank, and current streak. Defaults to the current season.',
+      inputSchema: s('MLB standings', {
+        season: { type: 'integer', minimum: 1900, maximum: 2100 },
+      }),
+      invoke: (a) => c.sports.mlbStandings(a as never),
+    },
+    {
+      name: 'sports.nhl-schedule',
+      description:
+        'Upcoming NHL game schedule for the week anchored on a date (official NHL api-web, free/keyless). Each game: id, date, start time (UTC), game state (FUT/LIVE/OFF), game type (Preseason/Regular Season/Playoffs), away and home team + abbreviation + score, venue, and TV broadcasts. Optionally filter to one team by 3-letter abbreviation (e.g. TOR). Defaults to the week starting today. Forward-looking matchups — distinct from nhl-scores (single-day results).',
+      inputSchema: s('NHL schedule', {
+        date: { type: 'string', description: 'YYYY-MM-DD anchor; returns that day plus the rest of the NHL week. Defaults to today.' },
+        team: { type: 'string', description: '3-letter NHL team abbreviation (e.g. TOR, BOS, EDM).' },
+      }),
+      invoke: (a) => c.sports.nhlSchedule(a as never),
+    },
+    {
+      name: 'sports.nhl-scores',
+      description:
+        'NHL scores and games for a date (official NHL api-web, free/keyless). Each game: id, game state (FUT/LIVE/FINAL), start time, away and home team + score. Defaults to today.',
+      inputSchema: s('NHL scores', {
+        date: { type: 'string', description: 'YYYY-MM-DD; defaults to today.' },
+      }),
+      invoke: (a) => c.sports.nhlScores(a as never),
+    },
+    {
+      name: 'sports.nhl-standings',
+      description:
+        'Current NHL standings (official NHL api-web, free/keyless). Each team: conference, division, games played, wins, losses, OT losses, points, goal differential, and current streak.',
+      inputSchema: s('NHL standings', {}),
+      invoke: () => c.sports.nhlStandings(),
+    },
   ]
   return t
 }

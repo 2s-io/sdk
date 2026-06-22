@@ -187,6 +187,244 @@ class _Crypto(_Group):
             q["vs"] = vs
         return self._c.request("GET", "/api/crypto/token-price", endpoint="crypto.token-price", query=q)
 
+    def address_history(
+        self,
+        *,
+        address: str,
+        chain_id: int | None = None,
+        page: int | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+        start_block: int | None = None,
+        end_block: int | None = None,
+    ) -> CallResult:
+        """Native-coin transaction history for an EVM address (chainId defaults to 1 Ethereum)."""
+        q: dict[str, Any] = {"address": address}
+        if chain_id is not None:
+            q["chainId"] = chain_id
+        if page is not None:
+            q["page"] = page
+        if offset is not None:
+            q["offset"] = offset
+        if sort is not None:
+            q["sort"] = sort
+        if start_block is not None:
+            q["startBlock"] = start_block
+        if end_block is not None:
+            q["endBlock"] = end_block
+        return self._c.request("GET", "/api/crypto/address-history", endpoint="crypto.address-history", query=q)
+
+    def address_safety(self, *, chain_id: str, address: str) -> CallResult:
+        """Risk/safety signals for an EVM wallet address. chainId e.g. 1, 56, 137, 8453."""
+        return self._c.request(
+            "GET", "/api/crypto/address-safety",
+            endpoint="crypto.address-safety",
+            query={"chainId": chain_id, "address": address},
+        )
+
+    def address_screen(self, *, address: str) -> CallResult:
+        """Screen any-chain wallet address against OFAC sanctions lists."""
+        return self._c.request(
+            "GET", "/api/crypto/address-screen",
+            endpoint="crypto.address-screen",
+            query={"address": address},
+        )
+
+    def chain_tvl_history(self, *, chain: str, limit: int | None = None) -> CallResult:
+        """Historical daily TVL for a chain via DefiLlama. limit = most-recent N points (default 90)."""
+        q: dict[str, Any] = {"chain": chain}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/chain-tvl-history", endpoint="crypto.chain-tvl-history", query=q)
+
+    def coin(self, *, id: str) -> CallResult:
+        """Full coin profile by CoinGecko id (price, market data, supply, links)."""
+        return self._c.request("GET", "/api/crypto/coin", endpoint="crypto.coin", query={"id": id})
+
+    def coin_history(self, *, id: str, days: int | None = None, vs: str | None = None) -> CallResult:
+        """Historical market chart for a CoinGecko coin. days (1-365, default 7), vs (default usd)."""
+        q: dict[str, Any] = {"id": id}
+        if days is not None:
+            q["days"] = days
+        if vs is not None:
+            q["vs"] = vs
+        return self._c.request("GET", "/api/crypto/coin-history", endpoint="crypto.coin-history", query=q)
+
+    def defi_chains(self, *, limit: int | None = None) -> CallResult:
+        """Chains ranked by DeFi TVL (DefiLlama)."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/defi-chains", endpoint="crypto.defi-chains", query=q)
+
+    def defi_fees(self, *, kind: str | None = None, sort: str | None = None, limit: int | None = None) -> CallResult:
+        """Protocol fees/revenue leaderboard via DefiLlama. kind: fees|dexs; sort: total24h|total7d|total30d."""
+        q: dict[str, Any] = {}
+        if kind is not None:
+            q["kind"] = kind
+        if sort is not None:
+            q["sort"] = sort
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/defi-fees", endpoint="crypto.defi-fees", query=q)
+
+    def defi_protocol_history(self, *, slug: str, limit: int | None = None) -> CallResult:
+        """Historical daily TVL for a DefiLlama protocol slug. limit = most-recent N points (default 90)."""
+        q: dict[str, Any] = {"slug": slug}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/defi-protocol-history", endpoint="crypto.defi-protocol-history", query=q)
+
+    def defi_yields(
+        self,
+        *,
+        chain: str | None = None,
+        project: str | None = None,
+        symbol: str | None = None,
+        min_apy: float | None = None,
+        min_tvl_usd: float | None = None,
+        sort: str | None = None,
+        limit: int | None = None,
+    ) -> CallResult:
+        """DeFi yield pools via DefiLlama. Filter by chain/project/symbol/minApy/minTvlUsd; sort: apy|tvl."""
+        q: dict[str, Any] = {}
+        if chain is not None:
+            q["chain"] = chain
+        if project is not None:
+            q["project"] = project
+        if symbol is not None:
+            q["symbol"] = symbol
+        if min_apy is not None:
+            q["minApy"] = min_apy
+        if min_tvl_usd is not None:
+            q["minTvlUsd"] = min_tvl_usd
+        if sort is not None:
+            q["sort"] = sort
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/defi-yields", endpoint="crypto.defi-yields", query=q)
+
+    def dex_networks(self, *, limit: int | None = None) -> CallResult:
+        """Supported DEX networks via GeckoTerminal."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/dex-networks", endpoint="crypto.dex-networks", query=q)
+
+    def dex_ohlcv(
+        self,
+        *,
+        network: str,
+        address: str,
+        timeframe: str | None = None,
+        aggregate: int | None = None,
+        limit: int | None = None,
+    ) -> CallResult:
+        """OHLCV candles for a DEX pool via GeckoTerminal. address = pool address; timeframe: day|hour|minute."""
+        q: dict[str, Any] = {"network": network, "address": address}
+        if timeframe is not None:
+            q["timeframe"] = timeframe
+        if aggregate is not None:
+            q["aggregate"] = aggregate
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/dex-ohlcv", endpoint="crypto.dex-ohlcv", query=q)
+
+    def dex_pools(self, *, network: str, kind: str | None = None, limit: int | None = None) -> CallResult:
+        """Trending or new DEX pools on a network via GeckoTerminal. kind: trending|new."""
+        q: dict[str, Any] = {"network": network}
+        if kind is not None:
+            q["kind"] = kind
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/dex-pools", endpoint="crypto.dex-pools", query=q)
+
+    def dex_search(self, *, query: str, network: str | None = None, limit: int | None = None) -> CallResult:
+        """Search DEX pools/tokens by name, symbol, or contract via GeckoTerminal."""
+        q: dict[str, Any] = {"query": query}
+        if network is not None:
+            q["network"] = network
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/dex-search", endpoint="crypto.dex-search", query=q)
+
+    def dex_token_pools(self, *, network: str, address: str, limit: int | None = None) -> CallResult:
+        """Pools for a given token contract on a network via GeckoTerminal."""
+        q: dict[str, Any] = {"network": network, "address": address}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/dex-token-pools", endpoint="crypto.dex-token-pools", query=q)
+
+    def hyperliquid_funding(self, *, coin: str | None = None, sort: str | None = None, limit: int | None = None) -> CallResult:
+        """Hyperliquid perp funding/OI/volume. sort: oi|volume|funding."""
+        q: dict[str, Any] = {}
+        if coin is not None:
+            q["coin"] = coin
+        if sort is not None:
+            q["sort"] = sort
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/hyperliquid-funding", endpoint="crypto.hyperliquid-funding", query=q)
+
+    def hyperliquid_predicted_funding(self, *, coin: str | None = None, limit: int | None = None) -> CallResult:
+        """Predicted per-venue funding rates from Hyperliquid."""
+        q: dict[str, Any] = {}
+        if coin is not None:
+            q["coin"] = coin
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request(
+            "GET", "/api/crypto/hyperliquid-predicted-funding",
+            endpoint="crypto.hyperliquid-predicted-funding", query=q,
+        )
+
+    def stablecoins(self, *, limit: int | None = None) -> CallResult:
+        """Stablecoins ranked by circulating USD (DefiLlama): price, peg type/mechanism."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/crypto/stablecoins", endpoint="crypto.stablecoins", query=q)
+
+    def token_info(self, *, network: str, address: str) -> CallResult:
+        """Token metadata for a contract on a network via GeckoTerminal."""
+        return self._c.request(
+            "GET", "/api/crypto/token-info",
+            endpoint="crypto.token-info",
+            query={"network": network, "address": address},
+        )
+
+    def token_safety(self, *, chain_id: str, address: str) -> CallResult:
+        """Token contract safety/honeypot checks for an EVM token. chainId e.g. 1, 56, 137, 8453."""
+        return self._c.request(
+            "GET", "/api/crypto/token-safety",
+            endpoint="crypto.token-safety",
+            query={"chainId": chain_id, "address": address},
+        )
+
+    def token_transfers(
+        self,
+        *,
+        address: str,
+        chain_id: int | None = None,
+        contract_address: str | None = None,
+        page: int | None = None,
+        offset: int | None = None,
+        sort: str | None = None,
+    ) -> CallResult:
+        """ERC-20 token transfer history for an EVM address (chainId defaults to 1 Ethereum)."""
+        q: dict[str, Any] = {"address": address}
+        if chain_id is not None:
+            q["chainId"] = chain_id
+        if contract_address is not None:
+            q["contractAddress"] = contract_address
+        if page is not None:
+            q["page"] = page
+        if offset is not None:
+            q["offset"] = offset
+        if sort is not None:
+            q["sort"] = sort
+        return self._c.request("GET", "/api/crypto/token-transfers", endpoint="crypto.token-transfers", query=q)
+
 
 class _Ai(_Group):
     def summarize(self, *, url: str, instruction: Optional[str] = None) -> CallResult:
@@ -278,6 +516,29 @@ class _Ai(_Group):
         if block_ads is not None:
             body["blockAds"] = block_ads
         return self._c.request("POST", "/api/ai/screenshot", endpoint="ai.screenshot", body=body)
+
+    def classify(self, *, text: str, labels: list, multi_label: bool | None = None) -> CallResult:
+        """Zero-shot classify text against candidate labels. labels: 2-20 strings."""
+        body: dict[str, Any] = {"text": text, "labels": labels}
+        if multi_label is not None:
+            body["multiLabel"] = multi_label
+        return self._c.request("POST", "/api/ai/classify", endpoint="ai.classify", body=body)
+
+    def entities(self, *, text: str) -> CallResult:
+        """Named-entity recognition: extract entities (text, type, mentions) from text."""
+        return self._c.request("POST", "/api/ai/entities", endpoint="ai.entities", body={"text": text})
+
+    def moderate(self, *, text: str) -> CallResult:
+        """Content moderation: flagged boolean + per-category booleans and scores."""
+        return self._c.request("POST", "/api/ai/moderate", endpoint="ai.moderate", body={"text": text})
+
+    def pii(self, *, text: str) -> CallResult:
+        """Detect personally identifiable information (types + entities) in text."""
+        return self._c.request("POST", "/api/ai/pii", endpoint="ai.pii", body={"text": text})
+
+    def sentiment(self, *, text: str) -> CallResult:
+        """Sentiment analysis: sentiment label, score, confidence, rationale."""
+        return self._c.request("POST", "/api/ai/sentiment", endpoint="ai.sentiment", body={"text": text})
 
 
 class _Law(_Group):
@@ -4534,6 +4795,420 @@ class _Country(_Group):
         return self._c.request("GET", "/api/country/lookup", endpoint="country.lookup", query=q)
 
 
+class _Chinese(_Group):
+    def convert(self, *, text: str, from_: str, to: str) -> CallResult:
+        """Convert Chinese text between variants (cn|tw|twp|hk|t|jp). from_=source, to=target."""
+        return self._c.request(
+            "GET", "/api/chinese/convert",
+            endpoint="chinese.convert",
+            query={"text": text, "from": from_, "to": to},
+        )
+
+    def detect(self, *, text: str) -> CallResult:
+        """Detect Chinese script (simplified|traditional|mixed|han-common|none) + Han char counts."""
+        return self._c.request("GET", "/api/chinese/detect", endpoint="chinese.detect", query={"text": text})
+
+    def pinyin(self, *, text: str, tone: str | None = None, segmented: bool | None = None) -> CallResult:
+        """Convert Chinese text to pinyin. tone: symbol|num|none; segmented = per-word array."""
+        q: dict[str, Any] = {"text": text}
+        if tone is not None:
+            q["tone"] = tone
+        if segmented is not None:
+            q["segmented"] = segmented
+        return self._c.request("GET", "/api/chinese/pinyin", endpoint="chinese.pinyin", query=q)
+
+
+class _Feedback(_Group):
+    def send(
+        self,
+        *,
+        message: str,
+        subject: str | None = None,
+        name: str | None = None,
+        from_: str | None = None,
+    ) -> CallResult:
+        """Send a message to the 2s team. from_ = your email (reply-to + sender)."""
+        body: dict[str, Any] = {"message": message}
+        if subject is not None:
+            body["subject"] = subject
+        if name is not None:
+            body["name"] = name
+        if from_ is not None:
+            body["from"] = from_
+        return self._c.request("POST", "/api/feedback/send", endpoint="feedback.send", body=body)
+
+
+class _Github(_Group):
+    def branches(self, *, owner: str, repo: str, per_page: int | None = None, page: int | None = None) -> CallResult:
+        """List branches for a GitHub repo."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/branches", endpoint="github.branches", query=q)
+
+    def commits(
+        self,
+        *,
+        owner: str,
+        repo: str,
+        sha: str | None = None,
+        path: str | None = None,
+        author: str | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+    ) -> CallResult:
+        """List commits for a GitHub repo. sha = branch/tag/sha to start from."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if sha is not None:
+            q["sha"] = sha
+        if path is not None:
+            q["path"] = path
+        if author is not None:
+            q["author"] = author
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/commits", endpoint="github.commits", query=q)
+
+    def contributors(self, *, owner: str, repo: str, per_page: int | None = None, page: int | None = None) -> CallResult:
+        """List contributors for a GitHub repo."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/contributors", endpoint="github.contributors", query=q)
+
+    def issues(
+        self,
+        *,
+        owner: str,
+        repo: str,
+        state: str | None = None,
+        labels: str | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+    ) -> CallResult:
+        """List issues for a GitHub repo. state: open|closed|all."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if state is not None:
+            q["state"] = state
+        if labels is not None:
+            q["labels"] = labels
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/issues", endpoint="github.issues", query=q)
+
+    def languages(self, *, owner: str, repo: str) -> CallResult:
+        """Language breakdown (bytes + percent) for a GitHub repo."""
+        return self._c.request(
+            "GET", "/api/github/languages",
+            endpoint="github.languages",
+            query={"owner": owner, "repo": repo},
+        )
+
+    def pulls(
+        self,
+        *,
+        owner: str,
+        repo: str,
+        state: str | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+    ) -> CallResult:
+        """List pull requests for a GitHub repo. state: open|closed|all."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if state is not None:
+            q["state"] = state
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/pulls", endpoint="github.pulls", query=q)
+
+    def readme(self, *, owner: str, repo: str, ref: str | None = None) -> CallResult:
+        """Decoded README for a GitHub repo. ref = branch/tag/sha."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if ref is not None:
+            q["ref"] = ref
+        return self._c.request("GET", "/api/github/readme", endpoint="github.readme", query=q)
+
+    def releases(self, *, owner: str, repo: str, per_page: int | None = None, page: int | None = None) -> CallResult:
+        """List releases (newest first) for a GitHub repo."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/releases", endpoint="github.releases", query=q)
+
+    def repo(self, *, owner: str, repo: str) -> CallResult:
+        """Repository metadata for a GitHub repo."""
+        return self._c.request(
+            "GET", "/api/github/repo",
+            endpoint="github.repo",
+            query={"owner": owner, "repo": repo},
+        )
+
+    def repos(
+        self,
+        *,
+        owner: str,
+        sort: str | None = None,
+        type: str | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+    ) -> CallResult:
+        """List repos for a user/org. sort: updated|created|pushed|full_name; type: owner|member|all."""
+        q: dict[str, Any] = {"owner": owner}
+        if sort is not None:
+            q["sort"] = sort
+        if type is not None:
+            q["type"] = type
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/repos", endpoint="github.repos", query=q)
+
+    def search_code(self, *, q: str, per_page: int | None = None, page: int | None = None) -> CallResult:
+        """Search code across GitHub. q = code search query."""
+        query: dict[str, Any] = {"q": q}
+        if per_page is not None:
+            query["perPage"] = per_page
+        if page is not None:
+            query["page"] = page
+        return self._c.request("GET", "/api/github/search-code", endpoint="github.search-code", query=query)
+
+    def search_repos(
+        self,
+        *,
+        q: str,
+        sort: str | None = None,
+        order: str | None = None,
+        per_page: int | None = None,
+        page: int | None = None,
+    ) -> CallResult:
+        """Search repositories on GitHub. sort: stars|forks|help-wanted-issues|updated; order: asc|desc."""
+        query: dict[str, Any] = {"q": q}
+        if sort is not None:
+            query["sort"] = sort
+        if order is not None:
+            query["order"] = order
+        if per_page is not None:
+            query["perPage"] = per_page
+        if page is not None:
+            query["page"] = page
+        return self._c.request("GET", "/api/github/search-repos", endpoint="github.search-repos", query=query)
+
+    def tags(self, *, owner: str, repo: str, per_page: int | None = None, page: int | None = None) -> CallResult:
+        """List tags for a GitHub repo."""
+        q: dict[str, Any] = {"owner": owner, "repo": repo}
+        if per_page is not None:
+            q["perPage"] = per_page
+        if page is not None:
+            q["page"] = page
+        return self._c.request("GET", "/api/github/tags", endpoint="github.tags", query=q)
+
+    def user(self, *, username: str) -> CallResult:
+        """GitHub user/org profile by username."""
+        return self._c.request("GET", "/api/github/user", endpoint="github.user", query={"username": username})
+
+
+class _Predict(_Group):
+    def kalshi_events(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        status: str | None = None,
+        series_ticker: str | None = None,
+    ) -> CallResult:
+        """List Kalshi events. status: unopened|open|closed|settled."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        if cursor is not None:
+            q["cursor"] = cursor
+        if status is not None:
+            q["status"] = status
+        if series_ticker is not None:
+            q["seriesTicker"] = series_ticker
+        return self._c.request("GET", "/api/predict/kalshi-events", endpoint="predict.kalshi-events", query=q)
+
+    def kalshi_market(self, *, ticker: str) -> CallResult:
+        """A single Kalshi market by ticker."""
+        return self._c.request("GET", "/api/predict/kalshi-market", endpoint="predict.kalshi-market", query={"ticker": ticker})
+
+    def kalshi_markets(
+        self,
+        *,
+        limit: int | None = None,
+        cursor: str | None = None,
+        event_ticker: str | None = None,
+        series_ticker: str | None = None,
+        status: str | None = None,
+        tickers: str | None = None,
+    ) -> CallResult:
+        """List Kalshi markets. tickers = comma-separated; status: unopened|open|closed|settled."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        if cursor is not None:
+            q["cursor"] = cursor
+        if event_ticker is not None:
+            q["eventTicker"] = event_ticker
+        if series_ticker is not None:
+            q["seriesTicker"] = series_ticker
+        if status is not None:
+            q["status"] = status
+        if tickers is not None:
+            q["tickers"] = tickers
+        return self._c.request("GET", "/api/predict/kalshi-markets", endpoint="predict.kalshi-markets", query=q)
+
+    def kalshi_orderbook(self, *, ticker: str, depth: int | None = None) -> CallResult:
+        """Order book for a Kalshi market by ticker. depth = levels (1-100)."""
+        q: dict[str, Any] = {"ticker": ticker}
+        if depth is not None:
+            q["depth"] = depth
+        return self._c.request("GET", "/api/predict/kalshi-orderbook", endpoint="predict.kalshi-orderbook", query=q)
+
+    def kalshi_trades(self, *, ticker: str | None = None, limit: int | None = None, cursor: str | None = None) -> CallResult:
+        """Recent Kalshi trades, optionally filtered to one ticker."""
+        q: dict[str, Any] = {}
+        if ticker is not None:
+            q["ticker"] = ticker
+        if limit is not None:
+            q["limit"] = limit
+        if cursor is not None:
+            q["cursor"] = cursor
+        return self._c.request("GET", "/api/predict/kalshi-trades", endpoint="predict.kalshi-trades", query=q)
+
+    def market(self, *, condition_id: str | None = None, slug: str | None = None, id: str | None = None) -> CallResult:
+        """A single Polymarket market by conditionId, slug, or id."""
+        q: dict[str, Any] = {}
+        if condition_id is not None:
+            q["conditionId"] = condition_id
+        if slug is not None:
+            q["slug"] = slug
+        if id is not None:
+            q["id"] = id
+        return self._c.request("GET", "/api/predict/market", endpoint="predict.market", query=q)
+
+    def markets(
+        self,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+        active: bool | None = None,
+        closed: bool | None = None,
+        order: str | None = None,
+        ascending: bool | None = None,
+        tag_id: int | None = None,
+    ) -> CallResult:
+        """List Polymarket markets. order: volume|liquidity|endDate|startDate."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        if offset is not None:
+            q["offset"] = offset
+        if active is not None:
+            q["active"] = active
+        if closed is not None:
+            q["closed"] = closed
+        if order is not None:
+            q["order"] = order
+        if ascending is not None:
+            q["ascending"] = ascending
+        if tag_id is not None:
+            q["tagId"] = tag_id
+        return self._c.request("GET", "/api/predict/markets", endpoint="predict.markets", query=q)
+
+    def orderbook(self, *, token_id: str) -> CallResult:
+        """Polymarket CLOB order book for an outcome token id."""
+        return self._c.request("GET", "/api/predict/orderbook", endpoint="predict.orderbook", query={"tokenId": token_id})
+
+    def price(self, *, token_id: str) -> CallResult:
+        """Polymarket bid/ask/mid for an outcome token id."""
+        return self._c.request("GET", "/api/predict/price", endpoint="predict.price", query={"tokenId": token_id})
+
+    def price_history(self, *, token_id: str, interval: str | None = None, fidelity: int | None = None) -> CallResult:
+        """Polymarket price history for a token. interval: 1h|6h|1d|1w|1m|max."""
+        q: dict[str, Any] = {"tokenId": token_id}
+        if interval is not None:
+            q["interval"] = interval
+        if fidelity is not None:
+            q["fidelity"] = fidelity
+        return self._c.request("GET", "/api/predict/price-history", endpoint="predict.price-history", query=q)
+
+    def trades(self, *, market: str | None = None, user: str | None = None, limit: int | None = None) -> CallResult:
+        """Polymarket trades. market = conditionId; user = wallet address."""
+        q: dict[str, Any] = {}
+        if market is not None:
+            q["market"] = market
+        if user is not None:
+            q["user"] = user
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/predict/trades", endpoint="predict.trades", query=q)
+
+    def wallet(self, *, address: str) -> CallResult:
+        """Polymarket wallet portfolio + positions by (proxy) address."""
+        return self._c.request("GET", "/api/predict/wallet", endpoint="predict.wallet", query={"address": address})
+
+    def whales(self, *, limit: int | None = None, min_usd: float | None = None) -> CallResult:
+        """Largest recent Polymarket trades. minUsd = only trades at/above this USD notional."""
+        q: dict[str, Any] = {}
+        if limit is not None:
+            q["limit"] = limit
+        if min_usd is not None:
+            q["minUsd"] = min_usd
+        return self._c.request("GET", "/api/predict/whales", endpoint="predict.whales", query=q)
+
+
+class _Sports(_Group):
+    def mlb_schedule(self, *, date: str | None = None, team_id: int | None = None) -> CallResult:
+        """MLB schedule. date YYYY-MM-DD (default today); teamId filters to one club."""
+        q: dict[str, Any] = {}
+        if date is not None:
+            q["date"] = date
+        if team_id is not None:
+            q["teamId"] = team_id
+        return self._c.request("GET", "/api/sports/mlb-schedule", endpoint="sports.mlb-schedule", query=q)
+
+    def mlb_standings(self, *, season: int | None = None) -> CallResult:
+        """MLB standings for a season (defaults to current year)."""
+        q: dict[str, Any] = {}
+        if season is not None:
+            q["season"] = season
+        return self._c.request("GET", "/api/sports/mlb-standings", endpoint="sports.mlb-standings", query=q)
+
+    def nhl_schedule(self, *, date: str | None = None, team: str | None = None) -> CallResult:
+        """NHL schedule. date YYYY-MM-DD anchor (default today); team = 3-letter abbrev (TOR, BOS, EDM)."""
+        q: dict[str, Any] = {}
+        if date is not None:
+            q["date"] = date
+        if team is not None:
+            q["team"] = team
+        return self._c.request("GET", "/api/sports/nhl-schedule", endpoint="sports.nhl-schedule", query=q)
+
+    def nhl_scores(self, *, date: str | None = None) -> CallResult:
+        """NHL scores for a date (YYYY-MM-DD; default today)."""
+        q: dict[str, Any] = {}
+        if date is not None:
+            q["date"] = date
+        return self._c.request("GET", "/api/sports/nhl-scores", endpoint="sports.nhl-scores", query=q)
+
+    def nhl_standings(self) -> CallResult:
+        """Current NHL standings (team records by conference/division)."""
+        return self._c.request("GET", "/api/sports/nhl-standings", endpoint="sports.nhl-standings", query={})
+
+
 class _News(_Group):
     def hn_top(self, *, kind: str = "top", limit: int = 30) -> CallResult:
         """Hacker News feed (top | new | best | ask | show | job)."""
@@ -4568,6 +5243,33 @@ class _News(_Group):
         if country is not None: query["country"] = country
         if freshness is not None: query["freshness"] = freshness
         return self._c.request("GET", "/api/news/search", endpoint="news.search", query=query)
+
+    def hn_search(
+        self,
+        *,
+        query: str | None = None,
+        tags: str | None = None,
+        sort: str | None = None,
+        author: str | None = None,
+        limit: int | None = None,
+    ) -> CallResult:
+        """Search Hacker News (Algolia). tags: story|comment|ask_hn|show_hn|poll; sort: relevance|date."""
+        q: dict[str, Any] = {}
+        if query is not None:
+            q["query"] = query
+        if tags is not None:
+            q["tags"] = tags
+        if sort is not None:
+            q["sort"] = sort
+        if author is not None:
+            q["author"] = author
+        if limit is not None:
+            q["limit"] = limit
+        return self._c.request("GET", "/api/news/hn-search", endpoint="news.hn-search", query=q)
+
+    def hn_user(self, *, username: str) -> CallResult:
+        """Hacker News user profile (karma, about, created, submitted count)."""
+        return self._c.request("GET", "/api/news/hn-user", endpoint="news.hn-user", query={"username": username})
 
 
 class _Search(_Group):
@@ -4846,6 +5548,11 @@ class TwoS:
         self.treasury = _Treasury(self)
         self.email = _Email(self)
         self.travel = _Travel(self)
+        self.chinese = _Chinese(self)
+        self.feedback = _Feedback(self)
+        self.github = _Github(self)
+        self.predict = _Predict(self)
+        self.sports = _Sports(self)
 
     def _client(self) -> httpx.Client:
         if self._http is None:
