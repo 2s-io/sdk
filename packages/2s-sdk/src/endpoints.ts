@@ -29,6 +29,10 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  /** Time & date utilities. */
+  time: {
+    parse(input: { input: string; tz?: string }): R<Normalized>
+  }
   account: {
     balance(): R<AccountBalanceResponse>
   }
@@ -111,6 +115,9 @@ export interface Endpoints {
     run(input: { calls: Array<{ endpoint: string; params?: Record<string, unknown> }> }): R<Normalized>
   }
   ai: {
+    ocr(input: { imageUrl: string; instruction?: string }): R<Normalized>
+    research(input: { query: string; urls?: unknown }): R<Normalized>
+    webAnswer(input: { query: string; topic?: string; maxResults?: number }): R<Normalized>
     summarize(input: { url: string; instruction?: string }): R<Normalized>
     /** POST — server param names: text, targetLanguage, sourceLanguage. */
     translate(input: {
@@ -217,6 +224,18 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   crypto: {
+    balances(input: { address: string; chain?: string; tokens?: string }): R<Normalized>
+    btcAddress(input: { address: string }): R<Normalized>
+    btcMempool(input?: { minBtc?: number }): R<Normalized>
+    btcTx(input: { txid: string }): R<Normalized>
+    btcUtxos(input: { address: string; limit?: number }): R<Normalized>
+    cexKlines(input: { pair: string; interval?: string; limit?: number }): R<Normalized>
+    cexTicker(input: { pair: string }): R<Normalized>
+    decodeCalldata(input: { data: string }): R<Normalized>
+    nft(input: { address: string; tokenId: string; chain?: string; metadata?: string }): R<Normalized>
+    nftSecurity(input: { address: string; chainId?: number }): R<Normalized>
+    tokenMetadata(input: { address: string; chain?: string }): R<Normalized>
+    vrf(input: { seed: string }): R<Normalized>
     /** DeFi TVL via DefiLlama: protocol=<slug> or chain=<name> for one, or omit for the top protocols + total TVL. */
     defi(input?: { protocol?: string; chain?: string; limit?: number }): R<Normalized>
     /** EVM contract decode: Sourcify verified ABI + function/event signatures + proxy, with optional 4-byte selector decode. GET { chain, address, selector? }. */
@@ -326,6 +345,7 @@ export interface Endpoints {
   }
   /** Tax-identifier validation. */
   tax: {
+    vatValidate(input: { vat: string }): R<Normalized>
     /** Validate an EU VAT number against the live VIES register. Pass `vat` (full id) OR `country`+`number`. */
     vat(input: { vat?: string; country?: string; number?: string }): R<Normalized>
     /** EU VAT rates by member state (standard + reduced/etc). Pass `country` (ISO 2-letter, Greece=EL) or omit for all 27. */
@@ -344,6 +364,7 @@ export interface Endpoints {
   }
   /** US macroeconomic indicators (FRED-backed). */
   econ: {
+    cot(input: { market: string; limit?: number }): R<Normalized>
     /** Any FRED series by id (→ metadata + observations) or full-text catalog search. */
     fred(input: { seriesId?: string; query?: string; limit?: number; start?: string; end?: string }): R<Normalized>
     /** FRED economic-data release calendar — upcoming report dates (filter by name/releaseId). */
@@ -394,6 +415,19 @@ export interface Endpoints {
   }
   /** Developer/standards reference. */
   dev: {
+    cratesSearch(input: { q: string; limit?: number }): R<Normalized>
+    csvToJson(input: { csv: string; delimiter?: string; header?: boolean }): R<Normalized>
+    diffJson(input?: { a?: string; b?: string }): R<Normalized>
+    flattenJson(input?: { data?: string; delimiter?: string }): R<Normalized>
+    gitlabSearch(input: { q: string; limit?: number }): R<Normalized>
+    jsonToCsv(input: { data: unknown; delimiter?: string }): R<Normalized>
+    jsonToTypescript(input?: { sample?: string; rootName?: string }): R<Normalized>
+    jsonToZod(input?: { sample?: string; name?: string }): R<Normalized>
+    jwtDecode(input: { token: string }): R<Normalized>
+    npmSearch(input: { q: string; limit?: number }): R<Normalized>
+    regexTest(input: { pattern: string; flags?: string; input: string }): R<Normalized>
+    stackoverflowSearch(input: { q: string; sort?: string; limit?: number }): R<Normalized>
+    uuid(input?: { version?: string; count?: number }): R<Normalized>
     /** IETF RFC lookup by number → status, title, authors, date, obsoletes/updates chain (bundled index). */
     rfc(input: { number: string }): R<unknown>
     /** Preflight gate: is a shell command runnable? Static verdict + optional live HEAD probe (probe=true). */
@@ -464,6 +498,7 @@ export interface Endpoints {
     }): R<unknown>
   }
   finance: {
+    form144(input?: { q?: string; startDate?: string; endDate?: string; limit?: number }): R<Normalized>
     /** Loan/mortgage amortization schedule (deterministic). */
     amortize(input: { principal: number; annualRatePct: number; termMonths?: number; termYears?: number; extraMonthly?: number }): R<Normalized>
     /** Recent SEC filings for a US public company by ticker. */
@@ -553,6 +588,12 @@ export interface Endpoints {
     certInfo(input: { host: string; port?: number }): R<unknown>
   }
   business: {
+    fiCompanies(input: { name: string; limit?: number }): R<Normalized>
+    frCompanies(input: { q: string; limit?: number }): R<Normalized>
+    leiHierarchy(input: { lei: string; childLimit?: number }): R<Normalized>
+    leiIsins(input?: { lei?: string; isin?: string; limit?: number }): R<Normalized>
+    noCompanies(input: { name: string; limit?: number }): R<Normalized>
+    plKrs(input: { krs: string; register?: string }): R<Normalized>
     /** State Secretary-of-State business registry search, normalized (NY, CO). */
     sosSearch(input: { state: 'NY' | 'CO' | 'CT'; name?: string; entityId?: string; limit?: number; offset?: number }): R<unknown>
     /** Brazilian company registry by CNPJ: legal/trade name, status, activity, address, partners. */
@@ -746,6 +787,8 @@ export interface Endpoints {
   }
   /** Prediction markets — Kalshi + Polymarket (read-only). */
   predict: {
+    holders(input: { market: string; limit?: number }): R<Normalized>
+    limitlessMarkets(input?: { limit?: number }): R<Normalized>
     /** Browse Kalshi events. Filter status/seriesTicker; page with limit + cursor. */
     kalshiEvents(input?: { limit?: number; cursor?: string; status?: 'unopened' | 'open' | 'closed' | 'settled'; seriesTicker?: string }): R<Normalized>
     /** A single Kalshi market by ticker — yes/no bid+ask, last price, volume, OI, result. */
@@ -788,6 +831,9 @@ export interface Endpoints {
   }
   /** Live web search + catalog discovery. */
   search: {
+    ai(input: { q: string; maxResults?: number; topic?: string }): R<Normalized>
+    crawl(input: { url: string; limit?: number; maxDepth?: number; instructions?: string }): R<Normalized>
+    extract(input: { urls: unknown; depth?: string }): R<Normalized>
     /** Find 2s endpoints matching a natural-language query (e.g. "screen a company for sanctions"). */
     endpoints(input: { q: string; limit?: number }): R<Normalized>
     /** Ranked web results with title, url, snippet, site, age. freshness: pd|pw|pm|py or YYYY-MM-DDtoYYYY-MM-DD. */
@@ -840,6 +886,8 @@ export interface Endpoints {
   }
   /** Live flight tracking. */
   flight: {
+    airportBoard(input: { airport: string; type?: string; limit?: number }): R<Normalized>
+    routeSchedule(input: { origin: string; destination: string; startDate: string; endDate: string; limit?: number }): R<Normalized>
     /** Recent + upcoming instances of a flight with live times, delays, progress. */
     status(input: { ident: string; identType?: 'designator' | 'registration' | 'fa_flight_id'; limit?: number }): R<unknown>
   }
@@ -861,6 +909,7 @@ export interface Endpoints {
     schoolLookup(input: { name?: string; district?: string; state?: string; city?: string; zip?: string; ncessch?: string; limit?: number; offset?: number }): R<unknown>
   }
   energy: {
+    solarForecast(input: { latitude: number; longitude: number; days?: number }): R<Normalized>
     /** Alternative-fuel station locator (NREL Alternative Fuels Data Center). */
     fuelStations(input?: Record<string, unknown>): R<unknown>
     /** Solar resource averages (NREL NSRDB) for a lat/lon. */
@@ -917,6 +966,10 @@ export interface Endpoints {
     related(input: { word: string; relation: string; limit?: number }): R<unknown>
   }
   patents: {
+    epoBiblio(input: { number: string; format?: string }): R<Normalized>
+    epoFamily(input: { number: string; format?: string }): R<Normalized>
+    epoLegal(input: { number: string; format?: string }): R<Normalized>
+    epoSearch(input: { q: string; limit?: number }): R<Normalized>
     search(input: {
       q: string
       yearFrom?: number
@@ -1513,6 +1566,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    time: {
+      parse: (i) => get('time.parse', '/api/time/parse', i),
+    },
     account: {
       balance: () => get('account.balance', '/api/account/balance'),
     },
@@ -1552,6 +1608,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       unemployment: (i) => get('labor.unemployment', '/api/labor/unemployment', i),
     },
     ai: {
+      ocr: (i) => post('ai.ocr', '/api/ai/ocr', i),
+      research: (i) => post('ai.research', '/api/ai/research', i),
+      webAnswer: (i) => post('ai.web-answer', '/api/ai/web-answer', i),
       summarize: (i) => post('ai.summarize', '/api/ai/summarize', i),
       translate: (i) => post('ai.translate', '/api/ai/translate', i),
       extract: (i) => post('ai.extract', '/api/ai/extract', i),
@@ -1590,6 +1649,18 @@ export function createEndpoints(client: TwoS): Endpoints {
       gif: (i) => get('countdown.gif', '/api/countdown/gif', i),
     },
     crypto: {
+      balances: (i) => get('crypto.balances', '/api/crypto/balances', i),
+      btcAddress: (i) => get('crypto.btc-address', '/api/crypto/btc-address', i),
+      btcMempool: (i) => get('crypto.btc-mempool', '/api/crypto/btc-mempool', i ?? {}),
+      btcTx: (i) => get('crypto.btc-tx', '/api/crypto/btc-tx', i),
+      btcUtxos: (i) => get('crypto.btc-utxos', '/api/crypto/btc-utxos', i),
+      cexKlines: (i) => get('crypto.cex-klines', '/api/crypto/cex-klines', i),
+      cexTicker: (i) => get('crypto.cex-ticker', '/api/crypto/cex-ticker', i),
+      decodeCalldata: (i) => post('crypto.decode-calldata', '/api/crypto/decode-calldata', i),
+      nft: (i) => get('crypto.nft', '/api/crypto/nft', i),
+      nftSecurity: (i) => get('crypto.nft-security', '/api/crypto/nft-security', i),
+      tokenMetadata: (i) => get('crypto.token-metadata', '/api/crypto/token-metadata', i),
+      vrf: (i) => get('crypto.vrf', '/api/crypto/vrf', i),
       addressValidate: (i) => get('crypto.address-validate', '/api/crypto/address-validate', i),
       defi: (i) => get('crypto.defi', '/api/crypto/defi', i ?? {}),
       contract: (i) => get('crypto.contract', '/api/crypto/contract', i),
@@ -1637,6 +1708,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       batch: (i) => post('validate.batch', '/api/validate/batch', i),
     },
     tax: {
+      vatValidate: (i) => get('tax.vat-validate', '/api/tax/vat-validate', i),
       vat: (i) => get('tax.vat', '/api/tax/vat', i),
       vatRates: (i) => get('tax.vat-rates', '/api/tax/vat-rates', i ?? {}),
     },
@@ -1647,6 +1719,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       hicp: (i) => get('inflation.hicp', '/api/inflation/hicp', i ?? {}),
     },
     econ: {
+      cot: (i) => get('econ.cot', '/api/econ/cot', i),
       fred: (i) => get('econ.fred', '/api/econ/fred', i),
       fredReleases: (i) => get('econ.fred-releases', '/api/econ/fred-releases', i ?? {}),
       fredVintage: (i) => get('econ.fred-vintage', '/api/econ/fred-vintage', i),
@@ -1668,6 +1741,19 @@ export function createEndpoints(client: TwoS): Endpoints {
       search: (i) => get('factcheck.search', '/api/factcheck/search', i),
     },
     dev: {
+      cratesSearch: (i) => get('dev.crates-search', '/api/dev/crates-search', i),
+      csvToJson: (i) => post('dev.csv-to-json', '/api/dev/csv-to-json', i),
+      diffJson: (i) => post('dev.diff-json', '/api/dev/diff-json', i),
+      flattenJson: (i) => post('dev.flatten-json', '/api/dev/flatten-json', i),
+      gitlabSearch: (i) => get('dev.gitlab-search', '/api/dev/gitlab-search', i),
+      jsonToCsv: (i) => post('dev.json-to-csv', '/api/dev/json-to-csv', i),
+      jsonToTypescript: (i) => post('dev.json-to-typescript', '/api/dev/json-to-typescript', i),
+      jsonToZod: (i) => post('dev.json-to-zod', '/api/dev/json-to-zod', i),
+      jwtDecode: (i) => post('dev.jwt-decode', '/api/dev/jwt-decode', i),
+      npmSearch: (i) => get('dev.npm-search', '/api/dev/npm-search', i),
+      regexTest: (i) => post('dev.regex-test', '/api/dev/regex-test', i),
+      stackoverflowSearch: (i) => get('dev.stackoverflow-search', '/api/dev/stackoverflow-search', i),
+      uuid: (i) => get('dev.uuid', '/api/dev/uuid', i ?? {}),
       rfc: (i) => get('dev.rfc', '/api/dev/rfc', i),
       preflight: (i) => post('dev.preflight', '/api/dev/preflight', i),
     },
@@ -1715,6 +1801,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       events: (i) => get('earth.events', '/api/earth/events', i ?? {}),
     },
     finance: {
+      form144: (i) => get('finance.form-144', '/api/finance/form-144', i ?? {}),
       amortize: (i) => get('finance.amortize', '/api/finance/amortize', i),
       secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
       companyFacts: (i) => get('finance.company-facts', '/api/finance/company-facts', i),
@@ -1752,6 +1839,12 @@ export function createEndpoints(client: TwoS): Endpoints {
       bulk: (i) => post('ipinfo.bulk', '/api/ipinfo/bulk', i),
     },
     business: {
+      fiCompanies: (i) => get('business.fi-companies', '/api/business/fi-companies', i),
+      frCompanies: (i) => get('business.fr-companies', '/api/business/fr-companies', i),
+      leiHierarchy: (i) => get('business.lei-hierarchy', '/api/business/lei-hierarchy', i),
+      leiIsins: (i) => get('business.lei-isins', '/api/business/lei-isins', i ?? {}),
+      noCompanies: (i) => get('business.no-companies', '/api/business/no-companies', i),
+      plKrs: (i) => get('business.pl-krs', '/api/business/pl-krs', i),
       sosSearch: (i) => get('business.sos-search', '/api/business/sos-search', i),
       brCnpj: (i) => get('business.br-cnpj', '/api/business/br-cnpj', i),
       ukCompanies: (i) => get('business.uk-companies', '/api/business/uk-companies', i),
@@ -1793,6 +1886,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       search: (i) => get('papers.search', '/api/papers/search', i),
     },
     patents: {
+      epoBiblio: (i) => get('patents.epo-biblio', '/api/patents/epo-biblio', i),
+      epoFamily: (i) => get('patents.epo-family', '/api/patents/epo-family', i),
+      epoLegal: (i) => get('patents.epo-legal', '/api/patents/epo-legal', i),
+      epoSearch: (i) => get('patents.epo-search', '/api/patents/epo-search', i),
       search: (i) => get('patents.search', '/api/patents/search', i),
       detail: (i) => get('patents.detail', '/api/patents/detail', i),
       documents: (i) => get('patents.documents', '/api/patents/documents', i),
@@ -1990,6 +2087,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       readme: (i) => get('github.readme', '/api/github/readme', i),
     },
     predict: {
+      holders: (i) => get('predict.holders', '/api/predict/holders', i),
+      limitlessMarkets: (i) => get('predict.limitless-markets', '/api/predict/limitless-markets', i ?? {}),
       kalshiEvents: (i) => get('predict.kalshi-events', '/api/predict/kalshi-events', i ?? {}),
       kalshiMarket: (i) => get('predict.kalshi-market', '/api/predict/kalshi-market', i),
       kalshiMarkets: (i) => get('predict.kalshi-markets', '/api/predict/kalshi-markets', i ?? {}),
@@ -2012,6 +2111,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       nhlStandings: () => get('sports.nhl-standings', '/api/sports/nhl-standings', {}),
     },
     search: {
+      ai: (i) => get('search.ai', '/api/search/ai', i),
+      crawl: (i) => post('search.crawl', '/api/search/crawl', i),
+      extract: (i) => post('search.extract', '/api/search/extract', i),
       endpoints: (i) => get('search.endpoints', '/api/search/endpoints', i),
       web: (i) => get('search.web', '/api/search/web', i),
     },
@@ -2033,6 +2135,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       cveSearch: (i) => get('security.cve-search', '/api/security/cve-search', i),
     },
     flight: {
+      airportBoard: (i) => get('flight.airport-board', '/api/flight/airport-board', i),
+      routeSchedule: (i) => get('flight.route-schedule', '/api/flight/route-schedule', i),
       status: (i) => get('flight.status', '/api/flight/status', i),
     },
     stocks: {
@@ -2114,6 +2218,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       schoolLookup: (i) => get('edu.school-lookup', '/api/edu/school-lookup', i),
     },
     energy: {
+      solarForecast: (i) => get('energy.solar-forecast', '/api/energy/solar-forecast', i),
       fuelStations: (i) => get('energy.fuel-stations', '/api/energy/fuel-stations', i ?? {}),
       solarResource: (i) => get('energy.solar-resource', '/api/energy/solar-resource', i),
       prices: (i) => get('energy.prices', '/api/energy/prices', i ?? {}),

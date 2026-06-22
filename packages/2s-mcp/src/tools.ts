@@ -4505,6 +4505,466 @@ export function buildToolList(c: TwoS): ToolDef[] {
       inputSchema: s('NHL standings', {}),
       invoke: () => c.sports.nhlStandings(),
     },
+    {
+      name: 'ai.ocr',
+      description: 'OCR + layout extraction. POST { imageUrl, instruction? }. Returns verbatim transcribed text in reading order, any detected tables as markdown, the primary language, and a handwriting flag. For reading receipts, forms, screenshots, scanned pages, and labels. JPEG/PNG/GIF/WebP.',
+      inputSchema: s('ocr', {
+        imageUrl: { type: 'string', description: 'Public image URL (JPEG/PNG/GIF/WebP).' },
+        instruction: { type: 'string', description: 'Optional steering, e.g. "only the table" or "preserve line numbers".' },
+      }, ['imageUrl']),
+      invoke: (a) => c.ai.ocr(a as never),
+    },
+    {
+      name: 'ai.research',
+      description: 'Grounded research brief. POST { query, urls? }. Gathers sources (Wikipedia + any URLs you supply), then synthesizes a factual, cited brief: a 2-4 sentence summary, key facts, and the source list. Grounded only in the fetched sources (no free-form invention). For agent research, due diligence, and topic primers.',
+      inputSchema: s('research', {
+        query: { type: 'string', description: 'Topic, entity, or question to research.' },
+        urls: { type: 'object', description: 'Optional source URLs to ground the brief in, alongside Wikipedia.' },
+      }, ['query']),
+      invoke: (a) => c.ai.research(a as never),
+    },
+    {
+      name: 'ai.web-answer',
+      description: 'Answer a question from the live web. POST { query, topic?, maxResults? }. Runs a deep web search and returns a synthesized, citation-backed answer plus the ranked source pages (title, URL, snippet). For up-to-the-minute questions an LLM alone can\'t answer — news, prices, current events, recent releases. topic=news bias',
+      inputSchema: s('web-answer', {
+        query: { type: 'string', description: 'Free-text search query.' },
+        topic: { type: 'string', description: 'Topic.' },
+        maxResults: { type: 'integer', description: 'Max results.' },
+      }, ['query']),
+      invoke: (a) => c.ai.webAnswer(a as never),
+    },
+    {
+      name: 'business.fi-companies',
+      description: 'Official Finnish company registry search (PRH/YTJ avoindata, Finnish Patent & Registration Office). Search by company name. Each result: Business ID (Y-tunnus), current name, company form, trade-register status, primary line of business, registration date, and street address — descriptions in English where available. F',
+      inputSchema: s('fi-companies', {
+        name: { type: 'string', description: 'Company name to search.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['name']),
+      invoke: (a) => c.business.fiCompanies(a as never),
+    },
+    {
+      name: 'business.fr-companies',
+      description: 'Official French company registry search (annuaire des entreprises / data.gouv.fr). Search by company name, SIREN, SIRET, or director. Each result: SIREN, legal name, legal-form code, primary NAF activity code, enterprise category (PME/ETI/GE), employee-count range, creation date, administrative status (active/ceased), ',
+      inputSchema: s('fr-companies', {
+        q: { type: 'string', description: 'Company name, SIREN, SIRET, or director name.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.business.frCompanies(a as never),
+    },
+    {
+      name: 'business.lei-hierarchy',
+      description: 'Corporate ownership graph for a legal entity by LEI (GLEIF Level-2 relationships, live). Returns the direct parent and ultimate parent (each: LEI, legal name, jurisdiction, country, status), the direct children (paged), and total counts of direct and ultimate children. The authoritative \'who owns whom\' lookup for KYB, ',
+      inputSchema: s('lei-hierarchy', {
+        lei: { type: 'string', description: '20-character LEI, e.g. HWUPKR0MPOU8FGXBT394 (Apple Inc.).' },
+        childLimit: { type: 'integer', description: 'Max direct children to return (1-50, default 10).' },
+      }, ['lei']),
+      invoke: (a) => c.business.leiHierarchy(a as never),
+    },
+    {
+      name: 'business.lei-isins',
+      description: 'ISIN ↔ LEI mapping (GLEIF, live, CC0). Two modes: pass lei to list every ISIN (security identifier) issued by that entity; or pass isin to resolve the issuer\'s LEI (with legal name, jurisdiction, country). Bridges securities to their legal-entity issuers for finance, compliance, and reference-data joins — complements b',
+      inputSchema: s('lei-isins', {
+        lei: { type: 'string', description: 'LEI → list its ISINs.' },
+        isin: { type: 'string', description: 'ISIN → resolve issuer LEI, e.g. US0378331005.' },
+        limit: { type: 'integer', description: 'Max ISINs in lei mode (1-200, default 100).' },
+      }),
+      invoke: (a) => c.business.leiIsins(a as never),
+    },
+    {
+      name: 'business.no-companies',
+      description: 'Official Norwegian company registry search (Brønnøysund Enhetsregisteret). Search by company name. Each result: organisation number, name, organisation form, primary industry (NACE), employee count, registration date, website, bankruptcy and dissolution flags, and business address. Free, NLOD/CC BY 4.0. The authoritati',
+      inputSchema: s('no-companies', {
+        name: { type: 'string', description: 'Company name to search.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['name']),
+      invoke: (a) => c.business.noCompanies(a as never),
+    },
+    {
+      name: 'business.pl-krs',
+      description: 'Official Polish company registry lookup by KRS number (KRS — Ministry of Justice, current extract / OdpisAktualny). Returns legal name, legal form, NIP and REGON identifiers, KRS registration date, share capital, and registered address. Register P = entrepreneurs (default); S = associations/foundations. Free, Polish pu',
+      inputSchema: s('pl-krs', {
+        krs: { type: 'string', description: '10-digit KRS number, e.g. 0000028860.' },
+        register: { type: 'string', description: 'P = entrepreneurs (default), S = associations/foundations.' },
+      }, ['krs']),
+      invoke: (a) => c.business.plKrs(a as never),
+    },
+    {
+      name: 'crypto.balances',
+      description: 'Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symbol, decimals, raw and human-formatted balance — fetched in one multicall. For wallet dashboards, treasury checks, and ag',
+      inputSchema: s('balances', {
+        address: { type: 'string', description: 'EVM address to read.' },
+        chain: { type: 'string', description: 'Default base.' },
+        tokens: { type: 'string', description: 'Comma-separated ERC-20 contract addresses (max 20).' },
+      }, ['address']),
+      invoke: (a) => c.crypto.balances(a as never),
+    },
+    {
+      name: 'crypto.btc-address',
+      description: 'Bitcoin address summary (free/keyless): confirmed balance (sats + BTC), total received/sent, transaction count, funded/spent output counts, and pending mempool balance + tx count. Works for any BTC address (legacy, SegWit, Taproot). Net-new — our on-chain reads were EVM-only.',
+      inputSchema: s('btc-address', {
+        address: { type: 'string', description: 'Bitcoin address (1.../3.../bc1...).' },
+      }, ['address']),
+      invoke: (a) => c.crypto.btcAddress(a as never),
+    },
+    {
+      name: 'crypto.btc-mempool',
+      description: 'Bitcoin mempool state (free/keyless): current unconfirmed tx count, total vsize, and total fees, plus the most recent transactions (whale radar) — filter with minBtc to surface only large pending transfers. For congestion monitoring and large-transfer alerts.',
+      inputSchema: s('btc-mempool', {
+        minBtc: { type: 'number', description: 'Only include recent txs >= this BTC value.' },
+      }),
+      invoke: (a) => c.crypto.btcMempool(a as never),
+    },
+    {
+      name: 'crypto.btc-tx',
+      description: 'Bitcoin transaction lookup by txid (free/keyless): confirmed status + confirmation count (vs current tip), block height + time, fee (sats + BTC), total output value, size/weight, and input/output counts. Distinct from crypto.tx (EVM) — this is Bitcoin.',
+      inputSchema: s('btc-tx', {
+        txid: { type: 'string', description: 'Txid.' },
+      }, ['txid']),
+      invoke: (a) => c.crypto.btcTx(a as never),
+    },
+    {
+      name: 'crypto.btc-utxos',
+      description: 'Unspent transaction outputs (UTXOs) for a Bitcoin address (free/keyless): each with txid, output index, value (sats + BTC), confirmation status, and block height. Sorted largest-first. For coin selection, balance verification, and wallet tooling.',
+      inputSchema: s('btc-utxos', {
+        address: { type: 'string', description: 'Street address or full address string.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['address']),
+      invoke: (a) => c.crypto.btcUtxos(a as never),
+    },
+    {
+      name: 'crypto.cex-klines',
+      description: 'Centralized-exchange OHLCV candlesticks for a spot trading pair (e.g. BTC-USD, ETH-USD, SOL-USD), free/keyless. Pass interval (1m/5m/15m/1h/6h/1d) and limit. Each bar: time, open, high, low, close, volume. Net-new vs crypto.dex-ohlcv (on-chain DEX) — this is CEX spot.',
+      inputSchema: s('cex-klines', {
+        pair: { type: 'string', description: 'Trading pair, e.g. BTC-USD.' },
+        interval: { type: 'string', description: 'Interval.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['pair']),
+      invoke: (a) => c.crypto.cexKlines(a as never),
+    },
+    {
+      name: 'crypto.cex-ticker',
+      description: 'Centralized-exchange 24h ticker for a spot pair (e.g. BTC-USD), free/keyless: current price, best bid/ask, 24h open/high/low, 24h + 30d volume, and 24h percent change. Real CEX spot quote — distinct from crypto.token-price (CoinGecko aggregate).',
+      inputSchema: s('cex-ticker', {
+        pair: { type: 'string', description: 'Pair.' },
+      }, ['pair']),
+      invoke: (a) => c.crypto.cexTicker(a as never),
+    },
+    {
+      name: 'crypto.decode-calldata',
+      description: 'Decode raw EVM transaction calldata. POST { data } (0x-prefixed hex). Resolves the 4-byte function selector to its human signature(s) via the openchain.xyz database, then ABI-decodes the parameters (address, uint/int, bool, bytesN, string, bytes, and elementary dynamic arrays). Returns selector, candidate signatures, d',
+      inputSchema: s('decode-calldata', {
+        data: { type: 'string', description: 'Data.' },
+      }, ['data']),
+      invoke: (a) => c.crypto.decodeCalldata(a as never),
+    },
+    {
+      name: 'crypto.nft',
+      description: 'Live ERC-721 NFT read (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Given a contract + tokenId: returns current owner, collection name/symbol, and tokenURI (IPFS auto-resolved to a gateway URL). Pass metadata=1 to also fetch and normalize the token\'s JSON metadata (name, description, image, attributes). For N',
+      inputSchema: s('nft', {
+        address: { type: 'string', description: 'NFT contract address.' },
+        tokenId: { type: 'string', description: 'Token id (decimal).' },
+        chain: { type: 'string', description: 'Default ethereum.' },
+        metadata: { type: 'string', description: '1 to also fetch token JSON metadata.' },
+      }, ['address', 'tokenId']),
+      invoke: (a) => c.crypto.nft(a as never),
+    },
+    {
+      name: 'crypto.nft-security',
+      description: 'NFT collection risk screening via GoPlus (free, keyless). For an ERC-721/1155 contract: verification/trust-list status, open-source + proxy flags, privileged-minting, restricted-approval, transfer-without-approval, metadata-frozen and self-destruct risks, plus owner count and volume stats. Screen a collection before mi',
+      inputSchema: s('nft-security', {
+        address: { type: 'string', description: 'NFT contract address.' },
+        chainId: { type: 'integer', description: 'EVM chain id (default 1 = Ethereum).' },
+      }, ['address']),
+      invoke: (a) => c.crypto.nftSecurity(a as never),
+    },
+    {
+      name: 'crypto.token-metadata',
+      description: 'Live on-chain token metadata for an ERC-20 or ERC-721 contract (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns name, symbol, decimals, detected standard, and total supply (raw + formatted). The authoritative read straight from the contract — complements crypto.token-price and crypto.contract (ABI/source',
+      inputSchema: s('token-metadata', {
+        address: { type: 'string', description: 'Token contract address.' },
+        chain: { type: 'string', description: 'Default base.' },
+      }, ['address']),
+      invoke: (a) => c.crypto.tokenMetadata(a as never),
+    },
+    {
+      name: 'crypto.vrf',
+      description: 'Verifiable random function — deterministic, publicly verifiable randomness bound to your seed and signed by the 2s key. proof = deterministic EIP-191 signature over the seed (same seed always yields the same proof, so the outcome cannot be re-rolled or cherry-picked); random = keccak256(proof), a uniform 32-byte value.',
+      inputSchema: s('vrf', {
+        seed: { type: 'string', description: 'Any seed string — a request id, block hash, commitment, etc.' },
+      }, ['seed']),
+      invoke: (a) => c.crypto.vrf(a as never),
+    },
+    {
+      name: 'dev.crates-search',
+      description: 'Search crates.io for Rust packages (keyless). Each result: name, latest stable version, description, total + recent downloads, and repository/homepage/documentation links. For agents discovering or vetting Rust dependencies.',
+      inputSchema: s('crates-search', {
+        q: { type: 'string', description: 'Crate search text, e.g. "tokio async".' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.dev.cratesSearch(a as never),
+    },
+    {
+      name: 'dev.csv-to-json',
+      description: 'Convert CSV/TSV text to a JSON array. POST { csv, delimiter?, header? }. Auto-detects comma vs tab, handles quoted fields and escaped quotes, and coerces numbers/booleans/empty→null. With header=true (default) each row becomes an object keyed by the header row; header=false returns arrays.',
+      inputSchema: s('csv-to-json', {
+        csv: { type: 'string', description: 'CSV.' },
+        delimiter: { type: 'string', description: 'Delimiter.' },
+        header: { type: 'boolean', description: 'Header.' },
+      }, ['csv']),
+      invoke: (a) => c.dev.csvToJson(a as never),
+    },
+    {
+      name: 'dev.diff-json',
+      description: 'Structured deep diff of two JSON values. POST { a, b }. Returns a list of changes, each with a dot-path and type (added / removed / changed) plus from/to values, and a total change count. For change-detection, config drift, and review tooling.',
+      inputSchema: s('diff-json', {
+        a: { type: 'string', description: 'A.' },
+        b: { type: 'string', description: 'B.' },
+      }),
+      invoke: (a) => c.dev.diffJson(a as never),
+    },
+    {
+      name: 'dev.flatten-json',
+      description: 'Flatten a nested JSON object/array into dot-notation keys. POST { data, delimiter? }. E.g. {a:{b:[1,2]}} → {"a.b.0":1,"a.b.1":2}. Useful for diffing, CSV export, search indexing, or feeding flat key/value config to tools.',
+      inputSchema: s('flatten-json', {
+        data: { type: 'string', description: 'Data.' },
+        delimiter: { type: 'string', description: 'Delimiter.' },
+      }),
+      invoke: (a) => c.dev.flattenJson(a as never),
+    },
+    {
+      name: 'dev.gitlab-search',
+      description: 'Search public GitLab projects (keyless), ranked by stars. Each result: full name, path, description, star and fork counts, web URL, last-activity timestamp, and topics. Complements code.repo-lookup (GitHub) for cross-host repository discovery.',
+      inputSchema: s('gitlab-search', {
+        q: { type: 'string', description: 'Project search text, e.g. "kubernetes operator".' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.dev.gitlabSearch(a as never),
+    },
+    {
+      name: 'dev.json-to-csv',
+      description: 'Convert a JSON array of objects to CSV. POST { data, delimiter? }. Column headers are the union of keys across all rows; values are CSV-escaped (quotes, commas, newlines), nested objects are JSON-stringified, null→empty. Returns the CSV string + column list.',
+      inputSchema: s('json-to-csv', {
+        data: { type: 'object', description: 'Data.' },
+        delimiter: { type: 'string', description: 'Delimiter.' },
+      }, ['data']),
+      invoke: (a) => c.dev.jsonToCsv(a as never),
+    },
+    {
+      name: 'dev.json-to-typescript',
+      description: 'Infer a TypeScript interface from a sample JSON value. POST { sample, rootName? }. Handles nested objects, arrays (merged element type), and primitives; merges keys across array elements. Returns a ready-to-paste interface string.',
+      inputSchema: s('json-to-typescript', {
+        sample: { type: 'string', description: 'Sample.' },
+        rootName: { type: 'string', description: 'Root name.' },
+      }),
+      invoke: (a) => c.dev.jsonToTypescript(a as never),
+    },
+    {
+      name: 'dev.json-to-zod',
+      description: 'Infer a Zod schema from a sample JSON value. POST { sample, name? }. Handles nested objects, arrays, and primitives, merging keys across array elements. Returns a ready-to-paste `const name = z.object({...})` string.',
+      inputSchema: s('json-to-zod', {
+        sample: { type: 'string', description: 'Sample.' },
+        name: { type: 'string', description: 'Name to search for.' },
+      }),
+      invoke: (a) => c.dev.jsonToZod(a as never),
+    },
+    {
+      name: 'dev.jwt-decode',
+      description: 'Decode a JWT without verifying its signature. POST { token }. Returns the decoded header and payload, plus issuedAt/expiresAt/notBefore as ISO timestamps, and expired / notYetValid flags. Signature is NOT checked — decode/inspection only. For agents reading token claims (scopes, sub, exp) before acting.',
+      inputSchema: s('jwt-decode', {
+        token: { type: 'string', description: 'Token.' },
+      }, ['token']),
+      invoke: (a) => c.dev.jwtDecode(a as never),
+    },
+    {
+      name: 'dev.npm-search',
+      description: 'Search the npm registry for JavaScript/TypeScript packages (keyless). Each result: name, latest version, description, keywords, publisher, last-publish date, and npm/homepage/repository links. For agents discovering or vetting dependencies.',
+      inputSchema: s('npm-search', {
+        q: { type: 'string', description: 'Package search text, e.g. "react query".' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.dev.npmSearch(a as never),
+    },
+    {
+      name: 'dev.regex-test',
+      description: 'Test a JavaScript regular expression against input text. POST { pattern, flags?, input }. Returns each match with its index, numbered capture groups, and named groups (up to 1000 matches with the g flag). Pure compute, no upstream.',
+      inputSchema: s('regex-test', {
+        pattern: { type: 'string', description: 'Pattern.' },
+        flags: { type: 'string', description: 'Flags.' },
+        input: { type: 'string', description: 'Input.' },
+      }, ['pattern', 'input']),
+      invoke: (a) => c.dev.regexTest(a as never),
+    },
+    {
+      name: 'dev.stackoverflow-search',
+      description: 'Search Stack Overflow questions (keyless). Each result: title, link, score, answer count, answered flag, view count, tags, creation date, and question id. Sort by relevance, votes, activity, or creation. For coding agents that need authoritative Q&A on errors, APIs, and language features.',
+      inputSchema: s('stackoverflow-search', {
+        q: { type: 'string', description: 'Search query, e.g. "async await deadlock c#".' },
+        sort: { type: 'string', description: 'Default relevance.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.dev.stackoverflowSearch(a as never),
+    },
+    {
+      name: 'dev.uuid',
+      description: 'Generate UUIDs. version v4 (random) or v7 (time-ordered, sortable); count 1-100. Cryptographically random. Pure compute, no upstream.',
+      inputSchema: s('uuid', {
+        version: { type: 'string', description: 'Default v4.' },
+        count: { type: 'integer', description: 'Count.' },
+      }),
+      invoke: (a) => c.dev.uuid(a as never),
+    },
+    {
+      name: 'econ.cot',
+      description: 'CFTC Commitments of Traders (COT) — weekly futures positioning for a market (free/keyless). Match a market by name (e.g. \'E-MINI S&P\', \'GOLD\', \'CRUDE OIL\', \'BITCOIN\'). Each weekly report: open interest, large speculators (non-commercial) long/short/spread, commercials (hedgers) long/short, small (non-reportable) trader',
+      inputSchema: s('cot', {
+        market: { type: 'string', description: 'Market name contains, e.g. GOLD, E-MINI S&P, CRUDE OIL.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['market']),
+      invoke: (a) => c.econ.cot(a as never),
+    },
+    {
+      name: 'energy.solar-forecast',
+      description: 'Solar irradiance + PV-yield forecast for any coordinate (free/keyless, global). Returns a daily 1-16 day forecast: GHI (kWh/m²), peak sun hours, sunshine hours, and estimated yield per kWp of panels (at a 0.75 performance ratio). For rooftop-solar planning, agrivoltaics, and EV-charge scheduling. Complements energy.sol',
+      inputSchema: s('solar-forecast', {
+        latitude: { type: 'number', description: 'Latitude in decimal degrees (WGS84).' },
+        longitude: { type: 'number', description: 'Longitude in decimal degrees (WGS84).' },
+        days: { type: 'integer', description: 'Look-back window, in days.' },
+      }, ['latitude', 'longitude']),
+      invoke: (a) => c.energy.solarForecast(a as never),
+    },
+    {
+      name: 'finance.form-144',
+      description: 'SEC Form 144 filings — notices of PROPOSED insider stock sales (intent to sell restricted/control shares), newest first, via EDGAR full-text search. Market-wide by default, or filter by ticker/company/keyword (q). Each: filer + issuer names, filing date, accession, CIKs, and a filing URL. The heads-up before a Form 4 c',
+      inputSchema: s('form-144', {
+        q: { type: 'string', description: 'Optional ticker/company/keyword filter, e.g. NVDA or "Shopify".' },
+        startDate: { type: 'string', description: 'Start of the date range (YYYY-MM-DD).' },
+        endDate: { type: 'string', description: 'End of the date range (YYYY-MM-DD).' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }),
+      invoke: (a) => c.finance.form144(a as never),
+    },
+    {
+      name: 'flight.airport-board',
+      description: 'Live airport activity board (FlightAware AeroAPI). For an airport (ICAO like KSFO or IATA like SFO), returns recent/upcoming departures or arrivals — flight ident, registration, aircraft type, origin/destination airports, status, scheduled/estimated/actual gate times, gate and terminal. Choose the board with type. Real',
+      inputSchema: s('airport-board', {
+        airport: { type: 'string', description: 'Airport code, ICAO (KSFO) or IATA (SFO).' },
+        type: { type: 'string', description: 'Default departures.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['airport']),
+      invoke: (a) => c.flight.airportBoard(a as never),
+    },
+    {
+      name: 'flight.route-schedule',
+      description: 'Scheduled flights between two airports over a date window (FlightAware AeroAPI). Pass origin and destination (ICAO or IATA) plus startDate/endDate; returns scheduled flights with ident, operator, aircraft type, origin/destination, and scheduled departure/arrival times. Answers \'what flights run SFO→JFK this week\'. Comp',
+      inputSchema: s('route-schedule', {
+        origin: { type: 'string', description: 'Origin airport, ICAO or IATA.' },
+        destination: { type: 'string', description: 'Destination airport, ICAO or IATA.' },
+        startDate: { type: 'string', description: 'Window start (YYYY-MM-DD).' },
+        endDate: { type: 'string', description: 'Window end (YYYY-MM-DD), <= 7 days after start.' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['origin', 'destination', 'startDate', 'endDate']),
+      invoke: (a) => c.flight.routeSchedule(a as never),
+    },
+    {
+      name: 'patents.epo-biblio',
+      description: 'Bibliographic record for a patent publication via EPO OPS: invention titles (multiple languages), applicants, inventors, IPC classifications, application number, and the abstract. Worldwide coverage by publication number (e.g. EP1000000, US6093011). Net-new vs US-only patents.detail.',
+      inputSchema: s('epo-biblio', {
+        number: { type: 'string', description: 'Publication number, e.g. EP1000000 or US6093011.' },
+        format: { type: 'string', description: 'Number format (default epodoc, e.g. EP1000000 or US20260170385).' },
+      }, ['number']),
+      invoke: (a) => c.patents.epoBiblio(a as never),
+    },
+    {
+      name: 'patents.epo-family',
+      description: 'INPADOC patent family for a publication via EPO OPS — every worldwide equivalent of the same invention (same priority), each with country, document number, kind code, and combined publication number. Use it to find where a patent was also filed/granted globally. Net-new (no US-only equivalent).',
+      inputSchema: s('epo-family', {
+        number: { type: 'string', description: 'Publication number, e.g. EP1000000.' },
+        format: { type: 'string', description: 'Number format (default epodoc, e.g. EP1000000 or US20260170385).' },
+      }, ['number']),
+      invoke: (a) => c.patents.epoFamily(a as never),
+    },
+    {
+      name: 'patents.epo-legal',
+      description: 'INPADOC legal-status events for a patent publication via EPO OPS: the timeline of procedural events (examination, grant, designations, national-phase entries, lapses, withdrawals) each with an event code, description, and date. For tracking whether a patent is in force, granted, or lapsed. Net-new.',
+      inputSchema: s('epo-legal', {
+        number: { type: 'string', description: 'Publication number, e.g. EP1000000.' },
+        format: { type: 'string', description: 'Number format (default epodoc, e.g. EP1000000 or US20260170385).' },
+      }, ['number']),
+      invoke: (a) => c.patents.epoLegal(a as never),
+    },
+    {
+      name: 'patents.epo-search',
+      description: 'Search worldwide patent publications via the European Patent Office\'s Open Patent Services (OPS). Pass a CQL query (e.g. ti=quantum computing, in=tesla, pa=siemens, cpc=H01M, pn=EP1000000) and get matching publications with country, document number, kind code, and a combined publication number, plus the total result co',
+      inputSchema: s('epo-search', {
+        q: { type: 'string', description: 'CQL query, e.g. "ti=quantum computing" or "pa=siemens and cpc=H01M".' },
+        limit: { type: 'integer', description: 'Maximum number of results to return.' },
+      }, ['q']),
+      invoke: (a) => c.patents.epoSearch(a as never),
+    },
+    {
+      name: 'predict.holders',
+      description: 'Top holders of a Polymarket market, grouped by outcome token (conditionId). Each holder: wallet, trader name, position size, outcome index, and verified flag. Reveals concentration and smart-money positioning per outcome — the holder-side complement to predict.trades (flow) and predict.whales (large trades). Read-only ',
+      inputSchema: s('holders', {
+        market: { type: 'string', description: 'Market conditionId (0x…) — from predict.markets / predict.market.' },
+        limit: { type: 'integer', description: 'Top holders per outcome (default 20).' },
+      }, ['market']),
+      invoke: (a) => c.predict.holders(a as never),
+    },
+    {
+      name: 'predict.limitless-markets',
+      description: 'Active prediction markets on Limitless Exchange (on-chain, Base; keyless). Each market: conditionId, title, slug, description, status, live YES/NO prices, volume, liquidity, collateral token, expiration, and categories/tags. A second venue alongside the Polymarket (predict.markets) and Kalshi (predict.kalshi-markets) c',
+      inputSchema: s('limitless-markets', {
+        limit: { type: 'integer', description: 'Max markets (default 20).' },
+      }),
+      invoke: (a) => c.predict.limitlessMarkets(a as never),
+    },
+    {
+      name: 'search.ai',
+      description: 'AI web search optimized for agents. Returns ranked results with the relevant extracted content of each page (not just a link + blurb), plus a relevance score. topic=news for recent reporting. Distinct from search.web (raw SERP) — this returns clean, LLM-ready page content per result.',
+      inputSchema: s('ai', {
+        q: { type: 'string', description: 'Search query.' },
+        maxResults: { type: 'integer', description: 'Max results.' },
+        topic: { type: 'string', description: 'Topic.' },
+      }, ['q']),
+      invoke: (a) => c.search.ai(a as never),
+    },
+    {
+      name: 'search.crawl',
+      description: 'Crawl a site and return clean page content. POST { url, limit?, maxDepth?, instructions? }. Follows links from the start URL (up to 10 pages, depth ≤2) and returns each page\'s extracted content. Optional natural-language instructions steer which pages to follow (e.g. "only pricing and docs pages"). For ingesting a smal',
+      inputSchema: s('crawl', {
+        url: { type: 'string', description: 'Start URL to crawl.' },
+        limit: { type: 'integer', description: 'Max pages (≤10).' },
+        maxDepth: { type: 'integer', description: 'Max depth.' },
+        instructions: { type: 'string', description: 'Natural-language steering for which pages to follow.' },
+      }, ['url']),
+      invoke: (a) => c.search.crawl(a as never),
+    },
+    {
+      name: 'search.extract',
+      description: 'Extract clean, LLM-ready content from up to 5 URLs in one call. POST { urls[], depth? }. Returns the main text content of each page (JS-rendered, boilerplate stripped) plus a list of any URLs that failed. For feeding web pages to an agent without running your own headless browser.',
+      inputSchema: s('extract', {
+        urls: { type: 'object', description: '1-5 URLs to extract.' },
+        depth: { type: 'string', description: 'Depth.' },
+      }, ['urls']),
+      invoke: (a) => c.search.extract(a as never),
+    },
+    {
+      name: 'tax.vat-validate',
+      description: 'Validate an EU VAT identification number against the official VIES service (European Commission, keyless). Returns whether the number is currently valid and, where the member state discloses it, the registered trader name and address. The authoritative EU B2B/KYB check (e.g. for reverse-charge eligibility) — complement',
+      inputSchema: s('vat-validate', {
+        vat: { type: 'string', description: 'Full EU VAT number incl. country prefix, e.g. DE811569869, FRXX999999999.' },
+      }, ['vat']),
+      invoke: (a) => c.tax.vatValidate(a as never),
+    },
+    {
+      name: 'time.parse',
+      description: 'Parse a timestamp or date string into canonical forms — zero-dependency. Accepts unix seconds/millis or any standard date string (ISO-8601, RFC-2822, etc.). Returns UTC ISO, unix seconds + millis, RFC-2822, calendar components (year/month/day/hour/minute/second/weekday), ISO weekday, ISO year+week, and day-of-year. Pas',
+      inputSchema: s('parse', {
+        input: { type: 'string', description: 'Timestamp or date string, e.g. "2026-06-21T15:30:00Z" or 1750000000.' },
+        tz: { type: 'string', description: 'Optional IANA timezone for local conversion, e.g. America/New_York.' },
+      }, ['input']),
+      invoke: (a) => c.time.parse(a as never),
+    },
   ]
   return t
 }

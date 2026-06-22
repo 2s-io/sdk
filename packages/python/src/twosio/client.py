@@ -83,6 +83,34 @@ class _Group:
 
 
 class _Patents(_Group):
+    def epo_biblio(self, *, number: str, format: str | None = None) -> CallResult:
+        """Bibliographic record for a patent publication via EPO OPS: invention titles (multiple languages), applicants, inventors, IPC classifications, application number, and the abstract. Worldwide coverage b"""
+        query: dict = {"number": number}
+        if format is not None:
+            query["format"] = format
+        return self._c.request("GET", "/api/patents/epo-biblio", endpoint="patents.epo-biblio", query=query)
+
+    def epo_family(self, *, number: str, format: str | None = None) -> CallResult:
+        """INPADOC patent family for a publication via EPO OPS — every worldwide equivalent of the same invention (same priority), each with country, document number, kind code, and combined publication number. """
+        query: dict = {"number": number}
+        if format is not None:
+            query["format"] = format
+        return self._c.request("GET", "/api/patents/epo-family", endpoint="patents.epo-family", query=query)
+
+    def epo_legal(self, *, number: str, format: str | None = None) -> CallResult:
+        """INPADOC legal-status events for a patent publication via EPO OPS: the timeline of procedural events (examination, grant, designations, national-phase entries, lapses, withdrawals) each with an event c"""
+        query: dict = {"number": number}
+        if format is not None:
+            query["format"] = format
+        return self._c.request("GET", "/api/patents/epo-legal", endpoint="patents.epo-legal", query=query)
+
+    def epo_search(self, *, q: str, limit: int | None = None) -> CallResult:
+        """Search worldwide patent publications via the European Patent Office's Open Patent Services (OPS). Pass a CQL query (e.g. ti=quantum computing, in=tesla, pa=siemens, cpc=H01M, pn=EP1000000) and get mat"""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/patents/epo-search", endpoint="patents.epo-search", query=query)
+
     def search(self, **kwargs) -> CallResult:
         return self._c.request("GET", "/api/patents/search", endpoint="patents.search", query=kwargs)
 
@@ -101,7 +129,97 @@ class _Patents(_Group):
         )
 
 
+class _Time(_Group):
+    def parse(self, *, input: str, tz: str | None = None) -> CallResult:
+        """Parse a timestamp or date string into canonical forms — zero-dependency. Accepts unix seconds/millis or any standard date string (ISO-8601, RFC-2822, etc.). Returns UTC ISO, unix seconds + millis, RFC"""
+        query: dict = {"input": input}
+        if tz is not None:
+            query["tz"] = tz
+        return self._c.request("GET", "/api/time/parse", endpoint="time.parse", query=query)
+
+
+
 class _Crypto(_Group):
+    def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
+        """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
+        query: dict = {"address": address}
+        if chain is not None:
+            query["chain"] = chain
+        if tokens is not None:
+            query["tokens"] = tokens
+        return self._c.request("GET", "/api/crypto/balances", endpoint="crypto.balances", query=query)
+
+    def btc_address(self, *, address: str) -> CallResult:
+        """Bitcoin address summary (free/keyless): confirmed balance (sats + BTC), total received/sent, transaction count, funded/spent output counts, and pending mempool balance + tx count. Works for any BTC ad"""
+        query: dict = {"address": address}
+        return self._c.request("GET", "/api/crypto/btc-address", endpoint="crypto.btc-address", query=query)
+
+    def btc_mempool(self, *, minBtc: float | None = None) -> CallResult:
+        """Bitcoin mempool state (free/keyless): current unconfirmed tx count, total vsize, and total fees, plus the most recent transactions (whale radar) — filter with minBtc to surface only large pending tran"""
+        query: dict = {}
+        if minBtc is not None:
+            query["minBtc"] = minBtc
+        return self._c.request("GET", "/api/crypto/btc-mempool", endpoint="crypto.btc-mempool", query=query)
+
+    def btc_tx(self, *, txid: str) -> CallResult:
+        """Bitcoin transaction lookup by txid (free/keyless): confirmed status + confirmation count (vs current tip), block height + time, fee (sats + BTC), total output value, size/weight, and input/output coun"""
+        query: dict = {"txid": txid}
+        return self._c.request("GET", "/api/crypto/btc-tx", endpoint="crypto.btc-tx", query=query)
+
+    def btc_utxos(self, *, address: str, limit: int | None = None) -> CallResult:
+        """Unspent transaction outputs (UTXOs) for a Bitcoin address (free/keyless): each with txid, output index, value (sats + BTC), confirmation status, and block height. Sorted largest-first. For coin select"""
+        query: dict = {"address": address}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/crypto/btc-utxos", endpoint="crypto.btc-utxos", query=query)
+
+    def cex_klines(self, *, pair: str, interval: str | None = None, limit: int | None = None) -> CallResult:
+        """Centralized-exchange OHLCV candlesticks for a spot trading pair (e.g. BTC-USD, ETH-USD, SOL-USD), free/keyless. Pass interval (1m/5m/15m/1h/6h/1d) and limit. Each bar: time, open, high, low, close, vo"""
+        query: dict = {"pair": pair}
+        if interval is not None:
+            query["interval"] = interval
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/crypto/cex-klines", endpoint="crypto.cex-klines", query=query)
+
+    def cex_ticker(self, *, pair: str) -> CallResult:
+        """Centralized-exchange 24h ticker for a spot pair (e.g. BTC-USD), free/keyless: current price, best bid/ask, 24h open/high/low, 24h + 30d volume, and 24h percent change. Real CEX spot quote — distinct f"""
+        query: dict = {"pair": pair}
+        return self._c.request("GET", "/api/crypto/cex-ticker", endpoint="crypto.cex-ticker", query=query)
+
+    def decode_calldata(self, *, data: str) -> CallResult:
+        """Decode raw EVM transaction calldata. POST { data } (0x-prefixed hex). Resolves the 4-byte function selector to its human signature(s) via the openchain.xyz database, then ABI-decodes the parameters (a"""
+        body: dict = {"data": data}
+        return self._c.request("POST", "/api/crypto/decode-calldata", endpoint="crypto.decode-calldata", body=body)
+
+    def nft(self, *, address: str, tokenId: str, chain: str | None = None, metadata: str | None = None) -> CallResult:
+        """Live ERC-721 NFT read (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Given a contract + tokenId: returns current owner, collection name/symbol, and tokenURI (IPFS auto-resolved to a gateway U"""
+        query: dict = {"address": address, "tokenId": tokenId}
+        if chain is not None:
+            query["chain"] = chain
+        if metadata is not None:
+            query["metadata"] = metadata
+        return self._c.request("GET", "/api/crypto/nft", endpoint="crypto.nft", query=query)
+
+    def nft_security(self, *, address: str, chainId: int | None = None) -> CallResult:
+        """NFT collection risk screening via GoPlus (free, keyless). For an ERC-721/1155 contract: verification/trust-list status, open-source + proxy flags, privileged-minting, restricted-approval, transfer-wit"""
+        query: dict = {"address": address}
+        if chainId is not None:
+            query["chainId"] = chainId
+        return self._c.request("GET", "/api/crypto/nft-security", endpoint="crypto.nft-security", query=query)
+
+    def token_metadata(self, *, address: str, chain: str | None = None) -> CallResult:
+        """Live on-chain token metadata for an ERC-20 or ERC-721 contract (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns name, symbol, decimals, detected standard, and total supply (raw + format"""
+        query: dict = {"address": address}
+        if chain is not None:
+            query["chain"] = chain
+        return self._c.request("GET", "/api/crypto/token-metadata", endpoint="crypto.token-metadata", query=query)
+
+    def vrf(self, *, seed: str) -> CallResult:
+        """Verifiable random function — deterministic, publicly verifiable randomness bound to your seed and signed by the 2s key. proof = deterministic EIP-191 signature over the seed (same seed always yields t"""
+        query: dict = {"seed": seed}
+        return self._c.request("GET", "/api/crypto/vrf", endpoint="crypto.vrf", query=query)
+
 
     def defi(self, *, protocol: str | None = None, chain: str | None = None, limit: int | None = None) -> CallResult:
         """DeFi TVL via DefiLlama: protocol=<slug> or chain=<name> for one, or omit
@@ -427,6 +545,29 @@ class _Crypto(_Group):
 
 
 class _Ai(_Group):
+    def ocr(self, *, imageUrl: str, instruction: str | None = None) -> CallResult:
+        """OCR + layout extraction. POST { imageUrl, instruction? }. Returns verbatim transcribed text in reading order, any detected tables as markdown, the primary language, and a handwriting flag. For reading"""
+        body: dict = {"imageUrl": imageUrl}
+        if instruction is not None:
+            body["instruction"] = instruction
+        return self._c.request("POST", "/api/ai/ocr", endpoint="ai.ocr", body=body)
+
+    def research(self, *, query: str, urls: Any | None = None) -> CallResult:
+        """Grounded research brief. POST { query, urls? }. Gathers sources (Wikipedia + any URLs you supply), then synthesizes a factual, cited brief: a 2-4 sentence summary, key facts, and the source list. Grou"""
+        body: dict = {"query": query}
+        if urls is not None:
+            body["urls"] = urls
+        return self._c.request("POST", "/api/ai/research", endpoint="ai.research", body=body)
+
+    def web_answer(self, *, query: str, topic: str | None = None, maxResults: int | None = None) -> CallResult:
+        """Answer a question from the live web. POST { query, topic?, maxResults? }. Runs a deep web search and returns a synthesized, citation-backed answer plus the ranked source pages (title, URL, snippet). F"""
+        body: dict = {"query": query}
+        if topic is not None:
+            body["topic"] = topic
+        if maxResults is not None:
+            body["maxResults"] = maxResults
+        return self._c.request("POST", "/api/ai/web-answer", endpoint="ai.web-answer", body=body)
+
     def summarize(self, *, url: str, instruction: Optional[str] = None) -> CallResult:
         body = {"url": url}
         if instruction is not None:
@@ -841,6 +982,19 @@ class _Law(_Group):
 
 
 class _Finance(_Group):
+    def form_144(self, *, q: str | None = None, startDate: str | None = None, endDate: str | None = None, limit: int | None = None) -> CallResult:
+        """SEC Form 144 filings — notices of PROPOSED insider stock sales (intent to sell restricted/control shares), newest first, via EDGAR full-text search. Market-wide by default, or filter by ticker/company"""
+        query: dict = {}
+        if q is not None:
+            query["q"] = q
+        if startDate is not None:
+            query["startDate"] = startDate
+        if endDate is not None:
+            query["endDate"] = endDate
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/finance/form-144", endpoint="finance.form-144", query=query)
+
     def amortize(
         self,
         *,
@@ -1494,6 +1648,13 @@ class _Inflation(_Group):
 
 
 class _Econ(_Group):
+    def cot(self, *, market: str, limit: int | None = None) -> CallResult:
+        """CFTC Commitments of Traders (COT) — weekly futures positioning for a market (free/keyless). Match a market by name (e.g. 'E-MINI S&P', 'GOLD', 'CRUDE OIL', 'BITCOIN'). Each weekly report: open interes"""
+        query: dict = {"market": market}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/econ/cot", endpoint="econ.cot", query=query)
+
     def indicator(self, *, indicator: str | None = None) -> CallResult:
         """Latest US macro indicator reading + YoY (unemployment-rate, fed-funds-rate,
         real-gdp, gdp-growth, 10y-treasury, nonfarm-payrolls, ...). Pass indicator or omit for all."""
@@ -1701,6 +1862,109 @@ class _Aviation(_Group):
 
 
 class _Dev(_Group):
+    def crates_search(self, *, q: str, limit: int | None = None) -> CallResult:
+        """Search crates.io for Rust packages (keyless). Each result: name, latest stable version, description, total + recent downloads, and repository/homepage/documentation links. For agents discovering or ve"""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/dev/crates-search", endpoint="dev.crates-search", query=query)
+
+    def csv_to_json(self, *, csv: str, delimiter: str | None = None, header: bool | None = None) -> CallResult:
+        """Convert CSV/TSV text to a JSON array. POST { csv, delimiter?, header? }. Auto-detects comma vs tab, handles quoted fields and escaped quotes, and coerces numbers/booleans/empty→null. With header=true """
+        body: dict = {"csv": csv}
+        if delimiter is not None:
+            body["delimiter"] = delimiter
+        if header is not None:
+            body["header"] = header
+        return self._c.request("POST", "/api/dev/csv-to-json", endpoint="dev.csv-to-json", body=body)
+
+    def diff_json(self, *, a: str | None = None, b: str | None = None) -> CallResult:
+        """Structured deep diff of two JSON values. POST { a, b }. Returns a list of changes, each with a dot-path and type (added / removed / changed) plus from/to values, and a total change count. For change-d"""
+        body: dict = {}
+        if a is not None:
+            body["a"] = a
+        if b is not None:
+            body["b"] = b
+        return self._c.request("POST", "/api/dev/diff-json", endpoint="dev.diff-json", body=body)
+
+    def flatten_json(self, *, data: str | None = None, delimiter: str | None = None) -> CallResult:
+        """Flatten a nested JSON object/array into dot-notation keys. POST { data, delimiter? }. E.g. {a:{b:[1,2]}} → {"a.b.0":1,"a.b.1":2}. Useful for diffing, CSV export, search indexing, or feeding flat key/v"""
+        body: dict = {}
+        if data is not None:
+            body["data"] = data
+        if delimiter is not None:
+            body["delimiter"] = delimiter
+        return self._c.request("POST", "/api/dev/flatten-json", endpoint="dev.flatten-json", body=body)
+
+    def gitlab_search(self, *, q: str, limit: int | None = None) -> CallResult:
+        """Search public GitLab projects (keyless), ranked by stars. Each result: full name, path, description, star and fork counts, web URL, last-activity timestamp, and topics. Complements code.repo-lookup (G"""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/dev/gitlab-search", endpoint="dev.gitlab-search", query=query)
+
+    def json_to_csv(self, *, data: Any, delimiter: str | None = None) -> CallResult:
+        """Convert a JSON array of objects to CSV. POST { data, delimiter? }. Column headers are the union of keys across all rows; values are CSV-escaped (quotes, commas, newlines), nested objects are JSON-stri"""
+        body: dict = {"data": data}
+        if delimiter is not None:
+            body["delimiter"] = delimiter
+        return self._c.request("POST", "/api/dev/json-to-csv", endpoint="dev.json-to-csv", body=body)
+
+    def json_to_typescript(self, *, sample: str | None = None, rootName: str | None = None) -> CallResult:
+        """Infer a TypeScript interface from a sample JSON value. POST { sample, rootName? }. Handles nested objects, arrays (merged element type), and primitives; merges keys across array elements. Returns a re"""
+        body: dict = {}
+        if sample is not None:
+            body["sample"] = sample
+        if rootName is not None:
+            body["rootName"] = rootName
+        return self._c.request("POST", "/api/dev/json-to-typescript", endpoint="dev.json-to-typescript", body=body)
+
+    def json_to_zod(self, *, sample: str | None = None, name: str | None = None) -> CallResult:
+        """Infer a Zod schema from a sample JSON value. POST { sample, name? }. Handles nested objects, arrays, and primitives, merging keys across array elements. Returns a ready-to-paste `const name = z.object"""
+        body: dict = {}
+        if sample is not None:
+            body["sample"] = sample
+        if name is not None:
+            body["name"] = name
+        return self._c.request("POST", "/api/dev/json-to-zod", endpoint="dev.json-to-zod", body=body)
+
+    def jwt_decode(self, *, token: str) -> CallResult:
+        """Decode a JWT without verifying its signature. POST { token }. Returns the decoded header and payload, plus issuedAt/expiresAt/notBefore as ISO timestamps, and expired / notYetValid flags. Signature is"""
+        body: dict = {"token": token}
+        return self._c.request("POST", "/api/dev/jwt-decode", endpoint="dev.jwt-decode", body=body)
+
+    def npm_search(self, *, q: str, limit: int | None = None) -> CallResult:
+        """Search the npm registry for JavaScript/TypeScript packages (keyless). Each result: name, latest version, description, keywords, publisher, last-publish date, and npm/homepage/repository links. For age"""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/dev/npm-search", endpoint="dev.npm-search", query=query)
+
+    def regex_test(self, *, pattern: str, input: str, flags: str | None = None) -> CallResult:
+        """Test a JavaScript regular expression against input text. POST { pattern, flags?, input }. Returns each match with its index, numbered capture groups, and named groups (up to 1000 matches with the g fl"""
+        body: dict = {"pattern": pattern, "input": input}
+        if flags is not None:
+            body["flags"] = flags
+        return self._c.request("POST", "/api/dev/regex-test", endpoint="dev.regex-test", body=body)
+
+    def stackoverflow_search(self, *, q: str, sort: str | None = None, limit: int | None = None) -> CallResult:
+        """Search Stack Overflow questions (keyless). Each result: title, link, score, answer count, answered flag, view count, tags, creation date, and question id. Sort by relevance, votes, activity, or creati"""
+        query: dict = {"q": q}
+        if sort is not None:
+            query["sort"] = sort
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/dev/stackoverflow-search", endpoint="dev.stackoverflow-search", query=query)
+
+    def uuid(self, *, version: str | None = None, count: int | None = None) -> CallResult:
+        """Generate UUIDs. version v4 (random) or v7 (time-ordered, sortable); count 1-100. Cryptographically random. Pure compute, no upstream."""
+        query: dict = {}
+        if version is not None:
+            query["version"] = version
+        if count is not None:
+            query["count"] = count
+        return self._c.request("GET", "/api/dev/uuid", endpoint="dev.uuid", query=query)
+
     def rfc(self, *, number: str) -> CallResult:
         """IETF RFC lookup by number → status, title, authors, obsoletes/updates chain (bundled index)."""
         return self._c.request("GET", "/api/dev/rfc", endpoint="dev.rfc", query={"number": number})
@@ -1835,6 +2099,11 @@ class _Water(_Group):
 
 
 class _Tax(_Group):
+    def vat_validate(self, *, vat: str) -> CallResult:
+        """Validate an EU VAT identification number against the official VIES service (European Commission, keyless). Returns whether the number is currently valid and, where the member state discloses it, the r"""
+        query: dict = {"vat": vat}
+        return self._c.request("GET", "/api/tax/vat-validate", endpoint="tax.vat-validate", query=query)
+
     def vat(self, *, vat: str | None = None, country: str | None = None, number: str | None = None) -> CallResult:
         """Validate an EU VAT number against the live VIES register. Pass vat (full
         identifier like 'DE811569869') OR country + number. Returns valid, countryCode,
@@ -2960,6 +3229,52 @@ class _Tls(_Group):
 
 
 class _Business(_Group):
+    def fi_companies(self, *, name: str, limit: int | None = None) -> CallResult:
+        """Official Finnish company registry search (PRH/YTJ avoindata, Finnish Patent & Registration Office). Search by company name. Each result: Business ID (Y-tunnus), current name, company form, trade-regis"""
+        query: dict = {"name": name}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/business/fi-companies", endpoint="business.fi-companies", query=query)
+
+    def fr_companies(self, *, q: str, limit: int | None = None) -> CallResult:
+        """Official French company registry search (annuaire des entreprises / data.gouv.fr). Search by company name, SIREN, SIRET, or director. Each result: SIREN, legal name, legal-form code, primary NAF activ"""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/business/fr-companies", endpoint="business.fr-companies", query=query)
+
+    def lei_hierarchy(self, *, lei: str, childLimit: int | None = None) -> CallResult:
+        """Corporate ownership graph for a legal entity by LEI (GLEIF Level-2 relationships, live). Returns the direct parent and ultimate parent (each: LEI, legal name, jurisdiction, country, status), the direc"""
+        query: dict = {"lei": lei}
+        if childLimit is not None:
+            query["childLimit"] = childLimit
+        return self._c.request("GET", "/api/business/lei-hierarchy", endpoint="business.lei-hierarchy", query=query)
+
+    def lei_isins(self, *, lei: str | None = None, isin: str | None = None, limit: int | None = None) -> CallResult:
+        """ISIN ↔ LEI mapping (GLEIF, live, CC0). Two modes: pass lei to list every ISIN (security identifier) issued by that entity; or pass isin to resolve the issuer's LEI (with legal name, jurisdiction, coun"""
+        query: dict = {}
+        if lei is not None:
+            query["lei"] = lei
+        if isin is not None:
+            query["isin"] = isin
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/business/lei-isins", endpoint="business.lei-isins", query=query)
+
+    def no_companies(self, *, name: str, limit: int | None = None) -> CallResult:
+        """Official Norwegian company registry search (Brønnøysund Enhetsregisteret). Search by company name. Each result: organisation number, name, organisation form, primary industry (NACE), employee count, r"""
+        query: dict = {"name": name}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/business/no-companies", endpoint="business.no-companies", query=query)
+
+    def pl_krs(self, *, krs: str, register: str | None = None) -> CallResult:
+        """Official Polish company registry lookup by KRS number (KRS — Ministry of Justice, current extract / OdpisAktualny). Returns legal name, legal form, NIP and REGON identifiers, KRS registration date, sh"""
+        query: dict = {"krs": krs}
+        if register is not None:
+            query["register"] = register
+        return self._c.request("GET", "/api/business/pl-krs", endpoint="business.pl-krs", query=query)
+
 
     def entity_screen(
         self, *, state: str, name: Optional[str] = None, entity_id: Optional[str] = None,
@@ -4569,6 +4884,13 @@ class _Edu(_Group):
 
 
 class _Energy(_Group):
+    def solar_forecast(self, *, latitude: float, longitude: float, days: int | None = None) -> CallResult:
+        """Solar irradiance + PV-yield forecast for any coordinate (free/keyless, global). Returns a daily 1-16 day forecast: GHI (kWh/m²), peak sun hours, sunshine hours, and estimated yield per kWp of panels ("""
+        query: dict = {"latitude": latitude, "longitude": longitude}
+        if days is not None:
+            query["days"] = days
+        return self._c.request("GET", "/api/energy/solar-forecast", endpoint="energy.solar-forecast", query=query)
+
     def fuel_stations(self, **kwargs: Any) -> CallResult:
         """NREL alternative-fuel station locator (EV chargers, propane, CNG, etc.)."""
         return self._c.request("GET", "/api/energy/fuel-stations", endpoint="energy.fuel-stations", query=kwargs)
@@ -5021,6 +5343,20 @@ class _Github(_Group):
 
 
 class _Predict(_Group):
+    def holders(self, *, market: str, limit: int | None = None) -> CallResult:
+        """Top holders of a Polymarket market, grouped by outcome token (conditionId). Each holder: wallet, trader name, position size, outcome index, and verified flag. Reveals concentration and smart-money pos"""
+        query: dict = {"market": market}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/holders", endpoint="predict.holders", query=query)
+
+    def limitless_markets(self, *, limit: int | None = None) -> CallResult:
+        """Active prediction markets on Limitless Exchange (on-chain, Base; keyless). Each market: conditionId, title, slug, description, status, live YES/NO prices, volume, liquidity, collateral token, expirati"""
+        query: dict = {}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/limitless-markets", endpoint="predict.limitless-markets", query=query)
+
     def kalshi_events(
         self,
         *,
@@ -5273,6 +5609,33 @@ class _News(_Group):
 
 
 class _Search(_Group):
+    def ai(self, *, q: str, maxResults: int | None = None, topic: str | None = None) -> CallResult:
+        """AI web search optimized for agents. Returns ranked results with the relevant extracted content of each page (not just a link + blurb), plus a relevance score. topic=news for recent reporting. Distinct"""
+        query: dict = {"q": q}
+        if maxResults is not None:
+            query["maxResults"] = maxResults
+        if topic is not None:
+            query["topic"] = topic
+        return self._c.request("GET", "/api/search/ai", endpoint="search.ai", query=query)
+
+    def crawl(self, *, url: str, limit: int | None = None, maxDepth: int | None = None, instructions: str | None = None) -> CallResult:
+        """Crawl a site and return clean page content. POST { url, limit?, maxDepth?, instructions? }. Follows links from the start URL (up to 10 pages, depth ≤2) and returns each page's extracted content. Optio"""
+        body: dict = {"url": url}
+        if limit is not None:
+            body["limit"] = limit
+        if maxDepth is not None:
+            body["maxDepth"] = maxDepth
+        if instructions is not None:
+            body["instructions"] = instructions
+        return self._c.request("POST", "/api/search/crawl", endpoint="search.crawl", body=body)
+
+    def extract(self, *, urls: Any, depth: str | None = None) -> CallResult:
+        """Extract clean, LLM-ready content from up to 5 URLs in one call. POST { urls[], depth? }. Returns the main text content of each page (JS-rendered, boilerplate stripped) plus a list of any URLs that fai"""
+        body: dict = {"urls": urls}
+        if depth is not None:
+            body["depth"] = depth
+        return self._c.request("POST", "/api/search/extract", endpoint="search.extract", body=body)
+
     def endpoints(self, *, q: str, limit: Optional[int] = None) -> CallResult:
         """Find 2s endpoints matching a natural-language query (e.g. "screen a company for sanctions")."""
         query: dict[str, Any] = {"q": q}
@@ -5305,6 +5668,22 @@ class _Search(_Group):
 
 
 class _Flight(_Group):
+    def airport_board(self, *, airport: str, type: str | None = None, limit: int | None = None) -> CallResult:
+        """Live airport activity board (FlightAware AeroAPI). For an airport (ICAO like KSFO or IATA like SFO), returns recent/upcoming departures or arrivals — flight ident, registration, aircraft type, origin/"""
+        query: dict = {"airport": airport}
+        if type is not None:
+            query["type"] = type
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/flight/airport-board", endpoint="flight.airport-board", query=query)
+
+    def route_schedule(self, *, origin: str, destination: str, startDate: str, endDate: str, limit: int | None = None) -> CallResult:
+        """Scheduled flights between two airports over a date window (FlightAware AeroAPI). Pass origin and destination (ICAO or IATA) plus startDate/endDate; returns scheduled flights with ident, operator, airc"""
+        query: dict = {"origin": origin, "destination": destination, "startDate": startDate, "endDate": endDate}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/flight/route-schedule", endpoint="flight.route-schedule", query=query)
+
     def status(
         self,
         *,
@@ -5451,6 +5830,7 @@ class TwoS:
         self._x402_client = None  # lazy
 
         self.patents = _Patents(self)
+        self.time = _Time(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)
