@@ -14,16 +14,18 @@ No accounts to create. The server signs for whichever chain you configured a key
 
 A single MCP install gives the agent tools spanning, among others:
 
+- **Security** — CVE lookup (NVD + CISA KEV + EPSS), email-security, HTTP security headers, password-exposure, RPKI, CT logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
 - **Patents & trademarks** — USPTO patent search/detail/documents, trademark full-text search
 - **Legal & courts** — federal & state case search and citation verification (CourtListener / Free Law Project)
 - **Financial filings & markets** — SEC EDGAR filings, equities, FX, crypto, treasury rates
 - **Government & public records** — Federal Register, Congress, FEC, BLS, US Census, nonprofits, licenses
 - **Science & medicine** — arXiv / PubMed / Semantic Scholar papers, ICD-10, clinical trials, chemistry, nutrition
 - **Vehicles & aviation** — NHTSA VIN decode & recalls, aircraft registry, flights, airports
+- **Energy, agriculture & maritime** — energy prices & production, USDA agriculture, soil, vessel & port data
 - **Geospatial & weather** — geocoding, NWS/NOAA forecasts, climate, earthquakes, tides, places, parks
-- **Business & property** — company registries, property records
-- **Web & data utilities** — URL → markdown, screenshots, schema extraction, hashing, barcodes, image description, AI summarization
-- **Agent primitives** — memory, marketplace, knowledge-delta
+- **Business & property** — company registries, GLEIF LEI, KYB, property records
+- **Web & data utilities** — URL → markdown, screenshots, schema extraction, validators, EDI, hashing, barcodes, image description, AI summarization
+- **Agent primitives** — memory, marketplace, knowledge-delta, batch settlement
 
 See the [live catalog](https://2s.io/api/directory) for everything currently shipped.
 

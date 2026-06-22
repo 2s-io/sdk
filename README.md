@@ -85,26 +85,30 @@ print(r.data["hits"][0]["title"])
 }
 ```
 
-Restart Claude. The model can now call patents.search, law.sanctions-check, ai.summarize, geocode.address, vehicle.vin-decode, agent.knowledge-delta, and 120+ other paid tools — paying per call, no human in the loop.
+Restart Claude. The model can now call patents.search, law.sanctions-check, ai.summarize, geocode.address, vehicle.vin-decode, agent.knowledge-delta, security.cve, and 340+ other paid tools — paying per call, no human in the loop.
 
 ## What's behind the API
 
-180+ endpoints (live count in the [directory](https://2s.io/api/directory)) across:
+350+ endpoints across 90+ groups (live count in the [directory](https://2s.io/api/directory)) across:
 
-- **AI:** webpage summarization, translation, typed extraction, image description, screenshots
-- **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y")
-- **Patents:** USPTO Open Data Portal search + full file-wrapper detail + document list
-- **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, opinions, US trademark full-text search + status (USPTO)
-- **Government:** Congress bills/votes/members, FEC campaign finance, FDA drug/device/food events + recalls, OSHA/MSHA, USAspending, EPA facilities, USGS water
-- **Finance:** SEC EDGAR company facts, filings, insider trades, 13F holdings; US Treasury debt + cash
-- **Vehicles:** VIN decode, recalls, complaints, investigations (NHTSA)
-- **Geo / weather:** forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, IP geolocation (single + bulk)
-- **Internet:** DNS lookup, RDAP whois, URL unfurl (Open Graph), URL → clean Markdown
+- **AI:** webpage summarization, translation, typed extraction, image description, transcription, screenshots
+- **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
+- **Security:** CVE lookup (NVD + CISA KEV + EPSS), email-security, HTTP security headers, password-exposure (HIBP), RPKI, CT logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
+- **Patents & trademarks:** USPTO Open Data Portal search + full file-wrapper detail + document list; trademark full-text search + status
+- **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, CFR & USC, opinions, dockets
+- **Government:** Congress bills/votes/members, FEC campaign finance, FDA drug/device/food events + recalls, OSHA/MSHA, USAspending, EPA facilities, USGS water (50+ endpoints)
+- **Finance & treasury:** SEC EDGAR company facts, filings, insider trades, 13F holdings; US Treasury debt + cash; stock quotes; FX rates
+- **Vehicles & aviation:** VIN decode, recalls, complaints, investigations (NHTSA); aircraft registry, airports, flight data
+- **Health & medical:** ICD-10 / HCPCS / RxNorm, hospital quality, Medicare provider + open-payments, clinical trials, drug pricing
+- **Business & registries:** Secretary-of-State entity search, GLEIF LEI entity-match, KYB screening, IRS nonprofit search, bank routing
+- **Energy, agriculture, maritime & telecom:** energy prices & production, USDA agriculture, soil surveys, vessel & port data, phone/number intelligence
+- **Geo / weather / earth:** forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, climate stations, recent earthquakes, IP geolocation (single + bulk)
+- **Space:** launches, close approaches, satellites, exoplanets, sky-tonight, space weather
+- **Internet:** DNS lookup, RDAP whois, TLS inspection, URL unfurl (Open Graph), URL → clean Markdown
 - **Wikipedia / academic papers:** summaries, multi-source paper search (arXiv + PubMed + Semantic Scholar)
 - **Crypto:** multi-chain address validation (BTC, ETH, SOL, LTC, TRX, XRP, BCH), live EVM gas oracle
-- **Airports:** lookup by IATA/ICAO, nearest-airport-to-coord (OurAirports CC0, ~85k airports)
-- **Utilities:** hash computation, image compression, barcode/QR generation, countdown GIFs
-- **Census / education / health / jobs / nonprofits:** ACS demographics, College Scorecard, hospital + medical-license lookup, USAJOBS + BLS, IRS nonprofit search
+- **Economics & labor:** BLS series, inflation, World Bank indicators, ACS demographics, occupations, USAJOBS, College Scorecard
+- **Data & utilities:** 10+ validators (IBAN, email, phone, VAT…), EDI parsing, ISO codes, unit/currency conversion, hashing, image compression, barcode/QR, countdown GIFs
 
 Live catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/openapi>. Machine-discovery manifest: <https://2s.io/.well-known/x402>.
 

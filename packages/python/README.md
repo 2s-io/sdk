@@ -46,17 +46,18 @@ client = TwoS(signer=signer)
 
 ## What's included
 
-An ever-expanding catalog of endpoints, namespaced by group:
+An ever-expanding catalog of 350+ endpoints across 90+ groups (live count in the [directory](https://2s.io/api/directory)), namespaced by group — spanning AI, agent primitives, security (CVE / KEV / EPSS, IOC, exploits), patents & trademarks, law & sanctions, government & public records, finance & treasury, vehicles & aviation, health & medical, business & GLEIF/KYB, energy & agriculture, maritime & telecom, geo / weather / earth, space, science & papers, property & licenses, internet, crypto, music & news, and data validators / utilities:
 
 ```python
 client.patents.search(q="...")
-client.patents.detail(applicationNumber="18566276")
+client.security.cve(id="CVE-2024-3094")
 client.crypto.address_validate(chain="eth", address="0xd8dA...")
 client.ai.summarize(url="https://example.com")
 client.law.sanctions_check(name="John Smith")
+client.business.entity_match(name="Acme Corp")
 client.geocode.address(query="350 5th Ave, New York, NY")
 client.weather.zip(zip="94103")
-# ... and more
+# ... and 340+ more
 ```
 
 Full catalog: <https://2s.io/api/directory>. OpenAPI: <https://2s.io/api/openapi>.
