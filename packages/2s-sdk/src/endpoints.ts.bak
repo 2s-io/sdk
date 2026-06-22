@@ -29,11 +29,6 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
-  watchers: {
-    cancel(input: { watcherId: string }): R<Normalized>
-    cryptoAddressActivity(input: { chain: string; address: string; callbackUrl: string; direction?: string; assetTypes?: unknown; minValueUsd?: number; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
-    status(input: { watcherId: string }): R<Normalized>
-  }
   /** Time & date utilities. */
   time: {
     parse(input: { input: string; tz?: string }): R<Normalized>
@@ -1570,11 +1565,6 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
-    watchers: {
-      cancel: (i) => post('watchers.cancel', '/api/watchers/cancel', i),
-      cryptoAddressActivity: (i) => post('watchers.crypto-address-activity', '/api/watchers/crypto-address-activity', i),
-      status: (i) => get('watchers.status', '/api/watchers/status', i),
-    },
     time: {
       parse: (i) => get('time.parse', '/api/time/parse', i),
     },

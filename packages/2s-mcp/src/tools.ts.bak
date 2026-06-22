@@ -4957,39 +4957,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['input']),
       invoke: (a) => c.time.parse(a as never),
     },
-    {
-      name: 'watchers.cancel',
-      description: 'Cancel an active watcher by watcherId — it stops watching immediately. Flat-fee model: no refund of the unused window (nothing is held or owed). Idempotent. Pairs with watchers.crypto-address-activity and watchers.status.',
-      inputSchema: s('cancel', {
-        watcherId: { type: 'string', description: 'Watcher ID.' },
-      }, ['watcherId']),
-      invoke: (a) => c.watchers.cancel(a as never),
-    },
-    {
-      name: 'watchers.crypto-address-activity',
-      description: 'WATCHER: get a signed callback the moment a crypto address transacts. Arm once, pay once (no account, no API key) — we watch Base, Ethereum, or Bitcoin and POST your custom payload to callbackUrl when the address sends/receives native coins, ERC-20s, or ERC-721s. Filter by direction (in/out/both), asset type, and a USD',
-      inputSchema: s('crypto-address-activity', {
-        chain: { type: 'string', description: 'Chain.' },
-        address: { type: 'string', description: 'Street address or full address string.' },
-        callbackUrl: { type: 'string', description: 'Any https(s) URL; your payload is POSTed here on each event.' },
-        direction: { type: 'string', description: 'Direction.' },
-        assetTypes: { type: 'object', description: 'Asset types.' },
-        minValueUsd: { type: 'number', description: 'Min value usd.' },
-        payload: { type: 'object', description: 'Payload.' },
-        expiresInSeconds: { type: 'integer', description: 'Expires in seconds.' },
-        maxFires: { type: 'integer', description: 'Max fires.' },
-        label: { type: 'string', description: 'Label.' },
-      }, ['chain', 'address', 'callbackUrl']),
-      invoke: (a) => c.watchers.cryptoAddressActivity(a as never),
-    },
-    {
-      name: 'watchers.status',
-      description: 'Status of a watcher by watcherId: state (armed/completed/expired/cancelled), fires used/remaining, expiry, recent deliveries (with HTTP result + attempt count), and any UNDELIVERED events with their full callback bodies — the pull backstop, so a missed push is always recoverable here. Pairs with watchers.crypto-address',
-      inputSchema: s('status', {
-        watcherId: { type: 'string', description: 'Watcher ID.' },
-      }, ['watcherId']),
-      invoke: (a) => c.watchers.status(a as never),
-    },
   ]
   return t
 }
