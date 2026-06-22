@@ -52,9 +52,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@2sio/sdk": "file:../2s-sdk",
+    "@2sio/sdk": "^1.79.0",
     "@modelcontextprotocol/sdk": "^1.0.0",
-    "viem": "^2.0.0",
+    "viem": "^2.21.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -183,6 +183,7 @@ export class TwoS {
   public readonly factcheck: Endpoints['factcheck']
   public readonly aviation: Endpoints['aviation']
   public readonly dev: Endpoints['dev']
+  public readonly time: Endpoints['time']
   public readonly water: Endpoints['water']
   public readonly trade: Endpoints['trade']
   public readonly image: Endpoints['image']
@@ -295,6 +296,7 @@ export class TwoS {
     this.climate = this.endpoints.climate
     this.countdown = this.endpoints.countdown
     this.crypto = this.endpoints.crypto
+    this.time = this.endpoints.time
     this.html = this.endpoints.html
     this.tls = this.endpoints.tls
     this.dns = this.endpoints.dns
