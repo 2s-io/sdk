@@ -34,6 +34,16 @@ export interface Endpoints {
     holiday(input?: { exchange?: string }): R<Normalized>
   }
   watchers: {
+    fxRate(input: { base: string; quote: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    fundingRate(input: { coin: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    predictionMarket(input: { conditionId: string; outcomeIndex?: number; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    secFiling(input: { ticker: string; form?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    companyNews(input: { ticker: string; keyword?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    ipo(input: { keyword?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    federalRegister(input: { type?: string; agency?: string; keyword?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    weatherAlert(input: { area: string; severity?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    earthquake(input: { lat: number; lon: number; radiusKm?: number; minMagnitude?: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    flightStatus(input: { ident: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     tokenPrice(input: { tokenId: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     gasPrice(input: { chain: string; conditionType: string; threshold: number; tier?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     businessEarnings(input: { ticker: string; trigger?: string; daysBefore?: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
@@ -1600,6 +1610,16 @@ export function createEndpoints(client: TwoS): Endpoints {
       holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),
     },
     watchers: {
+      fxRate: (i) => post('watchers.fx-rate', '/api/watchers/fx-rate', i),
+      fundingRate: (i) => post('watchers.funding-rate', '/api/watchers/funding-rate', i),
+      predictionMarket: (i) => post('watchers.prediction-market', '/api/watchers/prediction-market', i),
+      secFiling: (i) => post('watchers.sec-filing', '/api/watchers/sec-filing', i),
+      companyNews: (i) => post('watchers.company-news', '/api/watchers/company-news', i),
+      ipo: (i) => post('watchers.ipo', '/api/watchers/ipo', i),
+      federalRegister: (i) => post('watchers.federal-register', '/api/watchers/federal-register', i),
+      weatherAlert: (i) => post('watchers.weather-alert', '/api/watchers/weather-alert', i),
+      earthquake: (i) => post('watchers.earthquake', '/api/watchers/earthquake', i),
+      flightStatus: (i) => post('watchers.flight-status', '/api/watchers/flight-status', i),
       tokenPrice: (i) => post('watchers.token-price', '/api/watchers/token-price', i),
       gasPrice: (i) => post('watchers.gas-price', '/api/watchers/gas-price', i),
       businessEarnings: (i) => post('watchers.business-earnings', '/api/watchers/business-earnings', i),

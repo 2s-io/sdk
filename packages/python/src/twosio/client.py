@@ -140,6 +140,138 @@ class _Time(_Group):
 
 
 class _Watchers(_Group):
+    def package_release(self, *, registry: str, name: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a package publishes a new version — track your dependencies. Arm once, pay once. registry is 'npm' or 'pypi'; name is the package name (e.g. react, requests). Fires"""
+        body: dict = {"registry": registry, "name": name, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/package-release", endpoint="watchers.package-release", body=body)
+
+    def ioc_reputation(self, *, ioc: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when an indicator of compromise (IP or domain) changes malicious status across threat feeds. Arm once, pay once. Pass ioc (an IP address or domain). Fires when the malic"""
+        body: dict = {"ioc": ioc, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/ioc-reputation", endpoint="watchers.ioc-reputation", body=body)
+
+    def http_headers(self, *, url: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a website's HTTP security-headers grade changes (e.g. a regression from A to C). Arm once, pay once. Pass url. Fires when the grade changes; bounded by maxFires/exp"""
+        body: dict = {"url": url, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/http-headers", endpoint="watchers.http-headers", body=body)
+
+    def dns(self, *, host: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a host's DNS records change. Arm once, pay once. Pass host (e.g. example.com). Fires when the resolved answers change (e.g. an A/AAAA/CNAME/MX update); bounded by m"""
+        body: dict = {"host": host, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/dns", endpoint="watchers.dns", body=body)
+
+    def whois(self, *, domain: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a domain's WHOIS registration changes — registrar, expiry, or status. Arm once, pay once. Pass domain. Fires on any WHOIS change (e.g. transfer, renewal, expiry shi"""
+        body: dict = {"domain": domain, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/whois", endpoint="watchers.whois", body=body)
+
+    def fear_greed(self, *, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when the Crypto Fear & Greed index crosses a level (e.g. drops into Extreme Fear). Arm once, pay once. conditionType 'above'/'below'; threshold is the index value 0–100."""
+        body: dict = {"conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/fear-greed", endpoint="watchers.fear-greed", body=body)
+
+    def fred_series(self, *, seriesId: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a FRED economic series' latest value crosses a level. Arm once, pay once. Pass seriesId (e.g. DGS10 = 10yr Treasury, UNRATE = unemployment, CPIAUCSL = CPI, FEDFUNDS"""
+        body: dict = {"seriesId": seriesId, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/fred-series", endpoint="watchers.fred-series", body=body)
+
+    def patent(self, *, query: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new USPTO patent matching your query appears. Arm once, pay once. Pass query (keywords, assignee, etc.). Fires once per new patent (deduped by application number)"""
+        body: dict = {"query": query, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/patent", endpoint="watchers.patent", body=body)
+
+    def paper(self, *, query: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new academic paper matching your query is published (arXiv / PubMed / Semantic Scholar). Arm once, pay once. Pass query (keywords, author, topic). Fires once per """
+        body: dict = {"query": query, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/paper", endpoint="watchers.paper", body=body)
+
+    def product_recall(self, *, callbackUrl: str, keyword: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new US product recall is published (CPSC). Arm once, pay once. Optionally pass keyword to only fire on recalls whose title contains it (e.g. a brand or product). """
+        body: dict = {"callbackUrl": callbackUrl}
+        if keyword is not None:
+            body["keyword"] = keyword
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/product-recall", endpoint="watchers.product-recall", body=body)
+
     def fx_rate(self, *, base: str, quote: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
         """WATCHER: get a signed callback when an FX pair crosses a rate you set. Arm once, pay once. base + quote are 3-letter ISO currency codes (e.g. base USD, quote EUR). conditionType 'above'/'below'; thres"""
         body: dict = {"base": base, "quote": quote, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}

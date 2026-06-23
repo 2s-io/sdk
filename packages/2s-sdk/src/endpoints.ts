@@ -34,6 +34,16 @@ export interface Endpoints {
     holiday(input?: { exchange?: string }): R<Normalized>
   }
   watchers: {
+    packageRelease(input: { registry: string; name: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    iocReputation(input: { ioc: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    httpHeaders(input: { url: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    dns(input: { host: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    whois(input: { domain: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    fearGreed(input: { conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    fredSeries(input: { seriesId: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    patent(input: { query: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    paper(input: { query: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    productRecall(input: { keyword?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     fxRate(input: { base: string; quote: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     fundingRate(input: { coin: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     predictionMarket(input: { conditionId: string; outcomeIndex?: number; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
@@ -1610,6 +1620,16 @@ export function createEndpoints(client: TwoS): Endpoints {
       holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),
     },
     watchers: {
+      packageRelease: (i) => post('watchers.package-release', '/api/watchers/package-release', i),
+      iocReputation: (i) => post('watchers.ioc-reputation', '/api/watchers/ioc-reputation', i),
+      httpHeaders: (i) => post('watchers.http-headers', '/api/watchers/http-headers', i),
+      dns: (i) => post('watchers.dns', '/api/watchers/dns', i),
+      whois: (i) => post('watchers.whois', '/api/watchers/whois', i),
+      fearGreed: (i) => post('watchers.fear-greed', '/api/watchers/fear-greed', i),
+      fredSeries: (i) => post('watchers.fred-series', '/api/watchers/fred-series', i),
+      patent: (i) => post('watchers.patent', '/api/watchers/patent', i),
+      paper: (i) => post('watchers.paper', '/api/watchers/paper', i),
+      productRecall: (i) => post('watchers.product-recall', '/api/watchers/product-recall', i),
       fxRate: (i) => post('watchers.fx-rate', '/api/watchers/fx-rate', i),
       fundingRate: (i) => post('watchers.funding-rate', '/api/watchers/funding-rate', i),
       predictionMarket: (i) => post('watchers.prediction-market', '/api/watchers/prediction-market', i),
