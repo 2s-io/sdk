@@ -140,9 +140,9 @@ class _Time(_Group):
 
 
 class _Watchers(_Group):
-    def stock_price(self, *, ticker: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
-        """WATCHER: get a signed callback when a US stock crosses a price you set. Arm once, pay once (no account, no API key) — we poll the quote during US market hours and POST your custom payload to callbackU"""
-        body: dict = {"ticker": ticker, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+    def token_price(self, *, tokenId: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a crypto asset crosses a price you set. Arm once, pay once (no account, no API key) — we poll the spot price and POST your custom payload to callbackUrl the moment """
+        body: dict = {"tokenId": tokenId, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
         if payload is not None:
             body["payload"] = payload
         if expiresInSeconds is not None:
@@ -151,9 +151,24 @@ class _Watchers(_Group):
             body["maxFires"] = maxFires
         if label is not None:
             body["label"] = label
-        return self._c.request("POST", "/api/watchers/stock-price", endpoint="watchers.stock-price", body=body)
+        return self._c.request("POST", "/api/watchers/token-price", endpoint="watchers.token-price", body=body)
 
-    def earnings(self, *, ticker: str, callbackUrl: str, trigger: str | None = None, daysBefore: int | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+    def gas_price(self, *, chain: str, conditionType: str, threshold: float, callbackUrl: str, tier: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when EVM gas crosses a level you set — e.g. "wake me when Ethereum gas drops below 10 gwei." Arm once, pay once (no account, no API key). chain: base | ethereum | polygo"""
+        body: dict = {"chain": chain, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if tier is not None:
+            body["tier"] = tier
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/gas-price", endpoint="watchers.gas-price", body=body)
+
+    def business_earnings(self, *, ticker: str, callbackUrl: str, trigger: str | None = None, daysBefore: int | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
         """WATCHER: get a signed callback around a US company's earnings. Arm once, pay once (no account, no API key). trigger 'reported' (default) fires when results post — with reported EPS vs estimate, the su"""
         body: dict = {"ticker": ticker, "callbackUrl": callbackUrl}
         if trigger is not None:
@@ -168,7 +183,20 @@ class _Watchers(_Group):
             body["maxFires"] = maxFires
         if label is not None:
             body["label"] = label
-        return self._c.request("POST", "/api/watchers/earnings", endpoint="watchers.earnings", body=body)
+        return self._c.request("POST", "/api/watchers/business-earnings", endpoint="watchers.business-earnings", body=body)
+
+    def stock_price(self, *, ticker: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a US stock crosses a price you set. Arm once, pay once (no account, no API key) — we poll the quote during US market hours and POST your custom payload to callbackU"""
+        body: dict = {"ticker": ticker, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/stock-price", endpoint="watchers.stock-price", body=body)
 
     def cancel(self, *, watcherId: str) -> CallResult:
         """Cancel an active watcher by watcherId — it stops watching immediately. Flat-fee model: no refund of the unused window (nothing is held or owed). Idempotent. Pairs with watchers.crypto-address-activity"""

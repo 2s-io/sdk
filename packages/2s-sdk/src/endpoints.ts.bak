@@ -34,6 +34,7 @@ export interface Endpoints {
     holiday(input?: { exchange?: string }): R<Normalized>
   }
   watchers: {
+    stockPrice(input: { ticker: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     cancel(input: { watcherId: string }): R<Normalized>
     cryptoAddressActivity(input: { chain: string; address: string; callbackUrl: string; direction?: string; assetTypes?: unknown; minValueUsd?: number; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     status(input: { watcherId: string }): R<Normalized>
@@ -1596,6 +1597,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),
     },
     watchers: {
+      stockPrice: (i) => post('watchers.stock-price', '/api/watchers/stock-price', i),
       cancel: (i) => post('watchers.cancel', '/api/watchers/cancel', i),
       cryptoAddressActivity: (i) => post('watchers.crypto-address-activity', '/api/watchers/crypto-address-activity', i),
       status: (i) => get('watchers.status', '/api/watchers/status', i),

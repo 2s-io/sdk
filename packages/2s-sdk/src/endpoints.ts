@@ -34,8 +34,10 @@ export interface Endpoints {
     holiday(input?: { exchange?: string }): R<Normalized>
   }
   watchers: {
+    tokenPrice(input: { tokenId: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    gasPrice(input: { chain: string; conditionType: string; threshold: number; tier?: string; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
+    businessEarnings(input: { ticker: string; trigger?: string; daysBefore?: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     stockPrice(input: { ticker: string; conditionType: string; threshold: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
-    earnings(input: { ticker: string; trigger?: string; daysBefore?: number; callbackUrl: string; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     cancel(input: { watcherId: string }): R<Normalized>
     cryptoAddressActivity(input: { chain: string; address: string; callbackUrl: string; direction?: string; assetTypes?: unknown; minValueUsd?: number; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
     status(input: { watcherId: string }): R<Normalized>
@@ -1598,8 +1600,10 @@ export function createEndpoints(client: TwoS): Endpoints {
       holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),
     },
     watchers: {
+      tokenPrice: (i) => post('watchers.token-price', '/api/watchers/token-price', i),
+      gasPrice: (i) => post('watchers.gas-price', '/api/watchers/gas-price', i),
+      businessEarnings: (i) => post('watchers.business-earnings', '/api/watchers/business-earnings', i),
       stockPrice: (i) => post('watchers.stock-price', '/api/watchers/stock-price', i),
-      earnings: (i) => post('watchers.earnings', '/api/watchers/earnings', i),
       cancel: (i) => post('watchers.cancel', '/api/watchers/cancel', i),
       cryptoAddressActivity: (i) => post('watchers.crypto-address-activity', '/api/watchers/crypto-address-activity', i),
       status: (i) => get('watchers.status', '/api/watchers/status', i),
