@@ -164,6 +164,7 @@ export class TwoS {
   public readonly climate: Endpoints['climate']
   public readonly countdown: Endpoints['countdown']
   public readonly watchers: Endpoints['watchers']
+  public readonly markets: Endpoints['markets']
   public readonly crypto: Endpoints['crypto']
   public readonly html: Endpoints['html']
   public readonly tls: Endpoints['tls']
@@ -297,6 +298,7 @@ export class TwoS {
     this.climate = this.endpoints.climate
     this.countdown = this.endpoints.countdown
     this.watchers = this.endpoints.watchers
+    this.markets = this.endpoints.markets
     this.crypto = this.endpoints.crypto
     this.time = this.endpoints.time
     this.html = this.endpoints.html

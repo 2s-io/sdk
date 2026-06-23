@@ -139,6 +139,38 @@ class _Time(_Group):
 
 
 
+class _Watchers(_Group):
+    def cancel(self, *, watcherId: str) -> CallResult:
+        """Cancel an active watcher by watcherId — it stops watching immediately. Flat-fee model: no refund of the unused window (nothing is held or owed). Idempotent. Pairs with watchers.crypto-address-activity"""
+        body: dict = {"watcherId": watcherId}
+        return self._c.request("POST", "/api/watchers/cancel", endpoint="watchers.cancel", body=body)
+
+    def crypto_address_activity(self, *, chain: str, address: str, callbackUrl: str, direction: str | None = None, assetTypes: Any | None = None, minValueUsd: float | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback the moment a crypto address transacts. Arm once, pay once (no account, no API key) — we watch Base, Ethereum, or Bitcoin and POST your custom payload to callbackUrl when"""
+        body: dict = {"chain": chain, "address": address, "callbackUrl": callbackUrl}
+        if direction is not None:
+            body["direction"] = direction
+        if assetTypes is not None:
+            body["assetTypes"] = assetTypes
+        if minValueUsd is not None:
+            body["minValueUsd"] = minValueUsd
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/crypto-address-activity", endpoint="watchers.crypto-address-activity", body=body)
+
+    def status(self, *, watcherId: str) -> CallResult:
+        """Status of a watcher by watcherId: state (armed/completed/expired/cancelled), fires used/remaining, expiry, recent deliveries (with HTTP result + attempt count), and any UNDELIVERED events with their f"""
+        query: dict = {"watcherId": watcherId}
+        return self._c.request("GET", "/api/watchers/status", endpoint="watchers.status", query=query)
+
+
+
 class _Crypto(_Group):
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
@@ -2472,6 +2504,24 @@ class _Medical(_Group):
         if udi is not None: q["udi"] = udi
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/medical/device-udi", endpoint="medical.device-udi", query=q)
+
+    def device_recall(self, *, device: Optional[str] = None, firm: Optional[str] = None,
+                      classification: Optional[str] = None, status: Optional[str] = None,
+                      state: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FDA medical-device recalls by device/firm/classification/status/state.
+
+        Omit all filters for the most recent recalls nationwide. Returns recall
+        number, classification, status, reason, quantity, recalling firm, and
+        dates. Free, public-domain FDA data.
+        """
+        q: dict[str, Any] = {}
+        if device is not None: q["device"] = device
+        if firm is not None: q["firm"] = firm
+        if classification is not None: q["classification"] = classification
+        if status is not None: q["status"] = status
+        if state is not None: q["state"] = state
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/device-recall", endpoint="medical.device-recall", query=q)
 
     def npi(self, *, npi: Optional[str] = None, first_name: Optional[str] = None, last_name: Optional[str] = None,
             organization: Optional[str] = None, state: Optional[str] = None, taxonomy: Optional[str] = None,
@@ -5827,6 +5877,7 @@ class TwoS:
 
         self.patents = _Patents(self)
         self.time = _Time(self)
+        self.watchers = _Watchers(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)
