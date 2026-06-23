@@ -180,7 +180,7 @@ ENDPOINT_SPECS: list[EndpointSpec] = [
         short_name="ai.summarize",
         description=(
             "Summarize the contents of a web page. Pass a URL; 2s fetches it, strips "
-            "chrome, and returns a concise summary (Tier 2 — LLM-backed). Use for "
+            "chrome, and returns a concise summary. Use for "
             "'tldr this article' workflows. Costs ~$0.0225 per call; the LLM upstream "
             "cost is included."
         ),
