@@ -10,6 +10,16 @@ npx @2sio/mcp --signer 0x...
 
 No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (350+ endpoints across 90+ groups and counting).
 
+### Hosted (connect by URL, no install)
+
+Prefer not to run anything? Point any MCP host at the hosted server:
+
+```
+https://2s.io/mcp
+```
+
+Streamable-HTTP transport; set header `X-EVM-Private-Key: 0x…` (an EVM key funded with USDC on Base) and the server signs + settles x402 per call. **Security tradeoff: with the hosted server your private key transits 2s's infrastructure to sign — for keys that never leave your machine, run this package locally (above) or use the [`@2sio/sdk`](https://www.npmjs.com/package/@2sio/sdk) instead.**
+
 ### 🔔 Watchers — push, not poll
 
 Beyond read tools, 2s exposes **watchers**: the agent arms one and 2s POSTs a **signed callback the moment something happens** — a wallet moves, a stock crosses a price, a company reports earnings — so the agent never has to poll. Flat $0.05 to arm; signed + retried delivery with a status backstop. Tools: `watchers.crypto-address-activity`, `watchers.stock-price`, `watchers.earnings` (+ `watchers.status` / `watchers.cancel`).

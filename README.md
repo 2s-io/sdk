@@ -59,6 +59,16 @@ const { data } = await client.watchers.stockPrice({
 // also: watchers.cryptoAddressActivity, watchers.earnings — see https://2s.io/watchers
 ```
 
+## Hosted MCP (connect by URL)
+
+Don't want to install anything? Point any MCP host at the hosted server:
+
+```
+https://2s.io/mcp
+```
+
+Streamable-HTTP; set header `X-EVM-Private-Key: 0x…` (USDC on Base) and 2s signs + settles x402 per call. **Tradeoff: a hosted signer means your private key transits 2s's infrastructure — for keys that never leave your machine, run `npx @2sio/mcp` locally or use the SDK above (the more private, secure path).**
+
 ## 30-second demo
 
 **TypeScript:**

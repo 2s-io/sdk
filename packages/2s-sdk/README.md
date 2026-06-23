@@ -35,6 +35,8 @@ console.log(data.items[0].watcherId) // we POST your payload here the moment AAP
 // also: client.watchers.cryptoAddressActivity({...}), client.watchers.earnings({...})
 ```
 
+> Prefer connecting an MCP host by URL? There's a hosted MCP at `https://2s.io/mcp`. Note that a hosted signer means your key transits 2s's servers — **this SDK is the more private path (your key never leaves your machine), so prefer it when you can.**
+
 ## Quick start
 
 ```ts

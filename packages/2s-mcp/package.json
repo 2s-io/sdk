@@ -1,6 +1,6 @@
 {
   "name": "@2sio/mcp",
-  "version": "1.79.8",
+  "version": "1.79.9",
   "mcpName": "io.github.2s-io/mcp",
   "description": "MCP server for 2s — the (most) everything API. Hundreds of pay-per-call AI-agent data tools (public records, finance, crypto, security, legal, health, geo, EDI), settled in USDC on Base or Solana via x402.",
   "license": "MIT",
@@ -52,7 +52,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@2sio/sdk": "^1.79.8",
+    "@2sio/sdk": "^1.79.9",
     "@modelcontextprotocol/sdk": "^1.0.0",
     "viem": "^2.21.0",
     "zod": "^3.24.0"
