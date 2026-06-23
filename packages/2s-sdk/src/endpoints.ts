@@ -1021,6 +1021,8 @@ export interface Endpoints {
     deviceClassification(input: { device?: string; productCode?: string; limit?: number }): R<unknown>
     /** FDA GUDID device lookup by UDI / brand / company: description, Rx/OTC, MRI safety, identifiers, product codes, GMDN. */
     deviceUdi(input: { device?: string; company?: string; udi?: string; limit?: number }): R<unknown>
+    /** FDA medical-device recalls by device / firm / classification / status / state: reason, status, quantity, dates. */
+    deviceRecall(input?: { device?: string; firm?: string; classification?: 'I' | 'II' | 'III'; status?: 'Ongoing' | 'Completed' | 'Terminated' | 'Pending'; state?: string; limit?: number }): R<unknown>
     /** CMS NPPES provider lookup by NPI, name, or organization (+state/taxonomy): identity, taxonomies, addresses. */
     npi(input: { npi?: string; firstName?: string; lastName?: string; organization?: string; state?: string; taxonomy?: string; limit?: number }): R<Normalized>
     /** MedlinePlus Genetics reference for a condition or gene: summary, sections, inheritance, related genes, cross-refs. */
@@ -1921,6 +1923,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       device510k: (i) => get('medical.device-510k', '/api/medical/device-510k', i),
       deviceClassification: (i) => get('medical.device-classification', '/api/medical/device-classification', i),
       deviceUdi: (i) => get('medical.device-udi', '/api/medical/device-udi', i),
+      deviceRecall: (i) => get('medical.device-recall', '/api/medical/device-recall', i ?? {}),
       npi: (i) => get('medical.npi', '/api/medical/npi', i),
       genetics: (i) => get('medical.genetics', '/api/medical/genetics', i),
     },

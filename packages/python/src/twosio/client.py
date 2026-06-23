@@ -2505,6 +2505,24 @@ class _Medical(_Group):
         if limit is not None: q["limit"] = limit
         return self._c.request("GET", "/api/medical/device-udi", endpoint="medical.device-udi", query=q)
 
+    def device_recall(self, *, device: Optional[str] = None, firm: Optional[str] = None,
+                      classification: Optional[str] = None, status: Optional[str] = None,
+                      state: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
+        """FDA medical-device recalls by device/firm/classification/status/state.
+
+        Omit all filters for the most recent recalls nationwide. Returns recall
+        number, classification, status, reason, quantity, recalling firm, and
+        dates. Free, public-domain FDA data.
+        """
+        q: dict[str, Any] = {}
+        if device is not None: q["device"] = device
+        if firm is not None: q["firm"] = firm
+        if classification is not None: q["classification"] = classification
+        if status is not None: q["status"] = status
+        if state is not None: q["state"] = state
+        if limit is not None: q["limit"] = limit
+        return self._c.request("GET", "/api/medical/device-recall", endpoint="medical.device-recall", query=q)
+
     def npi(self, *, npi: Optional[str] = None, first_name: Optional[str] = None, last_name: Optional[str] = None,
             organization: Optional[str] = None, state: Optional[str] = None, taxonomy: Optional[str] = None,
             limit: Optional[int] = None) -> CallResult:

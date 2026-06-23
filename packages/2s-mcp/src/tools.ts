@@ -2022,6 +2022,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.medical.deviceUdi(a as never),
     },
     {
+      name: 'medical.device-recall',
+      description: 'FDA medical-device recalls — devices removed or corrected in the US market due to a possible health risk. Search by device name, recalling firm (manufacturer), recall classification (I most serious / II / III), status (Ongoing/Completed/Terminated/Pending), or state, or omit all filters for the most recent recalls nationwide. Returns recall number, classification, status, product description + quantity, reason, code/lot info, recalling firm + location, distribution pattern, voluntary-vs-mandated, and recall/classification/report dates, newest first. Free, public-domain FDA data. Distinct from medical.device-510k (clearances) and medical.device-event (adverse-event reports).',
+      inputSchema: s('Device recalls', {
+        device: { type: 'string', description: 'Device name / product-description (partial).' },
+        firm: { type: 'string', description: 'Recalling firm (manufacturer).' },
+        classification: { type: 'string', enum: ['I', 'II', 'III'], description: 'Recall classification.' },
+        status: { type: 'string', enum: ['Ongoing', 'Completed', 'Terminated', 'Pending'], description: 'Recall status.' },
+        state: { type: 'string', description: '2-letter state of the recalling firm.' },
+        limit: { type: 'integer', minimum: 1, maximum: 100, default: 10 },
+      }),
+      invoke: (a) => c.medical.deviceRecall(a as never),
+    },
+    {
       name: 'medical.npi',
       description: 'US healthcare provider lookup in the CMS NPPES registry (~9.6M providers). Give an exact 10-digit NPI, or search by provider last name (+ first name), or organization name, optionally narrowed by state and taxonomy/specialty. Returns NPI, entity type (individual/organization), status, name/credential or org name, taxonomies (code + description + state license), and practice address with phone. Free, public-domain (CMS).',
       inputSchema: s('NPI / provider lookup', {
