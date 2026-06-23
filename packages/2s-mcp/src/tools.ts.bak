@@ -5003,6 +5003,168 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['watcherId']),
       invoke: (a) => c.watchers.status(a as never),
     },
+    {
+      name: 'stocks.metrics',
+      description: 'Key fundamental metrics and 52-week price statistics for a US-listed company. Pass ticker; returns headline valuation, margin, and per-share figures — P/E, P/B, P/S, PEG, EV/EBITDA, gross/operating/net margins, ROE, ROA, current ratio, debt/equity, dividend yield, beta, 52-week high/low, and YTD/52-week price returns — plus the full Finnhub metric map under `metric`. Computed ratios you would othe',
+      inputSchema: s('metrics', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.metrics(a as never),
+    },
+    {
+      name: 'stocks.peers',
+      description: 'Peer companies for a US-listed ticker — other companies in the same sector and sub-industry, useful for comparables, relative valuation, and screening. Pass ticker (optionally grouping to control how peers are grouped); returns a ranked list of peer ticker symbols (the input symbol is usually first). Data by Finnhub.',
+      inputSchema: s('peers', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        grouping: { type: 'string', description: 'How to group peers. Default: sub-industry.' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.peers(a as never),
+    },
+    {
+      name: 'stocks.earnings-surprises',
+      description: 'Historical quarterly earnings surprises for a US-listed company — reported (actual) EPS vs the analyst consensus estimate, the absolute surprise, and the surprise percentage, for the most recent quarters (newest first). Pass ticker (optionally limit). Tells you whether a company has been beating or missing expectations. Data by Finnhub.',
+      inputSchema: s('earnings-surprises', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        limit: { type: 'integer', description: 'Max quarters to return (default all available, usually 4).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.earningsSurprises(a as never),
+    },
+    {
+      name: 'stocks.recommendations',
+      description: 'Analyst recommendation trend for a US-listed company — the number of analysts rating it strong buy, buy, hold, sell, and strong sell, snapshotted per month (newest first). Pass ticker. Use it to see the consensus and how sentiment is shifting over time. Data by Finnhub.',
+      inputSchema: s('recommendations', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.recommendations(a as never),
+    },
+    {
+      name: 'stocks.company-news',
+      description: 'Recent news articles about a specific US-listed company. Pass ticker and optionally a from/to date window (YYYY-MM-DD; defaults to the last 14 days); returns headlines with source, summary, URL, image, related symbol, category, and publish time (newest first). Use it to catch up on what is being written about a company. News aggregated by Finnhub.',
+      inputSchema: s('company-news', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest article date YYYY-MM-DD (default: 14 days ago).' },
+        to: { type: 'string', description: 'Latest article date YYYY-MM-DD (default: today).' },
+        limit: { type: 'integer', description: 'Max articles to return (default 100).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.companyNews(a as never),
+    },
+    {
+      name: 'stocks.insider-sentiment',
+      description: 'Aggregated insider sentiment for a US-listed company, by month. For each month returns the net change in insider share holdings and Finnhub\'s MSPR (Monthly Share Purchase Ratio, −100 to +100 — higher means more net insider buying). Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~1 year). A distilled signal layered on top of raw insider filings. Data by Finnhub.',
+      inputSchema: s('insider-sentiment', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest month date YYYY-MM-DD (default: ~1 year ago).' },
+        to: { type: 'string', description: 'Latest month date YYYY-MM-DD (default: today).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.insiderSentiment(a as never),
+    },
+    {
+      name: 'stocks.financials-reported',
+      description: 'As-reported financial statements for a US-listed company, exactly as filed with the SEC — balance sheet, income statement, and cash-flow statement line items, parsed from each 10-K/10-Q. Pass ticker and optionally freq (annual or quarterly) and limit; returns the most recent filings (newest first) with filing metadata (form, period, filed date, accession) and the full report under `report`. Data b',
+      inputSchema: s('financials-reported', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        freq: { type: 'string', description: 'Statement frequency. Default: annual.' },
+        limit: { type: 'integer', description: 'Max filings to return (default 4).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.financialsReported(a as never),
+    },
+    {
+      name: 'stocks.symbols',
+      description: 'Search or list the tradable equity symbol universe for an exchange. Pass q to substring-match on symbol or company name (case-insensitive), and/or exchange (default US) and limit. Returns matching listings with symbol, display symbol, description (company name), security type (e.g. Common Stock, ETF), currency, MIC, and FIGI. Use it to resolve a name to a ticker or enumerate a market. Data by Finn',
+      inputSchema: s('symbols', {
+        q: { type: 'string', description: 'Substring match on symbol or company name (case-insensitive).' },
+        exchange: { type: 'string', description: 'Exchange code (default US).' },
+        limit: { type: 'integer', description: 'Max rows to return (default 50).' },
+      }),
+      invoke: (a) => c.stocks.symbols(a as never),
+    },
+    {
+      name: 'stocks.lobbying',
+      description: 'US federal lobbying disclosures for a public company (sourced from US Senate LDA filings). Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~3 years); returns each filing with the registrant name, the period (year + quarter), reported lobbying income/expenses in USD, and a link to the official Senate filing. Use it to track a company’s lobbying spend over time. Data by Finnhub.',
+      inputSchema: s('lobbying', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest filing date YYYY-MM-DD (default: ~3 years ago).' },
+        to: { type: 'string', description: 'Latest filing date YYYY-MM-DD (default: today).' },
+        limit: { type: 'integer', description: 'Max filings to return (default 100).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.lobbying(a as never),
+    },
+    {
+      name: 'stocks.gov-spending',
+      description: 'US federal government spending awarded to a public company (sourced from USAspending). Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years); returns each award with the recipient (and parent), awarding agency/sub-agency, obligated/outlayed/potential/total values in USD, action date, and period of performance. Use it to see how much federal money flows to a company. Data b',
+      inputSchema: s('gov-spending', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest action date YYYY-MM-DD (default: ~2 years ago).' },
+        to: { type: 'string', description: 'Latest action date YYYY-MM-DD (default: today).' },
+        limit: { type: 'integer', description: 'Max awards to return (default 100).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.govSpending(a as never),
+    },
+    {
+      name: 'stocks.h1b-visas',
+      description: 'US work-visa (H-1B and related) applications filed by a public company, sourced from Department of Labor LCA disclosures. Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years); returns each application with job title, SOC code, visa class, case status, wage range, worksite city/state, employment dates, and case number. Use it as a hiring/headcount signal. Data by Finnhub.',
+      inputSchema: s('h1b-visas', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest received date YYYY-MM-DD (default: ~2 years ago).' },
+        to: { type: 'string', description: 'Latest received date YYYY-MM-DD (default: today).' },
+        limit: { type: 'integer', description: 'Max applications to return (default 100).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.h1bVisas(a as never),
+    },
+    {
+      name: 'stocks.patents',
+      description: 'USPTO patent activity associated with a public company. Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years); returns each record with the application number, patent number (when granted), the filing company name(s), description/title, patent type, filing status, filing and publication dates, and a document URL. A company-level innovation/R&D signal (distinct from our key',
+      inputSchema: s('patents', {
+        ticker: { type: 'string', description: 'US-listed ticker symbol.' },
+        from: { type: 'string', description: 'Earliest filing date YYYY-MM-DD (default: ~2 years ago).' },
+        to: { type: 'string', description: 'Latest filing date YYYY-MM-DD (default: today).' },
+        limit: { type: 'integer', description: 'Max records to return (default 100).' },
+      }, ['ticker']),
+      invoke: (a) => c.stocks.patents(a as never),
+    },
+    {
+      name: 'calendar.earnings',
+      description: 'Earnings release calendar — which US-listed companies report earnings in a date window, with expected and (once reported) actual EPS and revenue, and the time of day (before/after market). Pass a from/to window (YYYY-MM-DD; defaults to the next 14 days) and optionally a ticker to filter to one company. Agents cannot recall future earnings dates — this is the schedule. Data by Finnhub.',
+      inputSchema: s('earnings', {
+        from: { type: 'string', description: 'Start date YYYY-MM-DD (default: today).' },
+        to: { type: 'string', description: 'End date YYYY-MM-DD (default: 14 days out).' },
+        ticker: { type: 'string', description: 'Filter to a single US ticker.' },
+      }),
+      invoke: (a) => c.calendar.earnings(a as never),
+    },
+    {
+      name: 'calendar.ipo',
+      description: 'IPO calendar — companies going public (or recently public) in a date window, with the expected date, symbol, name, exchange, price range, number of shares, total offering value, and status (expected/priced/filed/withdrawn). Pass a from/to window (YYYY-MM-DD; defaults to a ±30-day span around today). Data by Finnhub.',
+      inputSchema: s('ipo', {
+        from: { type: 'string', description: 'Start date YYYY-MM-DD (default: 15 days ago).' },
+        to: { type: 'string', description: 'End date YYYY-MM-DD (default: 30 days out).' },
+      }),
+      invoke: (a) => c.calendar.ipo(a as never),
+    },
+    {
+      name: 'markets.status',
+      description: 'Is a stock exchange open right now? Pass exchange (default US); returns whether trading is open, the current session (pre-market, regular, post-market, or closed), whether today is a market holiday, the exchange timezone, and the server timestamp. Use it to gate time-sensitive logic to market hours. Data by Finnhub.',
+      inputSchema: s('status', {
+        exchange: { type: 'string', description: 'Exchange code (default US).' },
+      }),
+      invoke: (a) => c.markets.status(a as never),
+    },
+    {
+      name: 'markets.holiday',
+      description: 'Stock-exchange holiday calendar. Pass exchange (default US); returns the list of upcoming market holidays with the date, holiday name, whether the session is a full close or an early close, and the trading hours when partial. Use it to plan around non-trading days. Data by Finnhub.',
+      inputSchema: s('holiday', {
+        exchange: { type: 'string', description: 'Exchange code (default US).' },
+      }),
+      invoke: (a) => c.markets.holiday(a as never),
+    },
+    {
+      name: 'country.financials',
+      description: 'Country-level financial and credit reference data: sovereign credit rating, equity risk premium, country risk premium, default spread, currency (name + ISO code), region/sub-region, and ISO country codes. Returns all ~249 countries by default, or pass code (ISO alpha-2 or alpha-3) to get one. Use it for cross-border valuation (discount-rate inputs) and sovereign-risk context — distinct from countr',
+      inputSchema: s('financials', {
+        code: { type: 'string', description: 'ISO alpha-2 or alpha-3 country code. Omit for all countries.' },
+      }),
+      invoke: (a) => c.country.financials(a as never),
+    },
   ]
   return t
 }

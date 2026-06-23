@@ -140,6 +140,36 @@ class _Time(_Group):
 
 
 class _Watchers(_Group):
+    def stock_price(self, *, ticker: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a US stock crosses a price you set. Arm once, pay once (no account, no API key) — we poll the quote during US market hours and POST your custom payload to callbackU"""
+        body: dict = {"ticker": ticker, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/stock-price", endpoint="watchers.stock-price", body=body)
+
+    def earnings(self, *, ticker: str, callbackUrl: str, trigger: str | None = None, daysBefore: int | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback around a US company's earnings. Arm once, pay once (no account, no API key). trigger 'reported' (default) fires when results post — with reported EPS vs estimate, the su"""
+        body: dict = {"ticker": ticker, "callbackUrl": callbackUrl}
+        if trigger is not None:
+            body["trigger"] = trigger
+        if daysBefore is not None:
+            body["daysBefore"] = daysBefore
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/earnings", endpoint="watchers.earnings", body=body)
+
     def cancel(self, *, watcherId: str) -> CallResult:
         """Cancel an active watcher by watcherId — it stops watching immediately. Flat-fee model: no refund of the unused window (nothing is held or owed). Idempotent. Pairs with watchers.crypto-address-activity"""
         body: dict = {"watcherId": watcherId}

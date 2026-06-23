@@ -171,6 +171,23 @@ class _Watchers(_Group):
 
 
 
+class _Markets(_Group):
+    def status(self, *, exchange: str | None = None) -> CallResult:
+        """Is a stock exchange open right now? Pass exchange (default US); returns whether trading is open, the current session (pre-market, regular, post-market, or closed), whether today is a market holiday, t"""
+        query: dict = {}
+        if exchange is not None:
+            query["exchange"] = exchange
+        return self._c.request("GET", "/api/markets/status", endpoint="markets.status", query=query)
+
+    def holiday(self, *, exchange: str | None = None) -> CallResult:
+        """Stock-exchange holiday calendar. Pass exchange (default US); returns the list of upcoming market holidays with the date, holiday name, whether the session is a full close or an early close, and the tr"""
+        query: dict = {}
+        if exchange is not None:
+            query["exchange"] = exchange
+        return self._c.request("GET", "/api/markets/holiday", endpoint="markets.holiday", query=query)
+
+
+
 class _Crypto(_Group):
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
@@ -2159,6 +2176,26 @@ class _Tax(_Group):
 
 
 class _Calendar(_Group):
+    def earnings(self, *, from_: str | None = None, to: str | None = None, ticker: str | None = None) -> CallResult:
+        """Earnings release calendar — which US-listed companies report earnings in a date window, with expected and (once reported) actual EPS and revenue, and the time of day (before/after market). Pass a from"""
+        query: dict = {}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if ticker is not None:
+            query["ticker"] = ticker
+        return self._c.request("GET", "/api/calendar/earnings", endpoint="calendar.earnings", query=query)
+
+    def ipo(self, *, from_: str | None = None, to: str | None = None) -> CallResult:
+        """IPO calendar — companies going public (or recently public) in a date window, with the expected date, symbol, name, exchange, price range, number of shares, total offering value, and status (expected/p"""
+        query: dict = {}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        return self._c.request("GET", "/api/calendar/ipo", endpoint="calendar.ipo", query=query)
+
     def holidays(self, *, country: str, year: int, region: Optional[str] = None,
                  types: Optional[str] = None, lang: Optional[str] = None) -> CallResult:
         """Official holidays for a country/region + year, exact observed dates incl. substitute days."""
@@ -2650,6 +2687,114 @@ class _Climate(_Group):
 
 
 class _Stocks(_Group):
+    def metrics(self, *, ticker: str) -> CallResult:
+        """Key fundamental metrics and 52-week price statistics for a US-listed company. Pass ticker; returns headline valuation, margin, and per-share figures — P/E, P/B, P/S, PEG, EV/EBITDA, gross/operating/ne"""
+        query: dict = {"ticker": ticker}
+        return self._c.request("GET", "/api/stocks/metrics", endpoint="stocks.metrics", query=query)
+
+    def peers(self, *, ticker: str, grouping: str | None = None) -> CallResult:
+        """Peer companies for a US-listed ticker — other companies in the same sector and sub-industry, useful for comparables, relative valuation, and screening. Pass ticker (optionally grouping to control how """
+        query: dict = {"ticker": ticker}
+        if grouping is not None:
+            query["grouping"] = grouping
+        return self._c.request("GET", "/api/stocks/peers", endpoint="stocks.peers", query=query)
+
+    def earnings_surprises(self, *, ticker: str, limit: int | None = None) -> CallResult:
+        """Historical quarterly earnings surprises for a US-listed company — reported (actual) EPS vs the analyst consensus estimate, the absolute surprise, and the surprise percentage, for the most recent quart"""
+        query: dict = {"ticker": ticker}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/earnings-surprises", endpoint="stocks.earnings-surprises", query=query)
+
+    def recommendations(self, *, ticker: str) -> CallResult:
+        """Analyst recommendation trend for a US-listed company — the number of analysts rating it strong buy, buy, hold, sell, and strong sell, snapshotted per month (newest first). Pass ticker. Use it to see t"""
+        query: dict = {"ticker": ticker}
+        return self._c.request("GET", "/api/stocks/recommendations", endpoint="stocks.recommendations", query=query)
+
+    def company_news(self, *, ticker: str, from_: str | None = None, to: str | None = None, limit: int | None = None) -> CallResult:
+        """Recent news articles about a specific US-listed company. Pass ticker and optionally a from/to date window (YYYY-MM-DD; defaults to the last 14 days); returns headlines with source, summary, URL, image"""
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/company-news", endpoint="stocks.company-news", query=query)
+
+    def insider_sentiment(self, *, ticker: str, from_: str | None = None, to: str | None = None) -> CallResult:
+        """Aggregated insider sentiment for a US-listed company, by month. For each month returns the net change in insider share holdings and Finnhub's MSPR (Monthly Share Purchase Ratio, −100 to +100 — higher """
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        return self._c.request("GET", "/api/stocks/insider-sentiment", endpoint="stocks.insider-sentiment", query=query)
+
+    def financials_reported(self, *, ticker: str, freq: str | None = None, limit: int | None = None) -> CallResult:
+        """As-reported financial statements for a US-listed company, exactly as filed with the SEC — balance sheet, income statement, and cash-flow statement line items, parsed from each 10-K/10-Q. Pass ticker a"""
+        query: dict = {"ticker": ticker}
+        if freq is not None:
+            query["freq"] = freq
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/financials-reported", endpoint="stocks.financials-reported", query=query)
+
+    def symbols(self, *, q: str | None = None, exchange: str | None = None, limit: int | None = None) -> CallResult:
+        """Search or list the tradable equity symbol universe for an exchange. Pass q to substring-match on symbol or company name (case-insensitive), and/or exchange (default US) and limit. Returns matching lis"""
+        query: dict = {}
+        if q is not None:
+            query["q"] = q
+        if exchange is not None:
+            query["exchange"] = exchange
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/symbols", endpoint="stocks.symbols", query=query)
+
+    def lobbying(self, *, ticker: str, from_: str | None = None, to: str | None = None, limit: int | None = None) -> CallResult:
+        """US federal lobbying disclosures for a public company (sourced from US Senate LDA filings). Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~3 years); returns each filing with the """
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/lobbying", endpoint="stocks.lobbying", query=query)
+
+    def gov_spending(self, *, ticker: str, from_: str | None = None, to: str | None = None, limit: int | None = None) -> CallResult:
+        """US federal government spending awarded to a public company (sourced from USAspending). Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years); returns each award with the recip"""
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/gov-spending", endpoint="stocks.gov-spending", query=query)
+
+    def h1b_visas(self, *, ticker: str, from_: str | None = None, to: str | None = None, limit: int | None = None) -> CallResult:
+        """US work-visa (H-1B and related) applications filed by a public company, sourced from Department of Labor LCA disclosures. Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years)"""
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/h1b-visas", endpoint="stocks.h1b-visas", query=query)
+
+    def patents(self, *, ticker: str, from_: str | None = None, to: str | None = None, limit: int | None = None) -> CallResult:
+        """USPTO patent activity associated with a public company. Pass ticker and optionally a from/to window (YYYY-MM-DD; defaults to ~2 years); returns each record with the application number, patent number ("""
+        query: dict = {"ticker": ticker}
+        if from_ is not None:
+            query["from"] = from_
+        if to is not None:
+            query["to"] = to
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/patents", endpoint="stocks.patents", query=query)
+
     def quote(self, *, ticker: str) -> CallResult:
         """Latest daily stock quote for a US ticker (Massive / formerly Polygon.io).
 
@@ -5146,6 +5291,13 @@ class _Word(_Group):
 
 
 class _Country(_Group):
+    def financials(self, *, code: str | None = None) -> CallResult:
+        """Country-level financial and credit reference data: sovereign credit rating, equity risk premium, country risk premium, default spread, currency (name + ISO code), region/sub-region, and ISO country co"""
+        query: dict = {}
+        if code is not None:
+            query["code"] = code
+        return self._c.request("GET", "/api/country/financials", endpoint="country.financials", query=query)
+
     def lookup(
         self,
         *,
@@ -5878,6 +6030,7 @@ class TwoS:
         self.patents = _Patents(self)
         self.time = _Time(self)
         self.watchers = _Watchers(self)
+        self.markets = _Markets(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)

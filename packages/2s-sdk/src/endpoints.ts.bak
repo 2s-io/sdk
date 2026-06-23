@@ -29,6 +29,10 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  markets: {
+    status(input?: { exchange?: string }): R<Normalized>
+    holiday(input?: { exchange?: string }): R<Normalized>
+  }
   watchers: {
     cancel(input: { watcherId: string }): R<Normalized>
     cryptoAddressActivity(input: { chain: string; address: string; callbackUrl: string; direction?: string; assetTypes?: unknown; minValueUsd?: number; payload?: unknown; expiresInSeconds?: number; maxFires?: number; label?: string }): R<Normalized>
@@ -191,6 +195,8 @@ export interface Endpoints {
   }
   /** Official-holiday lookup + holiday-aware business-day math (200+ countries, computed locally). */
   calendar: {
+    earnings(input?: { from?: string; to?: string; ticker?: string }): R<Normalized>
+    ipo(input?: { from?: string; to?: string }): R<Normalized>
     /** List official holidays for a country/region + year, exact observed dates incl. substitute days. */
     holidays(input: { country: string; year: number | string; region?: string; types?: string; lang?: string }): R<Normalized>
     /** Holiday-aware business-day math: start+addDays (shift), start+end (count), or start alone (check). */
@@ -729,6 +735,7 @@ export interface Endpoints {
     series(input: { seriesIds: string; startYear?: number; endYear?: number }): R<unknown>
   }
   country: {
+    financials(input?: { code?: string }): R<Normalized>
     /** Country metadata lookup (REST Countries). */
     lookup(input: { alpha2?: string; alpha3?: string; name?: string; fullText?: boolean }): R<unknown>
   }
@@ -885,6 +892,18 @@ export interface Endpoints {
   }
   /** Stock market data (Massive / formerly Polygon.io). */
   stocks: {
+    metrics(input: { ticker: string }): R<Normalized>
+    peers(input: { ticker: string; grouping?: string }): R<Normalized>
+    earningsSurprises(input: { ticker: string; limit?: number }): R<Normalized>
+    recommendations(input: { ticker: string }): R<Normalized>
+    companyNews(input: { ticker: string; from?: string; to?: string; limit?: number }): R<Normalized>
+    insiderSentiment(input: { ticker: string; from?: string; to?: string }): R<Normalized>
+    financialsReported(input: { ticker: string; freq?: string; limit?: number }): R<Normalized>
+    symbols(input?: { q?: string; exchange?: string; limit?: number }): R<Normalized>
+    lobbying(input: { ticker: string; from?: string; to?: string; limit?: number }): R<Normalized>
+    govSpending(input: { ticker: string; from?: string; to?: string; limit?: number }): R<Normalized>
+    h1bVisas(input: { ticker: string; from?: string; to?: string; limit?: number }): R<Normalized>
+    patents(input: { ticker: string; from?: string; to?: string; limit?: number }): R<Normalized>
     /** Latest daily quote for a US ticker (EOD/delayed): OHLCV, VWAP, change vs prior session, company metadata. */
     quote(input: { ticker: string }): R<unknown>
   }
@@ -1572,6 +1591,10 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    markets: {
+      status: (i) => get('markets.status', '/api/markets/status', i ?? {}),
+      holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),
+    },
     watchers: {
       cancel: (i) => post('watchers.cancel', '/api/watchers/cancel', i),
       cryptoAddressActivity: (i) => post('watchers.crypto-address-activity', '/api/watchers/crypto-address-activity', i),
@@ -1645,6 +1668,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       generate: (i) => post('barcode.generate', '/api/barcode/generate', i),
     },
     calendar: {
+      earnings: (i) => get('calendar.earnings', '/api/calendar/earnings', i ?? {}),
+      ipo: (i) => get('calendar.ipo', '/api/calendar/ipo', i ?? {}),
       holidays: (i) => get('calendar.holidays', '/api/calendar/holidays', i),
       businessDays: (i) => get('calendar.business-days', '/api/calendar/business-days', i),
     },
@@ -2064,6 +2089,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       series: (i) => get('bls.series', '/api/bls/series', i),
     },
     country: {
+      financials: (i) => get('country.financials', '/api/country/financials', i ?? {}),
       lookup: (i) => get('country.lookup', '/api/country/lookup', i),
     },
     news: {
@@ -2151,6 +2177,18 @@ export function createEndpoints(client: TwoS): Endpoints {
       status: (i) => get('flight.status', '/api/flight/status', i),
     },
     stocks: {
+      metrics: (i) => get('stocks.metrics', '/api/stocks/metrics', i),
+      peers: (i) => get('stocks.peers', '/api/stocks/peers', i),
+      earningsSurprises: (i) => get('stocks.earnings-surprises', '/api/stocks/earnings-surprises', i),
+      recommendations: (i) => get('stocks.recommendations', '/api/stocks/recommendations', i),
+      companyNews: (i) => get('stocks.company-news', '/api/stocks/company-news', i),
+      insiderSentiment: (i) => get('stocks.insider-sentiment', '/api/stocks/insider-sentiment', i),
+      financialsReported: (i) => get('stocks.financials-reported', '/api/stocks/financials-reported', i),
+      symbols: (i) => get('stocks.symbols', '/api/stocks/symbols', i ?? {}),
+      lobbying: (i) => get('stocks.lobbying', '/api/stocks/lobbying', i),
+      govSpending: (i) => get('stocks.gov-spending', '/api/stocks/gov-spending', i),
+      h1bVisas: (i) => get('stocks.h1b-visas', '/api/stocks/h1b-visas', i),
+      patents: (i) => get('stocks.patents', '/api/stocks/patents', i),
       quote: (i) => get('stocks.quote', '/api/stocks/quote', i),
     },
     transcribe: {
