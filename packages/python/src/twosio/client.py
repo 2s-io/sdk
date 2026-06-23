@@ -140,6 +140,156 @@ class _Time(_Group):
 
 
 class _Watchers(_Group):
+    def fx_rate(self, *, base: str, quote: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when an FX pair crosses a rate you set. Arm once, pay once. base + quote are 3-letter ISO currency codes (e.g. base USD, quote EUR). conditionType 'above'/'below'; thres"""
+        body: dict = {"base": base, "quote": quote, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/fx-rate", endpoint="watchers.fx-rate", body=body)
+
+    def funding_rate(self, *, coin: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a Hyperliquid perpetual's hourly funding rate crosses a level (e.g. flips negative). Arm once, pay once. Pass coin (e.g. BTC, ETH). conditionType 'above'/'below'; t"""
+        body: dict = {"coin": coin, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/funding-rate", endpoint="watchers.funding-rate", body=body)
+
+    def prediction_market(self, *, conditionId: str, conditionType: str, threshold: float, callbackUrl: str, outcomeIndex: int | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a Polymarket outcome's implied probability crosses a level. Arm once, pay once. Pass conditionId (the market's condition id) and outcomeIndex (0 = first outcome, us"""
+        body: dict = {"conditionId": conditionId, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}
+        if outcomeIndex is not None:
+            body["outcomeIndex"] = outcomeIndex
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/prediction-market", endpoint="watchers.prediction-market", body=body)
+
+    def sec_filing(self, *, ticker: str, callbackUrl: str, form: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a US company files with the SEC (EDGAR). Arm once, pay once. Pass ticker; optionally form to only fire on a specific filing type (e.g. 8-K, 10-K, 13F, 4). Fires onc"""
+        body: dict = {"ticker": ticker, "callbackUrl": callbackUrl}
+        if form is not None:
+            body["form"] = form
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/sec-filing", endpoint="watchers.sec-filing", body=body)
+
+    def company_news(self, *, ticker: str, callbackUrl: str, keyword: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new news article is published about a US company. Arm once, pay once. Pass ticker; optionally keyword to only fire on headlines containing it. Fires once per new """
+        body: dict = {"ticker": ticker, "callbackUrl": callbackUrl}
+        if keyword is not None:
+            body["keyword"] = keyword
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/company-news", endpoint="watchers.company-news", body=body)
+
+    def ipo(self, *, callbackUrl: str, keyword: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new US IPO appears on the calendar. Arm once, pay once. Optionally pass keyword to only fire when the company name/symbol matches. Fires once per new IPO (deduped"""
+        body: dict = {"callbackUrl": callbackUrl}
+        if keyword is not None:
+            body["keyword"] = keyword
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/ipo", endpoint="watchers.ipo", body=body)
+
+    def federal_register(self, *, callbackUrl: str, type: str | None = None, agency: str | None = None, keyword: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a new US Federal Register document is published. Arm once, pay once. Optionally filter by type (RULE / PRORULE / NOTICE / PRESDOCU), agency (slug, e.g. environmenta"""
+        body: dict = {"callbackUrl": callbackUrl}
+        if type is not None:
+            body["type"] = type
+        if agency is not None:
+            body["agency"] = agency
+        if keyword is not None:
+            body["keyword"] = keyword
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/federal-register", endpoint="watchers.federal-register", body=body)
+
+    def weather_alert(self, *, area: str, callbackUrl: str, severity: str | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when the US National Weather Service issues a new alert for an area. Arm once, pay once. Pass area (2-letter state/territory code, e.g. CA, TX); optionally severity to o"""
+        body: dict = {"area": area, "callbackUrl": callbackUrl}
+        if severity is not None:
+            body["severity"] = severity
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/weather-alert", endpoint="watchers.weather-alert", body=body)
+
+    def earthquake(self, *, lat: float, lon: float, callbackUrl: str, radiusKm: float | None = None, minMagnitude: float | None = None, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when USGS reports a new earthquake near a location above a magnitude. Arm once, pay once. Pass lat, lon, optional radiusKm (default 500) and minMagnitude (default 4). Fi"""
+        body: dict = {"lat": lat, "lon": lon, "callbackUrl": callbackUrl}
+        if radiusKm is not None:
+            body["radiusKm"] = radiusKm
+        if minMagnitude is not None:
+            body["minMagnitude"] = minMagnitude
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/earthquake", endpoint="watchers.earthquake", body=body)
+
+    def flight_status(self, *, ident: str, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
+        """WATCHER: get a signed callback when a flight's status changes (e.g. Scheduled → Delayed → Departed → Landed). Arm once, pay once. Pass ident (airline flight designator like UAL1 / UA1, or a tail numbe"""
+        body: dict = {"ident": ident, "callbackUrl": callbackUrl}
+        if payload is not None:
+            body["payload"] = payload
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/watchers/flight-status", endpoint="watchers.flight-status", body=body)
+
     def token_price(self, *, tokenId: str, conditionType: str, threshold: float, callbackUrl: str, payload: Any | None = None, expiresInSeconds: int | None = None, maxFires: int | None = None, label: str | None = None) -> CallResult:
         """WATCHER: get a signed callback when a crypto asset crosses a price you set. Arm once, pay once (no account, no API key) — we poll the spot price and POST your custom payload to callbackUrl the moment """
         body: dict = {"tokenId": tokenId, "conditionType": conditionType, "threshold": threshold, "callbackUrl": callbackUrl}

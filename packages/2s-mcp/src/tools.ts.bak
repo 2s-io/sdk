@@ -5180,6 +5180,52 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['ticker', 'conditionType', 'threshold', 'callbackUrl']),
       invoke: (a) => c.watchers.stockPrice(a as never),
     },
+    {
+      name: 'watchers.token-price',
+      description: 'WATCHER: get a signed callback when a crypto asset crosses a price you set. Arm once, pay once (no account, no API key) — we poll the spot price and POST your custom payload to callbackUrl the moment the condition is met. tokenId is a CoinGecko asset id (lowercase, e.g. bitcoin, ethereum, solana — not the ticker). conditionType: \'above\' / \'below\' (threshold = a USD price) or \'pct_up\' / \'pct_down\' ',
+      inputSchema: s('token-price', {
+        tokenId: { type: 'string', description: 'CoinGecko asset id (lowercase, not ticker), e.g. bitcoin, ethereum, solana.' },
+        conditionType: { type: 'string', description: 'above/below = threshold is a USD price; pct_up/pct_down = threshold is a percent move over 24h.' },
+        threshold: { type: 'number', description: 'Trigger level: a USD price for above/below (e.g. 100000), or a percent for pct_up/pct_down (e.g. 10 = ±10% over 24h).' },
+        callbackUrl: { type: 'string', description: 'Where we POST the event. Any http(s) URL; the JSON body is signed (verify with X-2s-Signature). e.g. https://your-agent.app/hooks/btc' },
+        payload: { type: 'object', description: 'Arbitrary JSON echoed back verbatim in every callback. e.g. {"agentId":"a1"}' },
+        expiresInSeconds: { type: 'integer', description: 'How long the watch stays active, in seconds. Default 2592000 (30 days), max 7776000 (90 days).' },
+        maxFires: { type: 'integer', description: 'Stop after this many callbacks (default 1 — a one-shot alert). Each fire is a fresh crossing into the condition.' },
+        label: { type: 'string', description: 'Optional free-text tag to recognize this watcher later.' },
+      }, ['tokenId', 'conditionType', 'threshold', 'callbackUrl']),
+      invoke: (a) => c.watchers.tokenPrice(a as never),
+    },
+    {
+      name: 'watchers.gas-price',
+      description: 'WATCHER: get a signed callback when EVM gas crosses a level you set — e.g. "wake me when Ethereum gas drops below 10 gwei." Arm once, pay once (no account, no API key). chain: base | ethereum | polygon | arbitrum | optimism. conditionType: \'below\' or \'above\'; threshold is in gwei (compared to the chosen fee tier\'s max fee per gas). tier: slow | standard | fast (default standard). Fires once per cr',
+      inputSchema: s('gas-price', {
+        chain: { type: 'string', description: 'EVM chain whose gas to watch.' },
+        conditionType: { type: 'string', description: '\'below\' (cheap gas alert) or \'above\' (congestion alert).' },
+        threshold: { type: 'number', description: 'Gas price threshold in gwei (e.g. 10), compared to the chosen tier’s max fee per gas.' },
+        tier: { type: 'string', description: 'Fee tier to compare against. Default: standard.' },
+        callbackUrl: { type: 'string', description: 'Where we POST the event. Any http(s) URL; the JSON body is signed (verify with X-2s-Signature). e.g. https://your-agent.app/hooks/gas' },
+        payload: { type: 'object', description: 'Arbitrary JSON echoed back verbatim in every callback. e.g. {"agentId":"a1"}' },
+        expiresInSeconds: { type: 'integer', description: 'How long the watch stays active, in seconds. Default 2592000 (30 days), max 7776000 (90 days).' },
+        maxFires: { type: 'integer', description: 'Stop after this many callbacks (default 1). Each fire is a fresh crossing into the condition.' },
+        label: { type: 'string', description: 'Optional free-text tag to recognize this watcher later.' },
+      }, ['chain', 'conditionType', 'threshold', 'callbackUrl']),
+      invoke: (a) => c.watchers.gasPrice(a as never),
+    },
+    {
+      name: 'watchers.business-earnings',
+      description: 'WATCHER: get a signed callback around a US company\'s earnings. Arm once, pay once (no account, no API key). trigger \'reported\' (default) fires when results post — with reported EPS vs estimate, the surprise, and revenue; trigger \'upcoming\' fires daysBefore the scheduled report date as a heads-up. Pass ticker (+ optional daysBefore for upcoming). Fires once per report period; bounded by a maxFires ',
+      inputSchema: s('business-earnings', {
+        ticker: { type: 'string', description: 'US-listed ticker to watch, e.g. AAPL.' },
+        trigger: { type: 'string', description: '\'reported\' (default) fires when results post; \'upcoming\' fires ahead of the scheduled date.' },
+        daysBefore: { type: 'integer', description: 'For trigger=\'upcoming\': how many days before the report date to fire (default 1).' },
+        callbackUrl: { type: 'string', description: 'Where we POST the event. Any http(s) URL; the JSON body is signed (verify with X-2s-Signature). e.g. https://your-agent.app/hooks/earnings' },
+        payload: { type: 'object', description: 'Arbitrary JSON echoed back verbatim in every callback so you can route/identify the event. e.g. {"agentId":"a1"}' },
+        expiresInSeconds: { type: 'integer', description: 'How long the watch stays active, in seconds. Default 2592000 (30 days), max 7776000 (90 days).' },
+        maxFires: { type: 'integer', description: 'Stop after this many report events (default 1 — the next report). Each fire is a distinct fiscal period.' },
+        label: { type: 'string', description: 'Optional free-text tag to recognize this watcher later.' },
+      }, ['ticker', 'callbackUrl']),
+      invoke: (a) => c.watchers.businessEarnings(a as never),
+    },
   ]
   return t
 }
