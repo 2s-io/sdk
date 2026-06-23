@@ -46,6 +46,19 @@ npx -y @2sio/mcp --trial      # MCP host with free trial calls; or set TWOS_TRIA
 
 The trial runs the **real handler** and returns real data. Once the hourly trial is used, the endpoint returns the normal `402` — drop `trial` and pass a `privateKey`/`signer` to pay per call for unlimited access.
 
+## 🔔 Watchers — get woken up, don't poll
+
+Most endpoints are reads. **Watchers** flip that: arm one once and 2s pushes you a **signed callback the instant something happens** — a wallet moves on Base/Ethereum/Bitcoin, a US stock crosses your price, a company reports earnings. No polling loop, no wasted calls. Flat **$0.05** to arm; callbacks are EIP-191-signed (verify offline), retried with exponential backoff, with a pull backstop via `watchers.status`. A new class of stateful, agent-native primitives.
+
+```ts
+const client = new TwoS({ privateKey: process.env.EVM_PRIVATE_KEY })
+const { data } = await client.watchers.stockPrice({
+  ticker: 'AAPL', conditionType: 'above', threshold: 250,
+  callbackUrl: 'https://your-agent.app/hooks/aapl',
+})
+// also: watchers.cryptoAddressActivity, watchers.earnings — see https://2s.io/watchers
+```
+
 ## 30-second demo
 
 **TypeScript:**

@@ -20,6 +20,19 @@ print(trial.validate.iban(iban="GB82WEST12345698765432").data["items"][0]["valid
 
 Pass `private_key=...` (below) to pay per call for unlimited access.
 
+## 🔔 Watchers — get woken up, don't poll
+
+Most endpoints are reads. **Watchers** flip that: arm one once and we POST you a **signed callback the instant something happens** — a wallet moves, a stock crosses your price, a company reports earnings. No polling loop. Flat **$0.05** to arm; callbacks are EIP-191-signed (verify offline) and retried with exponential backoff, with a pull backstop via `watchers.status`.
+
+```python
+res = client.watchers.stock_price(
+    ticker="AAPL", conditionType="above", threshold=250,
+    callbackUrl="https://your-agent.app/hooks/aapl",
+)
+print(res.data["items"][0]["watcherId"])  # we POST your payload here the moment AAPL crosses $250
+# also: client.watchers.crypto_address_activity(...), client.watchers.earnings(...)
+```
+
 ## Quick start
 
 ```python

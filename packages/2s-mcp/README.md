@@ -10,6 +10,10 @@ npx @2sio/mcp --signer 0x...
 
 No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (350+ endpoints across 90+ groups and counting).
 
+### 🔔 Watchers — push, not poll
+
+Beyond read tools, 2s exposes **watchers**: the agent arms one and 2s POSTs a **signed callback the moment something happens** — a wallet moves, a stock crosses a price, a company reports earnings — so the agent never has to poll. Flat $0.05 to arm; signed + retried delivery with a status backstop. Tools: `watchers.crypto-address-activity`, `watchers.stock-price`, `watchers.earnings` (+ `watchers.status` / `watchers.cancel`).
+
 ### What's exposed
 
 A single MCP install gives the agent tools spanning, among others:
@@ -26,6 +30,7 @@ A single MCP install gives the agent tools spanning, among others:
 - **Business & property** — company registries, GLEIF LEI, KYB, property records
 - **Web & data utilities** — URL → markdown, screenshots, schema extraction, validators, EDI, hashing, barcodes, image description, AI summarization
 - **Agent primitives** — memory, marketplace, knowledge-delta, batch settlement
+- **Watchers (push, not poll)** — arm a signed callback for when a wallet moves, a stock crosses a price, or a company reports earnings
 
 See the [live catalog](https://2s.io/api/directory) for everything currently shipped.
 

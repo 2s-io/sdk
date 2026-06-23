@@ -22,6 +22,19 @@ console.log(data.items[0].valid) // real result; once/hour/endpoint, then throws
 
 Drop `trial` and pass a `privateKey`/`signer` (below) to pay per call for unlimited access.
 
+## 🔔 Watchers — get woken up, don't poll
+
+Most endpoints are reads. **Watchers** flip that: arm one once and we POST you a **signed callback the instant something happens** — a wallet moves, a stock crosses your price, a company reports earnings. No polling loop, no wasted calls. Flat **$0.05** to arm; callbacks are EIP-191-signed (verify offline) and retried with exponential backoff, with a pull backstop via `watchers.status`.
+
+```ts
+const { data } = await client.watchers.stockPrice({
+  ticker: 'AAPL', conditionType: 'above', threshold: 250,
+  callbackUrl: 'https://your-agent.app/hooks/aapl',
+})
+console.log(data.items[0].watcherId) // we POST your payload here the moment AAPL crosses $250
+// also: client.watchers.cryptoAddressActivity({...}), client.watchers.earnings({...})
+```
+
 ## Quick start
 
 ```ts
