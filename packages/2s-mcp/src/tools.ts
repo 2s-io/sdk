@@ -5629,7 +5629,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
       name: 'store.usage',
       description: 'STORE: report how much storage YOUR wallet is using...',
       inputSchema: s('usage', {}),
-      invoke: (a) => c.store.usage(a as never),
+      invoke: () => c.store.usage(),
     },
     {
       name: 'store.vector-delete',
