@@ -29,6 +29,28 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  schedule: {
+    cancel(input: { scheduleId: string }): R<Normalized>
+    create(input: { callbackUrl: string; at?: string; everySeconds?: number; payload?: unknown; maxFires?: number; expiresInSeconds?: number; label?: string }): R<Normalized>
+    status(input: { scheduleId: string }): R<Normalized>
+  }
+  queue: {
+    ack(input: { queue: string; id: string; leaseToken: string }): R<Normalized>
+    enqueue(input: { queue: string; body?: string; maxAttempts?: number }): R<Normalized>
+    lease(input: { queue: string; count?: number; visibilitySeconds?: number }): R<Normalized>
+    stats(input: { queue: string }): R<Normalized>
+  }
+  pubsub: {
+    createTopic(input: { name: string }): R<Normalized>
+    publish(input: { topicId: string; message?: string }): R<Normalized>
+    subscribe(input: { topicId: string; callbackUrl: string; label?: string }): R<Normalized>
+    unsubscribe(input: { subscriptionId: string }): R<Normalized>
+  }
+  lock: {
+    acquire(input: { key: string; ttlSeconds: number }): R<Normalized>
+    release(input: { key: string; token: string }): R<Normalized>
+    renew(input: { key: string; token: string; ttlSeconds: number }): R<Normalized>
+  }
   store: {
     blobDelete(input: { ns: string; key: string }): R<Normalized>
     blobGet(input: { ns: string; key: string }): R<Normalized>
@@ -1627,6 +1649,28 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    schedule: {
+      cancel: (i) => post('schedule.cancel', '/api/schedule/cancel', i),
+      create: (i) => post('schedule.create', '/api/schedule/create', i),
+      status: (i) => post('schedule.status', '/api/schedule/status', i),
+    },
+    queue: {
+      ack: (i) => post('queue.ack', '/api/queue/ack', i),
+      enqueue: (i) => post('queue.enqueue', '/api/queue/enqueue', i),
+      lease: (i) => post('queue.lease', '/api/queue/lease', i),
+      stats: (i) => post('queue.stats', '/api/queue/stats', i),
+    },
+    pubsub: {
+      createTopic: (i) => post('pubsub.create-topic', '/api/pubsub/create-topic', i),
+      publish: (i) => post('pubsub.publish', '/api/pubsub/publish', i),
+      subscribe: (i) => post('pubsub.subscribe', '/api/pubsub/subscribe', i),
+      unsubscribe: (i) => post('pubsub.unsubscribe', '/api/pubsub/unsubscribe', i),
+    },
+    lock: {
+      acquire: (i) => post('lock.acquire', '/api/lock/acquire', i),
+      release: (i) => post('lock.release', '/api/lock/release', i),
+      renew: (i) => post('lock.renew', '/api/lock/renew', i),
+    },
     store: {
       blobDelete: (i) => post('store.blob-delete', '/api/store/blob-delete', i),
       blobGet: (i) => post('store.blob-get', '/api/store/blob-get', i),

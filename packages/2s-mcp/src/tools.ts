@@ -5625,6 +5625,137 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['ns', 'id', 'embedding']),
       invoke: (a) => c.store.vectorUpsert(a as never),
     },
+    {
+      name: 'lock.acquire',
+      description: 'LOCK: acquire a distributed lock/lease, scoped to YOUR wallet.',
+      inputSchema: s('acquire', {
+        key: { type: 'string', description: 'Lock name, up to 256 chars of [A-Za-z0-9._:/-]. e.g. "nightly-report".' },
+        ttlSeconds: { type: 'integer', description: 'Auto-release after this many seconds (1-86400). Set it above your critical section\'s worst-case runtime.' },
+      }, ['key', 'ttlSeconds']),
+      invoke: (a) => c.lock.acquire(a as never),
+    },
+    {
+      name: 'lock.release',
+      description: 'LOCK: release a lock you hold, scoped to YOUR wallet.',
+      inputSchema: s('release', {
+        key: { type: 'string', description: 'The lock name.' },
+        token: { type: 'string', description: 'The token returned by lock.acquire.' },
+      }, ['key', 'token']),
+      invoke: (a) => c.lock.release(a as never),
+    },
+    {
+      name: 'lock.renew',
+      description: 'LOCK: extend a lock you hold, scoped to YOUR wallet.',
+      inputSchema: s('renew', {
+        key: { type: 'string', description: 'The lock name.' },
+        token: { type: 'string', description: 'The token returned by lock.acquire.' },
+        ttlSeconds: { type: 'integer', description: 'New lease duration in seconds.' },
+      }, ['key', 'token', 'ttlSeconds']),
+      invoke: (a) => c.lock.renew(a as never),
+    },
+    {
+      name: 'pubsub.create-topic',
+      description: 'PUBSUB: create a topic you own, scoped to YOUR wallet.',
+      inputSchema: s('create-topic', {
+        name: { type: 'string', description: 'Topic name, 1-64 chars of [A-Za-z0-9._:-]. e.g. "price-alerts".' },
+      }, ['name']),
+      invoke: (a) => c.pubsub.createTopic(a as never),
+    },
+    {
+      name: 'pubsub.publish',
+      description: 'PUBSUB: publish a message to a topic YOU own, fanning out a...',
+      inputSchema: s('publish', {
+        topicId: { type: 'string', description: 'The topic you own (from pubsub.create-topic).' },
+        message: { type: 'string', description: 'The payload to fan out — any JSON, up to 64 KB.' },
+      }, ['topicId']),
+      invoke: (a) => c.pubsub.publish(a as never),
+    },
+    {
+      name: 'pubsub.subscribe',
+      description: 'PUBSUB: subscribe a callbackUrl to a topic by its topicId...',
+      inputSchema: s('subscribe', {
+        topicId: { type: 'string', description: 'The topicId to subscribe to (from pubsub.create-topic).' },
+        callbackUrl: { type: 'string', description: 'Where we POST published messages. Any http(s) URL; body is signed.' },
+        label: { type: 'string', description: 'Optional free-text tag.' },
+      }, ['topicId', 'callbackUrl']),
+      invoke: (a) => c.pubsub.subscribe(a as never),
+    },
+    {
+      name: 'pubsub.unsubscribe',
+      description: 'PUBSUB: remove one of YOUR subscriptions by its...',
+      inputSchema: s('unsubscribe', {
+        subscriptionId: { type: 'string', description: 'The subscriptionId from pubsub.subscribe.' },
+      }, ['subscriptionId']),
+      invoke: (a) => c.pubsub.unsubscribe(a as never),
+    },
+    {
+      name: 'queue.ack',
+      description: 'QUEUE: confirm a leased message is processed - deletes it...',
+      inputSchema: s('ack', {
+        queue: { type: 'string', description: 'Queue the message came from.' },
+        id: { type: 'string', description: 'Message id from queue.lease.' },
+        leaseToken: { type: 'string', description: 'leaseToken from queue.lease.' },
+      }, ['queue', 'id', 'leaseToken']),
+      invoke: (a) => c.queue.ack(a as never),
+    },
+    {
+      name: 'queue.enqueue',
+      description: 'QUEUE: append a message to a durable, wallet-scoped queue.',
+      inputSchema: s('enqueue', {
+        queue: { type: 'string', description: 'Queue name, 1-64 chars of [A-Za-z0-9._:-]. e.g. "jobs".' },
+        body: { type: 'string', description: 'The message payload — any JSON, up to 256 KB.' },
+        maxAttempts: { type: 'integer', description: 'Deliveries before the message moves to the dead-letter status. Default 10.' },
+      }, ['queue']),
+      invoke: (a) => c.queue.enqueue(a as never),
+    },
+    {
+      name: 'queue.lease',
+      description: 'QUEUE: atomically claim up to `count` messages for...',
+      inputSchema: s('lease', {
+        queue: { type: 'string', description: 'Queue to pull from.' },
+        count: { type: 'integer', description: 'How many to claim. Default 1, max 100.' },
+        visibilitySeconds: { type: 'integer', description: 'How long claimed messages stay hidden before redelivery. Default 30, max 3600.' },
+      }, ['queue']),
+      invoke: (a) => c.queue.lease(a as never),
+    },
+    {
+      name: 'queue.stats',
+      description: 'QUEUE: depth of a queue, scoped to YOUR wallet - counts of...',
+      inputSchema: s('stats', {
+        queue: { type: 'string', description: 'Queue to inspect.' },
+      }, ['queue']),
+      invoke: (a) => c.queue.stats(a as never),
+    },
+    {
+      name: 'schedule.cancel',
+      description: 'SCHEDULE: stop an active schedule immediately, scoped to...',
+      inputSchema: s('cancel', {
+        scheduleId: { type: 'string', description: 'The scheduleId from schedule.create.' },
+      }, ['scheduleId']),
+      invoke: (a) => c.schedule.cancel(a as never),
+    },
+    {
+      name: 'schedule.create',
+      description: 'SCHEDULE: arm a time-driven callback, scoped to YOUR wallet...',
+      inputSchema: s('create', {
+        callbackUrl: { type: 'string', description: 'Where we POST when it fires. Any http(s) URL; the JSON body is signed (verify with X-2s-Signature).' },
+        at: { type: 'string', description: 'ISO-8601 timestamp for a ONE-SHOT fire. e.g. "2026-07-01T14:00:00Z". Provide this OR everySeconds, not both.' },
+        everySeconds: { type: 'integer', description: 'Recurring interval in seconds (≥60). Provide this OR at.' },
+        payload: { type: 'object', description: 'Arbitrary JSON echoed in every callback (plus scheduleId, fireNumber, firedAt). e.g. {"job":"digest"}.' },
+        maxFires: { type: 'integer', description: 'Stop after this many fires (recurring only). Default 25, max 1000.' },
+        expiresInSeconds: { type: 'integer', description: 'Auto-expire the schedule after this long. Default + max 90 days.' },
+        label: { type: 'string', description: 'Optional free-text tag to recognize this schedule later.' },
+      }, ['callbackUrl']),
+      invoke: (a) => c.schedule.create(a as never),
+    },
+    {
+      name: 'schedule.status',
+      description: 'SCHEDULE: check a schedule\'s state, scoped to YOUR wallet...',
+      inputSchema: s('status', {
+        scheduleId: { type: 'string', description: 'The scheduleId from schedule.create.' },
+      }, ['scheduleId']),
+      invoke: (a) => c.schedule.status(a as never),
+    },
   ]
   return t
 }

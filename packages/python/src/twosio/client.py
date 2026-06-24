@@ -638,6 +638,112 @@ class _Store(_Group):
 
 
 
+class _Lock(_Group):
+    def acquire(self, *, key: str, ttlSeconds: int) -> CallResult:
+        """LOCK: acquire a distributed lock/lease, scoped to YOUR wallet."""
+        body: dict = {"key": key, "ttlSeconds": ttlSeconds}
+        return self._c.request("POST", "/api/lock/acquire", endpoint="lock.acquire", body=body)
+
+    def release(self, *, key: str, token: str) -> CallResult:
+        """LOCK: release a lock you hold, scoped to YOUR wallet."""
+        body: dict = {"key": key, "token": token}
+        return self._c.request("POST", "/api/lock/release", endpoint="lock.release", body=body)
+
+    def renew(self, *, key: str, token: str, ttlSeconds: int) -> CallResult:
+        """LOCK: extend a lock you hold, scoped to YOUR wallet."""
+        body: dict = {"key": key, "token": token, "ttlSeconds": ttlSeconds}
+        return self._c.request("POST", "/api/lock/renew", endpoint="lock.renew", body=body)
+
+
+
+class _Pubsub(_Group):
+    def create_topic(self, *, name: str) -> CallResult:
+        """PUBSUB: create a topic you own, scoped to YOUR wallet."""
+        body: dict = {"name": name}
+        return self._c.request("POST", "/api/pubsub/create-topic", endpoint="pubsub.create-topic", body=body)
+
+    def publish(self, *, topicId: str, message: str | None = None) -> CallResult:
+        """PUBSUB: publish a message to a topic YOU own, fanning out a..."""
+        body: dict = {"topicId": topicId}
+        if message is not None:
+            body["message"] = message
+        return self._c.request("POST", "/api/pubsub/publish", endpoint="pubsub.publish", body=body)
+
+    def subscribe(self, *, topicId: str, callbackUrl: str, label: str | None = None) -> CallResult:
+        """PUBSUB: subscribe a callbackUrl to a topic by its topicId..."""
+        body: dict = {"topicId": topicId, "callbackUrl": callbackUrl}
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/pubsub/subscribe", endpoint="pubsub.subscribe", body=body)
+
+    def unsubscribe(self, *, subscriptionId: str) -> CallResult:
+        """PUBSUB: remove one of YOUR subscriptions by its..."""
+        body: dict = {"subscriptionId": subscriptionId}
+        return self._c.request("POST", "/api/pubsub/unsubscribe", endpoint="pubsub.unsubscribe", body=body)
+
+
+
+class _Queue(_Group):
+    def ack(self, *, queue: str, id: str, leaseToken: str) -> CallResult:
+        """QUEUE: confirm a leased message is processed - deletes it..."""
+        body: dict = {"queue": queue, "id": id, "leaseToken": leaseToken}
+        return self._c.request("POST", "/api/queue/ack", endpoint="queue.ack", body=body)
+
+    def enqueue(self, *, queue: str, body: str | None = None, maxAttempts: int | None = None) -> CallResult:
+        """QUEUE: append a message to a durable, wallet-scoped queue."""
+        body: dict = {"queue": queue}
+        if body is not None:
+            body["body"] = body
+        if maxAttempts is not None:
+            body["maxAttempts"] = maxAttempts
+        return self._c.request("POST", "/api/queue/enqueue", endpoint="queue.enqueue", body=body)
+
+    def lease(self, *, queue: str, count: int | None = None, visibilitySeconds: int | None = None) -> CallResult:
+        """QUEUE: atomically claim up to `count` messages for..."""
+        body: dict = {"queue": queue}
+        if count is not None:
+            body["count"] = count
+        if visibilitySeconds is not None:
+            body["visibilitySeconds"] = visibilitySeconds
+        return self._c.request("POST", "/api/queue/lease", endpoint="queue.lease", body=body)
+
+    def stats(self, *, queue: str) -> CallResult:
+        """QUEUE: depth of a queue, scoped to YOUR wallet - counts of..."""
+        body: dict = {"queue": queue}
+        return self._c.request("POST", "/api/queue/stats", endpoint="queue.stats", body=body)
+
+
+
+class _Schedule(_Group):
+    def cancel(self, *, scheduleId: str) -> CallResult:
+        """SCHEDULE: stop an active schedule immediately, scoped to..."""
+        body: dict = {"scheduleId": scheduleId}
+        return self._c.request("POST", "/api/schedule/cancel", endpoint="schedule.cancel", body=body)
+
+    def create(self, *, callbackUrl: str, at: str | None = None, everySeconds: int | None = None, payload: Any | None = None, maxFires: int | None = None, expiresInSeconds: int | None = None, label: str | None = None) -> CallResult:
+        """SCHEDULE: arm a time-driven callback, scoped to YOUR wallet..."""
+        body: dict = {"callbackUrl": callbackUrl}
+        if at is not None:
+            body["at"] = at
+        if everySeconds is not None:
+            body["everySeconds"] = everySeconds
+        if payload is not None:
+            body["payload"] = payload
+        if maxFires is not None:
+            body["maxFires"] = maxFires
+        if expiresInSeconds is not None:
+            body["expiresInSeconds"] = expiresInSeconds
+        if label is not None:
+            body["label"] = label
+        return self._c.request("POST", "/api/schedule/create", endpoint="schedule.create", body=body)
+
+    def status(self, *, scheduleId: str) -> CallResult:
+        """SCHEDULE: check a schedule's state, scoped to YOUR wallet..."""
+        body: dict = {"scheduleId": scheduleId}
+        return self._c.request("POST", "/api/schedule/status", endpoint="schedule.status", body=body)
+
+
+
 class _Crypto(_Group):
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
@@ -6448,6 +6554,10 @@ class TwoS:
         self.watchers = _Watchers(self)
         self.markets = _Markets(self)
         self.store = _Store(self)
+        self.lock = _Lock(self)
+        self.pubsub = _Pubsub(self)
+        self.queue = _Queue(self)
+        self.schedule = _Schedule(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)

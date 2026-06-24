@@ -166,6 +166,10 @@ export class TwoS {
   public readonly watchers: Endpoints['watchers']
   public readonly markets: Endpoints['markets']
   public readonly store: Endpoints['store']
+  public readonly lock: Endpoints['lock']
+  public readonly pubsub: Endpoints['pubsub']
+  public readonly queue: Endpoints['queue']
+  public readonly schedule: Endpoints['schedule']
   public readonly crypto: Endpoints['crypto']
   public readonly html: Endpoints['html']
   public readonly tls: Endpoints['tls']
@@ -301,6 +305,10 @@ export class TwoS {
     this.watchers = this.endpoints.watchers
     this.markets = this.endpoints.markets
     this.store = this.endpoints.store
+    this.lock = this.endpoints.lock
+    this.pubsub = this.endpoints.pubsub
+    this.queue = this.endpoints.queue
+    this.schedule = this.endpoints.schedule
     this.crypto = this.endpoints.crypto
     this.time = this.endpoints.time
     this.html = this.endpoints.html
