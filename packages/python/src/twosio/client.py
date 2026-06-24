@@ -4945,39 +4945,6 @@ class _Chem(_Group):
         return self._c.request("GET", "/api/chem/compound", endpoint="chem.compound", query=q)
 
 
-class _AgentMemory(_Group):
-    def put(
-        self,
-        *,
-        key: str,
-        value: Any,
-        ttl_seconds: Optional[int] = None,
-    ) -> CallResult:
-        """Write/replace a memory entry. Namespace = your x402 pubkey."""
-        body: dict[str, Any] = {"key": key, "value": value}
-        if ttl_seconds is not None:
-            body["ttlSeconds"] = ttl_seconds
-        return self._c.request("POST", "/api/agent/memory/put", endpoint="agent.memory.put", body=body)
-
-    def get(self, *, key: str) -> CallResult:
-        return self._c.request("GET", "/api/agent/memory/get", endpoint="agent.memory.get", query={"key": key})
-
-    def list(
-        self,
-        *,
-        prefix: Optional[str] = None,
-        limit: int = 25,
-        cursor: Optional[str] = None,
-    ) -> CallResult:
-        q: dict[str, Any] = {"limit": limit}
-        if prefix is not None: q["prefix"] = prefix
-        if cursor is not None: q["cursor"] = cursor
-        return self._c.request("GET", "/api/agent/memory/list", endpoint="agent.memory.list", query=q)
-
-    def delete(self, *, key: str) -> CallResult:
-        return self._c.request("POST", "/api/agent/memory/delete", endpoint="agent.memory.delete", body={"key": key})
-
-
 class _AgentMarketplace(_Group):
     def register(
         self,
@@ -5042,10 +5009,9 @@ class _AgentMarketplace(_Group):
 
 
 class _Agent(_Group):
-    """Agent-native primitives: knowledge-delta, memory, marketplace."""
+    """Agent-native primitives: knowledge-delta, marketplace."""
     def __init__(self, c):
         super().__init__(c)
-        self.memory = _AgentMemory(c)
         self.marketplace = _AgentMarketplace(c)
 
     def knowledge_delta(

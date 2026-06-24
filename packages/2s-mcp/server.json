@@ -7,14 +7,14 @@
     "source": "github",
     "subfolder": "packages/2s-mcp"
   },
-  "version": "1.79.13",
+  "version": "1.79.14",
   "websiteUrl": "https://2s.io",
   "packages": [
     {
       "registryType": "npm",
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "@2sio/mcp",
-      "version": "1.79.13",
+      "version": "1.79.14",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

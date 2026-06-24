@@ -1262,12 +1262,6 @@ export interface Endpoints {
       until?: string
       maxEvents?: number
     }): R<unknown>
-    memory: {
-      put(input: { key: string; value: unknown; ttlSeconds?: number }): R<unknown>
-      get(input: { key: string }): R<unknown>
-      list(input?: { prefix?: string; limit?: number; cursor?: string }): R<unknown>
-      delete(input: { key: string }): R<unknown>
-    }
     marketplace: {
       register(input: {
         name: string
@@ -2108,12 +2102,6 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     agent: {
       knowledgeDelta: (i) => post('agent.knowledge-delta', '/api/agent/knowledge-delta', i),
-      memory: {
-        put: (i) => post('agent.memory.put', '/api/agent/memory/put', i),
-        get: (i) => get('agent.memory.get', '/api/agent/memory/get', i),
-        list: (i) => get('agent.memory.list', '/api/agent/memory/list', i),
-        delete: (i) => post('agent.memory.delete', '/api/agent/memory/delete', i),
-      },
       marketplace: {
         register: (i) => post('agent.marketplace.register', '/api/agent/marketplace/register', i),
         discover: (i) => get('agent.marketplace.discover', '/api/agent/marketplace/discover', i),

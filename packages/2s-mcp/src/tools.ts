@@ -2740,43 +2740,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.agent.knowledgeDelta(a as never),
     },
     {
-      name: 'agent.memory.put',
-      description:
-        "Write/replace a memory entry in the calling agent's private KV store. Namespace = your x402 signing pubkey. Value is arbitrary JSON ≤64 KiB. Optional TTL.",
-      inputSchema: s('Memory put', {
-        key: { type: 'string', description: '1-200 chars from [A-Za-z0-9._/-].' },
-        value: { type: 'object', description: 'Arbitrary JSON.' },
-        ttlSeconds: { type: 'integer', minimum: 1, maximum: 31_536_000 },
-      }, ['key', 'value']),
-      invoke: (a) => c.agent.memory.put(a as never),
-    },
-    {
-      name: 'agent.memory.get',
-      description: 'Read a memory entry by key. Returns the value, etag, sizeBytes, timestamps. 404 if missing/expired.',
-      inputSchema: s('Memory get', {
-        key: { type: 'string' },
-      }, ['key']),
-      invoke: (a) => c.agent.memory.get(a as never),
-    },
-    {
-      name: 'agent.memory.list',
-      description: "List keys in the calling agent's memory namespace, newest-first by updatedAt. Cursor-paginated. Optional prefix filter. Returns metadata only — fetch values via agent.memory.get.",
-      inputSchema: s('Memory list', {
-        prefix: { type: 'string', description: 'Optional key-prefix filter.' },
-        limit: { type: 'integer', minimum: 1, maximum: 100, default: 25 },
-        cursor: { type: 'string', description: 'Opaque cursor from previous call.' },
-      }),
-      invoke: (a) => c.agent.memory.list(a as never),
-    },
-    {
-      name: 'agent.memory.delete',
-      description: 'Delete a memory entry. Idempotent — non-existent keys return { deleted: false }.',
-      inputSchema: s('Memory delete', {
-        key: { type: 'string' },
-      }, ['key']),
-      invoke: (a) => c.agent.memory.delete(a as never),
-    },
-    {
       name: 'agent.marketplace.register',
       description: 'Register/update the calling agent in the agent-to-agent marketplace. One listing per pubkey, idempotent.',
       inputSchema: s('Marketplace register', {
