@@ -5506,6 +5506,162 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['callbackUrl']),
       invoke: (a) => c.watchers.productRecall(a as never),
     },
+    {
+      name: 'store.blob-delete',
+      description: 'STORE: delete a file you uploaded, scoped to YOUR wallet...',
+      inputSchema: s('blob-delete', {
+        ns: { type: 'string', description: 'Namespace the blob lives in.' },
+        key: { type: 'string', description: 'Key to delete.' },
+      }, ['ns', 'key']),
+      invoke: (a) => c.store.blobDelete(a as never),
+    },
+    {
+      name: 'store.blob-get',
+      description: 'STORE: download a file you uploaded with store.blob-put, in...',
+      inputSchema: s('blob-get', {
+        ns: { type: 'string', description: 'Namespace the blob lives in.' },
+        key: { type: 'string', description: 'Key to download.' },
+      }, ['ns', 'key']),
+      invoke: (a) => c.store.blobGet(a as never),
+    },
+    {
+      name: 'store.blob-list',
+      description: 'STORE: list the files you\'ve uploaded in a namespace...',
+      inputSchema: s('blob-list', {
+        ns: { type: 'string', description: 'Namespace to list.' },
+        prefix: { type: 'string', description: 'Only return keys starting with this prefix.' },
+        limit: { type: 'integer', description: 'Max keys to return. Default 50, max 1000.' },
+        after: { type: 'string', description: 'Cursor — pass the previous response\'s nextCursor to page forward.' },
+      }, ['ns']),
+      invoke: (a) => c.store.blobList(a as never),
+    },
+    {
+      name: 'store.blob-put',
+      description: 'STORE: upload a file (any bytes) in a single paid call...',
+      inputSchema: s('blob-put', {
+        ns: { type: 'string', description: 'Namespace to group blobs, 1-64 chars of [A-Za-z0-9._:-]. e.g. "uploads".' },
+        key: { type: 'string', description: 'Key within the namespace, up to 256 chars. e.g. "snapshot-42.json".' },
+        data: { type: 'string', description: 'The file bytes, base64-encoded. Decoded size up to 3 MB.' },
+        contentType: { type: 'string', description: 'MIME type to return on read. e.g. "application/json", "image/png". Default application/octet-stream.' },
+      }, ['ns', 'key', 'data']),
+      invoke: (a) => c.store.blobPut(a as never),
+    },
+    {
+      name: 'store.doc-delete',
+      description: 'STORE: delete a stored document by id, scoped to YOUR wallet.',
+      inputSchema: s('doc-delete', {
+        ns: { type: 'string', description: 'Namespace the document lives in.' },
+        id: { type: 'string', description: 'Document id to delete.' },
+      }, ['ns', 'id']),
+      invoke: (a) => c.store.docDelete(a as never),
+    },
+    {
+      name: 'store.doc-get',
+      description: 'STORE: fetch a stored document by id, scoped to YOUR wallet.',
+      inputSchema: s('doc-get', {
+        ns: { type: 'string', description: 'Namespace the document lives in.' },
+        id: { type: 'string', description: 'Document id to fetch.' },
+      }, ['ns', 'id']),
+      invoke: (a) => c.store.docGet(a as never),
+    },
+    {
+      name: 'store.doc-put',
+      description: 'STORE: index a text document for full-text keyword search...',
+      inputSchema: s('doc-put', {
+        ns: { type: 'string', description: 'Namespace to group documents.' },
+        id: { type: 'string', description: 'Document id within the namespace, up to 256 chars.' },
+        body: { type: 'string', description: 'The text to index, up to 1 MB.' },
+        meta: { type: 'string', description: 'Optional JSON metadata returned with search hits (not indexed). e.g. {"title":"notes","tags":["x"]}.' },
+      }, ['ns', 'id', 'body']),
+      invoke: (a) => c.store.docPut(a as never),
+    },
+    {
+      name: 'store.doc-search',
+      description: 'STORE: full-text keyword search over documents you stored...',
+      inputSchema: s('doc-search', {
+        ns: { type: 'string', description: 'Namespace to search.' },
+        query: { type: 'string', description: 'FTS5 query. e.g. `invoice AND 2026`, `"exact phrase"`, `lim*`.' },
+        limit: { type: 'integer', description: 'Max hits. Default 50, max 1000.' },
+      }, ['ns', 'query']),
+      invoke: (a) => c.store.docSearch(a as never),
+    },
+    {
+      name: 'store.kv-delete',
+      description: 'STORE: delete a key/value you stored, scoped to YOUR wallet.',
+      inputSchema: s('kv-delete', {
+        ns: { type: 'string', description: 'Namespace the key lives in.' },
+        key: { type: 'string', description: 'Key to delete.' },
+      }, ['ns', 'key']),
+      invoke: (a) => c.store.kvDelete(a as never),
+    },
+    {
+      name: 'store.kv-get',
+      description: 'STORE: read back a JSON value you stored with store.kv-put...',
+      inputSchema: s('kv-get', {
+        ns: { type: 'string', description: 'Namespace the key lives in.' },
+        key: { type: 'string', description: 'Key to read.' },
+      }, ['ns', 'key']),
+      invoke: (a) => c.store.kvGet(a as never),
+    },
+    {
+      name: 'store.kv-put',
+      description: 'STORE: persist a JSON value under a key, scoped to YOUR...',
+      inputSchema: s('kv-put', {
+        ns: { type: 'string', description: 'Namespace to group keys, 1-64 chars of [A-Za-z0-9._:-]. e.g. "memory" or "session:42".' },
+        key: { type: 'string', description: 'Key within the namespace, up to 256 chars of [A-Za-z0-9._:/-].' },
+        value: { type: 'string', description: 'Any JSON value (object, array, string, number, boolean, null). Up to 1 MB serialized.' },
+      }, ['ns', 'key']),
+      invoke: (a) => c.store.kvPut(a as never),
+    },
+    {
+      name: 'store.kv-scan',
+      description: 'STORE: list keys in a namespace, scoped to YOUR wallet...',
+      inputSchema: s('kv-scan', {
+        ns: { type: 'string', description: 'Namespace to list.' },
+        prefix: { type: 'string', description: 'Only return keys starting with this prefix. e.g. "session:".' },
+        limit: { type: 'integer', description: 'Max keys to return. Default 50, max 1000.' },
+        after: { type: 'string', description: 'Cursor — pass the previous response\'s nextCursor to page forward.' },
+        values: { type: 'boolean', description: 'Include each value inline (default false — keys only).' },
+      }, ['ns']),
+      invoke: (a) => c.store.kvScan(a as never),
+    },
+    {
+      name: 'store.usage',
+      description: 'STORE: report how much storage YOUR wallet is using...',
+      inputSchema: s('usage', {}),
+      invoke: (a) => c.store.usage(a as never),
+    },
+    {
+      name: 'store.vector-delete',
+      description: 'STORE: delete a vector by id from a namespace, scoped to...',
+      inputSchema: s('vector-delete', {
+        ns: { type: 'string', description: 'Namespace the vector lives in.' },
+        id: { type: 'string', description: 'Vector id to delete.' },
+      }, ['ns', 'id']),
+      invoke: (a) => c.store.vectorDelete(a as never),
+    },
+    {
+      name: 'store.vector-query',
+      description: 'STORE: nearest-neighbor search over vectors you upserted in...',
+      inputSchema: s('vector-query', {
+        ns: { type: 'string', description: 'Namespace (index) to search.' },
+        embedding: { type: 'object', description: 'Query embedding (float array), same dimensionality as the stored vectors.' },
+        topK: { type: 'integer', description: 'How many neighbors to return. Default 10, max 100.' },
+      }, ['ns', 'embedding']),
+      invoke: (a) => c.store.vectorQuery(a as never),
+    },
+    {
+      name: 'store.vector-upsert',
+      description: 'STORE: upsert a vector for semantic retrieval, scoped to...',
+      inputSchema: s('vector-upsert', {
+        ns: { type: 'string', description: 'Namespace (an index) to group vectors. Vectors in a namespace should share dimensionality.' },
+        id: { type: 'string', description: 'Vector id within the namespace, up to 256 chars.' },
+        embedding: { type: 'object', description: 'The embedding as a float array (your model\'s output). 1-4096 dims.' },
+        body: { type: 'string', description: 'Optional source text returned with query hits (e.g. the chunk this vector embeds).' },
+        meta: { type: 'string', description: 'Optional JSON metadata returned with query hits. e.g. {"docId":"d1","page":3}.' },
+      }, ['ns', 'id', 'embedding']),
+      invoke: (a) => c.store.vectorUpsert(a as never),
+    },
   ]
   return t
 }

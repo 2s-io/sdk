@@ -29,6 +29,24 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  store: {
+    blobDelete(input: { ns: string; key: string }): R<Normalized>
+    blobGet(input: { ns: string; key: string }): R<Normalized>
+    blobList(input: { ns: string; prefix?: string; limit?: number; after?: string }): R<Normalized>
+    blobPut(input: { ns: string; key: string; data: string; contentType?: string }): R<Normalized>
+    docDelete(input: { ns: string; id: string }): R<Normalized>
+    docGet(input: { ns: string; id: string }): R<Normalized>
+    docPut(input: { ns: string; id: string; body: string; meta?: string }): R<Normalized>
+    docSearch(input: { ns: string; query: string; limit?: number }): R<Normalized>
+    kvDelete(input: { ns: string; key: string }): R<Normalized>
+    kvGet(input: { ns: string; key: string }): R<Normalized>
+    kvPut(input: { ns: string; key: string; value?: string }): R<Normalized>
+    kvScan(input: { ns: string; prefix?: string; limit?: number; after?: string; values?: boolean }): R<Normalized>
+    usage(): R<Normalized>
+    vectorDelete(input: { ns: string; id: string }): R<Normalized>
+    vectorQuery(input: { ns: string; embedding: unknown; topK?: number }): R<Normalized>
+    vectorUpsert(input: { ns: string; id: string; embedding: unknown; body?: string; meta?: string }): R<Normalized>
+  }
   markets: {
     status(input?: { exchange?: string }): R<Normalized>
     holiday(input?: { exchange?: string }): R<Normalized>
@@ -1615,6 +1633,24 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    store: {
+      blobDelete: (i) => post('store.blob-delete', '/api/store/blob-delete', i),
+      blobGet: (i) => post('store.blob-get', '/api/store/blob-get', i),
+      blobList: (i) => post('store.blob-list', '/api/store/blob-list', i),
+      blobPut: (i) => post('store.blob-put', '/api/store/blob-put', i),
+      docDelete: (i) => post('store.doc-delete', '/api/store/doc-delete', i),
+      docGet: (i) => post('store.doc-get', '/api/store/doc-get', i),
+      docPut: (i) => post('store.doc-put', '/api/store/doc-put', i),
+      docSearch: (i) => post('store.doc-search', '/api/store/doc-search', i),
+      kvDelete: (i) => post('store.kv-delete', '/api/store/kv-delete', i),
+      kvGet: (i) => post('store.kv-get', '/api/store/kv-get', i),
+      kvPut: (i) => post('store.kv-put', '/api/store/kv-put', i),
+      kvScan: (i) => post('store.kv-scan', '/api/store/kv-scan', i),
+      usage: () => post('store.usage', '/api/store/usage', {}),
+      vectorDelete: (i) => post('store.vector-delete', '/api/store/vector-delete', i),
+      vectorQuery: (i) => post('store.vector-query', '/api/store/vector-query', i),
+      vectorUpsert: (i) => post('store.vector-upsert', '/api/store/vector-upsert', i),
+    },
     markets: {
       status: (i) => get('markets.status', '/api/markets/status', i ?? {}),
       holiday: (i) => get('markets.holiday', '/api/markets/holiday', i ?? {}),

@@ -528,6 +528,116 @@ class _Markets(_Group):
 
 
 
+class _Store(_Group):
+    def blob_delete(self, *, ns: str, key: str) -> CallResult:
+        """STORE: delete a file you uploaded, scoped to YOUR wallet..."""
+        body: dict = {"ns": ns, "key": key}
+        return self._c.request("POST", "/api/store/blob-delete", endpoint="store.blob-delete", body=body)
+
+    def blob_get(self, *, ns: str, key: str) -> CallResult:
+        """STORE: download a file you uploaded with store.blob-put, in..."""
+        body: dict = {"ns": ns, "key": key}
+        return self._c.request("POST", "/api/store/blob-get", endpoint="store.blob-get", body=body)
+
+    def blob_list(self, *, ns: str, prefix: str | None = None, limit: int | None = None, after: str | None = None) -> CallResult:
+        """STORE: list the files you've uploaded in a namespace..."""
+        body: dict = {"ns": ns}
+        if prefix is not None:
+            body["prefix"] = prefix
+        if limit is not None:
+            body["limit"] = limit
+        if after is not None:
+            body["after"] = after
+        return self._c.request("POST", "/api/store/blob-list", endpoint="store.blob-list", body=body)
+
+    def blob_put(self, *, ns: str, key: str, data: str, contentType: str | None = None) -> CallResult:
+        """STORE: upload a file (any bytes) in a single paid call..."""
+        body: dict = {"ns": ns, "key": key, "data": data}
+        if contentType is not None:
+            body["contentType"] = contentType
+        return self._c.request("POST", "/api/store/blob-put", endpoint="store.blob-put", body=body)
+
+    def doc_delete(self, *, ns: str, id: str) -> CallResult:
+        """STORE: delete a stored document by id, scoped to YOUR wallet."""
+        body: dict = {"ns": ns, "id": id}
+        return self._c.request("POST", "/api/store/doc-delete", endpoint="store.doc-delete", body=body)
+
+    def doc_get(self, *, ns: str, id: str) -> CallResult:
+        """STORE: fetch a stored document by id, scoped to YOUR wallet."""
+        body: dict = {"ns": ns, "id": id}
+        return self._c.request("POST", "/api/store/doc-get", endpoint="store.doc-get", body=body)
+
+    def doc_put(self, *, ns: str, id: str, body: str, meta: str | None = None) -> CallResult:
+        """STORE: index a text document for full-text keyword search..."""
+        body: dict = {"ns": ns, "id": id, "body": body}
+        if meta is not None:
+            body["meta"] = meta
+        return self._c.request("POST", "/api/store/doc-put", endpoint="store.doc-put", body=body)
+
+    def doc_search(self, *, ns: str, query: str, limit: int | None = None) -> CallResult:
+        """STORE: full-text keyword search over documents you stored..."""
+        body: dict = {"ns": ns, "query": query}
+        if limit is not None:
+            body["limit"] = limit
+        return self._c.request("POST", "/api/store/doc-search", endpoint="store.doc-search", body=body)
+
+    def kv_delete(self, *, ns: str, key: str) -> CallResult:
+        """STORE: delete a key/value you stored, scoped to YOUR wallet."""
+        body: dict = {"ns": ns, "key": key}
+        return self._c.request("POST", "/api/store/kv-delete", endpoint="store.kv-delete", body=body)
+
+    def kv_get(self, *, ns: str, key: str) -> CallResult:
+        """STORE: read back a JSON value you stored with store.kv-put..."""
+        body: dict = {"ns": ns, "key": key}
+        return self._c.request("POST", "/api/store/kv-get", endpoint="store.kv-get", body=body)
+
+    def kv_put(self, *, ns: str, key: str, value: str | None = None) -> CallResult:
+        """STORE: persist a JSON value under a key, scoped to YOUR..."""
+        body: dict = {"ns": ns, "key": key}
+        if value is not None:
+            body["value"] = value
+        return self._c.request("POST", "/api/store/kv-put", endpoint="store.kv-put", body=body)
+
+    def kv_scan(self, *, ns: str, prefix: str | None = None, limit: int | None = None, after: str | None = None, values: bool | None = None) -> CallResult:
+        """STORE: list keys in a namespace, scoped to YOUR wallet..."""
+        body: dict = {"ns": ns}
+        if prefix is not None:
+            body["prefix"] = prefix
+        if limit is not None:
+            body["limit"] = limit
+        if after is not None:
+            body["after"] = after
+        if values is not None:
+            body["values"] = values
+        return self._c.request("POST", "/api/store/kv-scan", endpoint="store.kv-scan", body=body)
+
+    def usage(self) -> CallResult:
+        """STORE: report how much storage YOUR wallet is using..."""
+        return self._c.request("POST", "/api/store/usage", endpoint="store.usage")
+
+    def vector_delete(self, *, ns: str, id: str) -> CallResult:
+        """STORE: delete a vector by id from a namespace, scoped to..."""
+        body: dict = {"ns": ns, "id": id}
+        return self._c.request("POST", "/api/store/vector-delete", endpoint="store.vector-delete", body=body)
+
+    def vector_query(self, *, ns: str, embedding: Any, topK: int | None = None) -> CallResult:
+        """STORE: nearest-neighbor search over vectors you upserted in..."""
+        body: dict = {"ns": ns, "embedding": embedding}
+        if topK is not None:
+            body["topK"] = topK
+        return self._c.request("POST", "/api/store/vector-query", endpoint="store.vector-query", body=body)
+
+    def vector_upsert(self, *, ns: str, id: str, embedding: Any, body: str | None = None, meta: str | None = None) -> CallResult:
+        """STORE: upsert a vector for semantic retrieval, scoped to..."""
+        body: dict = {"ns": ns, "id": id, "embedding": embedding}
+        if body is not None:
+            body["body"] = body
+        if meta is not None:
+            body["meta"] = meta
+        return self._c.request("POST", "/api/store/vector-upsert", endpoint="store.vector-upsert", body=body)
+
+
+
 class _Crypto(_Group):
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
@@ -6371,6 +6481,7 @@ class TwoS:
         self.time = _Time(self)
         self.watchers = _Watchers(self)
         self.markets = _Markets(self)
+        self.store = _Store(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)
