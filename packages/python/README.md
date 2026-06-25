@@ -59,7 +59,7 @@ client = TwoS(signer=signer)
 
 ## What's included
 
-An ever-expanding catalog of 350+ endpoints across 90+ groups (live count in the [directory](https://2s.io/api/directory)), namespaced by group — spanning AI, agent primitives, security (CVE / KEV / EPSS, IOC, exploits), patents & trademarks, law & sanctions, government & public records, finance & treasury, vehicles & aviation, health & medical, business & GLEIF/KYB, energy & agriculture, maritime & telecom, geo / weather / earth, space, science & papers, property & licenses, internet, crypto, music & news, and data validators / utilities:
+An ever-expanding catalog of 540+ endpoints across 110+ groups (live count in the [directory](https://2s.io/api/directory)), namespaced by group — spanning AI, agent primitives, control plane (distributed locks, durable queues, scheduled callbacks, pub/sub), storage (key-value / documents / vectors / private blobs), watchers (signed push callbacks), security (CVE / KEV / EPSS, IOC, exploits), patents & trademarks, law & sanctions, government & public records, finance & treasury, vehicles & aviation, health & medical, business & GLEIF/KYB, energy & agriculture, maritime & telecom, geo / weather / earth, space, science & papers, property & licenses, internet, crypto, music & news, and data validators / utilities:
 
 ```python
 client.patents.search(q="...")
@@ -70,14 +70,14 @@ client.law.sanctions_check(name="John Smith")
 client.business.entity_match(name="Acme Corp")
 client.geocode.address(query="350 5th Ave, New York, NY")
 client.weather.zip(zip="94103")
-# ... and 340+ more
+# ... and 530+ more
 ```
 
 Full catalog: <https://2s.io/api/directory>. OpenAPI: <https://2s.io/api/openapi>.
 
 ## Safety
 
-- The client refuses to sign payments above `max_price_usd` (default `$0.10`).
+- The client refuses to sign payments above `max_price_usd`. **There is no default cap** (`max_price_usd` defaults to `inf`) — set it to opt into a ceiling.
 - Optional `on_payment_requested` hook for per-call approval.
 
 ```python

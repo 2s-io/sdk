@@ -8,7 +8,7 @@
 npx @2sio/mcp --signer 0x...
 ```
 
-No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (350+ endpoints across 90+ groups and counting).
+No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (540+ endpoints across 110+ groups and counting).
 
 ### Hosted (connect by URL, no install)
 
@@ -40,6 +40,8 @@ A single MCP install gives the agent tools spanning, among others:
 - **Business & property** — company registries, GLEIF LEI, KYB, property records
 - **Web & data utilities** — URL → markdown, screenshots, schema extraction, validators, EDI, hashing, barcodes, image description, AI summarization
 - **Agent primitives** — memory, marketplace, knowledge-delta, batch settlement
+- **Control plane** — wallet-scoped agent infrastructure: distributed locks/leases, durable message queues, scheduled cron callbacks, pub/sub topics with fan-out
+- **Storage** — pay-per-call wallet-keyed persistence: key-value, documents, vector / full-text search, private blobs
 - **Watchers (push, not poll)** — arm a signed callback for when a wallet moves, a stock crosses a price, or a company reports earnings
 
 See the [live catalog](https://2s.io/api/directory) for everything currently shipped.
@@ -66,7 +68,7 @@ Add to `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claud
 }
 ```
 
-Restart Claude Desktop. The agent now has 200+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, structured webpage extraction, geocoding, weather, and much more.
+Restart Claude Desktop. The agent now has 540+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, structured webpage extraction, geocoding, weather, distributed locks/queues/schedules, wallet-keyed storage, and much more.
 
 ## AgentKit / programmatic use
 
@@ -83,7 +85,7 @@ await server.connect(new StdioServerTransport())
 
 ## Safety
 
-- Default `maxPriceUsd` is `$0.10` — the server refuses to sign any call advertising a higher price. Override via `--max-price` flag or the SDK option.
+- There is **no default price cap** (`maxPriceUsd` defaults to `Infinity`) — set `--max-price` (or the `maxPriceUsd` option) to opt into a ceiling above which the server refuses to sign.
 - All payments use EIP-3009 single-use authorizations with a 60-second deadline. No spending allowances are issued; even if the key is compromised at rest, the attacker can only spend what's in the wallet at the moment of signing — and only at advertised prices.
 - The key is read from env / argv into memory only; it never appears in any outgoing 2s.io request.
 

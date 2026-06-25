@@ -112,10 +112,13 @@ Restart Claude. The model can now call patents.search, law.sanctions-check, ai.s
 
 ## What's behind the API
 
-350+ endpoints across 90+ groups (live count in the [directory](https://2s.io/api/directory)) across:
+540+ endpoints across 110+ groups (live count in the [directory](https://2s.io/api/directory)) across:
 
 - **AI:** webpage summarization, translation, typed extraction, image description, transcription, screenshots
 - **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
+- **Control plane:** wallet-scoped agent infrastructure — distributed locks/leases, durable message queues, cron-style scheduled callbacks, pub/sub topics with fan-out
+- **Storage:** pay-per-call wallet-keyed persistence — key-value, documents, vector / full-text search, private blob upload
+- **Watchers (push, not poll):** arm once, get a signed callback the instant a wallet moves, a stock crosses a price, or a company reports earnings
 - **Security:** CVE lookup (NVD + CISA KEV + EPSS), email-security, HTTP security headers, password-exposure (HIBP), RPKI, CT logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
 - **Patents & trademarks:** USPTO Open Data Portal search + full file-wrapper detail + document list; trademark full-text search + status
 - **Law:** federal/state case search, citation verification, OFAC sanctions screening, Federal Register, CFR & USC, opinions, dockets
@@ -137,7 +140,7 @@ Live catalog: <https://2s.io/api/directory>. OpenAPI 3.1: <https://2s.io/api/ope
 
 ## Safety
 
-- The SDK refuses to sign payments above a configurable `maxPriceUsd` (default `$0.10`).
+- The SDK refuses to sign payments above a configurable `maxPriceUsd`. **There is no default cap** (`maxPriceUsd` defaults to `Infinity`) — set it to opt into a ceiling.
 - Every x402 payment is a single-use EIP-3009 authorization with a 60-second deadline. No allowances are issued; a leaked key can only spend what's in the wallet at the moment of signing, only at advertised prices.
 - Optional `onPaymentRequested` hook lets callers approve/deny each call programmatically.
 

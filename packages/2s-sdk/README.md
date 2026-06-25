@@ -82,10 +82,13 @@ The SDK auto-detects 402 responses, signs the payment, retries, and returns type
 
 ## What's included
 
-An ever-expanding catalog of 350+ endpoints across 90+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
+An ever-expanding catalog of 540+ endpoints across 110+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
 
 - **AI** — summarize, translate, typed extraction, describe-image, transcription, screenshot
 - **Agent primitives** — persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
+- **Control plane** — wallet-scoped agent infrastructure: distributed locks/leases (`lock`), durable message queues (`queue`), cron-style scheduled callbacks (`schedule`), pub/sub topics with fan-out (`pubsub`)
+- **Storage** — pay-per-call wallet-keyed persistence: key-value, documents, vector / full-text search, and private blob upload (`store`)
+- **Watchers** — arm once, get a signed callback the instant something happens: crypto-address activity, stock-price thresholds, company earnings (`watchers`)
 - **Security** — CVE lookup (NVD + CISA KEV + EPSS), email-security posture, HTTP security headers, password-exposure (HIBP), RPKI validity, certificate-transparency logs, IOC reputation, CWE / ATT&CK / CAPEC, exploit availability
 - **Patents & trademarks** — USPTO Open Data Portal patent search + file-wrapper detail + documents; trademark full-text search + status
 - **Law** — case search, citation verification, OFAC sanctions screening, Federal Register, CFR & USC sections, opinions, dockets, attorney/judge lookup (CourtListener / Free Law Project)
@@ -112,7 +115,7 @@ Live catalog: <https://2s.io/api/directory> · OpenAPI 3.1: <https://2s.io/api/o
 
 ## Safety
 
-- The SDK refuses to sign payments above `config.maxPriceUsd` (default `$0.10`).
+- The SDK refuses to sign payments above `config.maxPriceUsd`. **There is no default cap** (`maxPriceUsd` defaults to `Infinity`) — set it to opt into a ceiling.
 - An optional `onPaymentRequested` hook lets you approve/deny each call.
 
 ```ts

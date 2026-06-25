@@ -1,6 +1,6 @@
 [project]
 name = "2sio"
-version = "1.79.15"
+version = "1.79.16"
 description = "Python client for 2s — the (most) everything API. Pay-per-call AI-agent data APIs, settled in USDC on Base or Solana via x402."
 readme = "README.md"
 requires-python = ">=3.10"
