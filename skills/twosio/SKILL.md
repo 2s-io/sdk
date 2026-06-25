@@ -166,7 +166,7 @@ The catalog expands continuously. Other live endpoint groups, each with the same
 - **property** — NYC parcels, deed history, permits, violations
 - **health / clinical / license** — hospital lookup, Open Payments, clinical-trial search, medical + broker license verification
 - **edu / job / nonprofit / park / recreation** — College Scorecard, federal jobs, nonprofit search, national parks, recreation areas
-- **agent** — agent-native primitives: `agent/knowledge-delta` (what changed in a topic since a date), `agent/memory/*` (persistent paid key-value memory), `agent/marketplace/*` (agent registry + reputation)
+- **agent** — agent-native primitives: `agent/knowledge-delta` (what changed in a topic since a date)
 - **bank / bls / book / chem / code / country / energy / food / fx / news / phone / registry / space / timezone / wikidata / word / worldbank** — routing numbers, BLS series, book search, PubChem compounds, repo/package lookups, country metadata, fuel stations + solar, barcode food lookup, FX rates, Hacker News, phone normalization, npm/PyPI metadata, space weather, timezone lookup, Wikidata entities, dictionary, World Bank indicators
 
 ## Patterns to suggest

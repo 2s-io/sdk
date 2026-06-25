@@ -1284,35 +1284,6 @@ export interface Endpoints {
       until?: string
       maxEvents?: number
     }): R<unknown>
-    marketplace: {
-      register(input: {
-        name: string
-        description: string
-        capabilities: string[]
-        endpointUrl?: string
-        priceUsd?: number
-        network?: 'base' | 'solana' | 'base+solana'
-        payTo?: string
-        status?: 'active' | 'paused' | 'removed'
-        metadata?: Record<string, unknown>
-      }): R<unknown>
-      discover(input?: {
-        q?: string
-        capabilities?: string
-        network?: 'base' | 'solana'
-        limit?: number
-        offset?: number
-      }): R<unknown>
-      profile(input: { namespace: string }): R<unknown>
-      review(input: {
-        reviewed: string
-        outcome: 'success' | 'failure' | 'partial'
-        rating?: number
-        comment?: string
-        txHash?: string
-        network?: 'base' | 'solana'
-      }): R<unknown>
-    }
   }
   chem: {
     /** Look up a chemical compound by cid, name, smiles, or inchikey. NIH PubChem. */
@@ -2146,12 +2117,6 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     agent: {
       knowledgeDelta: (i) => post('agent.knowledge-delta', '/api/agent/knowledge-delta', i),
-      marketplace: {
-        register: (i) => post('agent.marketplace.register', '/api/agent/marketplace/register', i),
-        discover: (i) => get('agent.marketplace.discover', '/api/agent/marketplace/discover', i),
-        profile: (i) => get('agent.marketplace.profile', '/api/agent/marketplace/profile', i),
-        review: (i) => post('agent.marketplace.review', '/api/agent/marketplace/review', i),
-      },
     },
     chem: {
       compound: (i) => get('chem.compound', '/api/chem/compound', i),

@@ -5051,75 +5051,8 @@ class _Chem(_Group):
         return self._c.request("GET", "/api/chem/compound", endpoint="chem.compound", query=q)
 
 
-class _AgentMarketplace(_Group):
-    def register(
-        self,
-        *,
-        name: str,
-        description: str,
-        capabilities: list,
-        endpoint_url: Optional[str] = None,
-        price_usd: Optional[float] = None,
-        network: Optional[str] = None,
-        pay_to: Optional[str] = None,
-        status: Optional[str] = None,
-        metadata: Optional[dict] = None,
-    ) -> CallResult:
-        body: dict[str, Any] = {
-            "name": name,
-            "description": description,
-            "capabilities": capabilities,
-        }
-        if endpoint_url is not None: body["endpointUrl"] = endpoint_url
-        if price_usd is not None: body["priceUsd"] = price_usd
-        if network is not None: body["network"] = network
-        if pay_to is not None: body["payTo"] = pay_to
-        if status is not None: body["status"] = status
-        if metadata is not None: body["metadata"] = metadata
-        return self._c.request("POST", "/api/agent/marketplace/register", endpoint="agent.marketplace.register", body=body)
-
-    def discover(
-        self,
-        *,
-        q: Optional[str] = None,
-        capabilities: Optional[str] = None,
-        network: Optional[str] = None,
-        limit: int = 25,
-        offset: int = 0,
-    ) -> CallResult:
-        query: dict[str, Any] = {"limit": limit, "offset": offset}
-        if q is not None: query["q"] = q
-        if capabilities is not None: query["capabilities"] = capabilities
-        if network is not None: query["network"] = network
-        return self._c.request("GET", "/api/agent/marketplace/discover", endpoint="agent.marketplace.discover", query=query)
-
-    def profile(self, *, namespace: str) -> CallResult:
-        return self._c.request("GET", "/api/agent/marketplace/profile", endpoint="agent.marketplace.profile", query={"namespace": namespace})
-
-    def review(
-        self,
-        *,
-        reviewed: str,
-        outcome: str,
-        rating: Optional[int] = None,
-        comment: Optional[str] = None,
-        tx_hash: Optional[str] = None,
-        network: Optional[str] = None,
-    ) -> CallResult:
-        body: dict[str, Any] = {"reviewed": reviewed, "outcome": outcome}
-        if rating is not None: body["rating"] = rating
-        if comment is not None: body["comment"] = comment
-        if tx_hash is not None: body["txHash"] = tx_hash
-        if network is not None: body["network"] = network
-        return self._c.request("POST", "/api/agent/marketplace/review", endpoint="agent.marketplace.review", body=body)
-
-
 class _Agent(_Group):
-    """Agent-native primitives: knowledge-delta, marketplace."""
-    def __init__(self, c):
-        super().__init__(c)
-        self.marketplace = _AgentMarketplace(c)
-
+    """Agent-native primitives: knowledge-delta."""
     def knowledge_delta(
         self,
         *,

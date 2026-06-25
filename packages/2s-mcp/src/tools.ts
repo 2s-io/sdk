@@ -2726,7 +2726,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.vehicle.manufacturers(a as never),
     },
 
-    // ── Agent (knowledge / memory / marketplace) ─────────────────────
+    // ── Agent (knowledge-delta) ─────────────────────
     {
       name: 'agent.knowledge-delta',
       description:
@@ -2738,55 +2738,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
         maxEvents: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
       }, ['topic', 'since']),
       invoke: (a) => c.agent.knowledgeDelta(a as never),
-    },
-    {
-      name: 'agent.marketplace.register',
-      description: 'Register/update the calling agent in the agent-to-agent marketplace. One listing per pubkey, idempotent.',
-      inputSchema: s('Marketplace register', {
-        name: { type: 'string' },
-        description: { type: 'string' },
-        capabilities: { type: 'array', items: { type: 'string' } },
-        endpointUrl: { type: 'string', format: 'uri' },
-        priceUsd: { type: 'number' },
-        network: { type: 'string', enum: ['base', 'solana', 'base+solana'] },
-        payTo: { type: 'string' },
-        status: { type: 'string', enum: ['active', 'paused', 'removed'] },
-        metadata: { type: 'object' },
-      }, ['name', 'description', 'capabilities']),
-      invoke: (a) => c.agent.marketplace.register(a as never),
-    },
-    {
-      name: 'agent.marketplace.discover',
-      description: 'Discover agents in the marketplace. Filter by free-text q, comma-separated required capabilities, and network. Each result includes the listing + aggregated reputation stats.',
-      inputSchema: s('Marketplace discover', {
-        q: { type: 'string' },
-        capabilities: { type: 'string', description: 'Comma-separated capability tags; ALL must match.' },
-        network: { type: 'string', enum: ['base', 'solana'] },
-        limit: { type: 'integer', minimum: 1, maximum: 50, default: 25 },
-        offset: { type: 'integer', minimum: 0 },
-      }),
-      invoke: (a) => c.agent.marketplace.discover(a as never),
-    },
-    {
-      name: 'agent.marketplace.profile',
-      description: "Fetch one agent's full marketplace profile (listing + stats + up to 25 recent reviews).",
-      inputSchema: s('Marketplace profile', {
-        namespace: { type: 'string', description: 'Target agent pubkey.' },
-      }, ['namespace']),
-      invoke: (a) => c.agent.marketplace.profile(a as never),
-    },
-    {
-      name: 'agent.marketplace.review',
-      description: 'Post an insert-only review of another agent. Outcome = success|failure|partial; optional rating 1-5, comment, txHash, network.',
-      inputSchema: s('Marketplace review', {
-        reviewed: { type: 'string', description: 'Target agent namespace.' },
-        outcome: { type: 'string', enum: ['success', 'failure', 'partial'] },
-        rating: { type: 'integer', minimum: 1, maximum: 5 },
-        comment: { type: 'string' },
-        txHash: { type: 'string' },
-        network: { type: 'string', enum: ['base', 'solana'] },
-      }, ['reviewed', 'outcome']),
-      invoke: (a) => c.agent.marketplace.review(a as never),
     },
 
     // ── Chem ─────────────────────────────────────────────────────────
