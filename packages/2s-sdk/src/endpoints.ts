@@ -188,6 +188,7 @@ export interface Endpoints {
     run(input: { calls: Array<{ endpoint: string; params?: Record<string, unknown> }> }): R<Normalized>
   }
   ai: {
+    council(input: { prompt: string; mode?: string; models?: unknown; maxTokens?: number }): R<Normalized>
     ocr(input: { imageUrl: string; instruction?: string }): R<Normalized>
     research(input: { query: string; urls?: unknown }): R<Normalized>
     webAnswer(input: { query: string; topic?: string; maxResults?: number }): R<Normalized>
@@ -1735,6 +1736,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       unemployment: (i) => get('labor.unemployment', '/api/labor/unemployment', i),
     },
     ai: {
+      council: (i) => post('ai.council', '/api/ai/council', i),
       ocr: (i) => post('ai.ocr', '/api/ai/ocr', i),
       research: (i) => post('ai.research', '/api/ai/research', i),
       webAnswer: (i) => post('ai.web-answer', '/api/ai/web-answer', i),

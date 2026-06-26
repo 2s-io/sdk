@@ -1150,6 +1150,17 @@ class _Crypto(_Group):
 
 
 class _Ai(_Group):
+    def council(self, *, prompt: str, mode: str | None = None, models: Any | None = None, maxTokens: int | None = None) -> CallResult:
+        """Ask several frontier models the same question and get one synthesized consensus answer with a confidence score and points of dissent. Preset councils (fast/balanced/deep) or a custom set of models. Dy"""
+        body: dict = {"prompt": prompt}
+        if mode is not None:
+            body["mode"] = mode
+        if models is not None:
+            body["models"] = models
+        if maxTokens is not None:
+            body["maxTokens"] = maxTokens
+        return self._c.request("POST", "/api/ai/council", endpoint="ai.council", body=body)
+
     def ocr(self, *, imageUrl: str, instruction: str | None = None) -> CallResult:
         """OCR + layout extraction. POST { imageUrl, instruction? }. Returns verbatim transcribed text in reading order, any detected tables as markdown, the primary language, and a handwriting flag. For reading"""
         body: dict = {"imageUrl": imageUrl}

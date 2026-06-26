@@ -5707,6 +5707,17 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['scheduleId']),
       invoke: (a) => c.schedule.status(a as never),
     },
+    {
+      name: 'ai.council',
+      description: 'Ask several frontier models the same question and get one synthesized consensus answer with a confidence score and points of dissent. Preset councils (fast/balanced/deep) or a custom set of models. Dynamic price, quoted in the 402.',
+      inputSchema: s('council', {
+        prompt: { type: 'string', description: 'The question to put to the council.' },
+        mode: { type: 'string', description: 'Preset council: fast | balanced | deep (default balanced). Ignored if models is given.' },
+        models: { type: 'object', description: 'Custom council of 2-8 gateway model ids (overrides mode). Full list + live prices: GET /api/ai/council/menu.' },
+        maxTokens: { type: 'integer', description: 'Max output tokens per model (default 640, max 4096).' },
+      }, ['prompt']),
+      invoke: (a) => c.ai.council(a as never),
+    },
   ]
   return t
 }
