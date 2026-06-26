@@ -5842,6 +5842,50 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.finance.centralBankRates(a as never),
     },
+    {
+      name: 'tcg.games',
+      description: 'List all trading-card games/categories (Magic, Pokemon, Yu-Gi-Oh, Lorcana, etc.) with their ids.',
+      inputSchema: s('games', {}),
+      invoke: (a) => c.tcg.games(a as never),
+    },
+    {
+      name: 'tcg.sets',
+      description: 'List sets for a trading-card game. Pass game (categoryId or name) + optional q name filter.',
+      inputSchema: s('sets', {
+        game: { type: 'string', description: 'Game categoryId or name, e.g. pokemon or 3.' },
+        q: { type: 'string', description: 'Case-insensitive set-name filter.' },
+        limit: { type: 'integer', description: 'Max sets (default 100, max 500).' },
+      }, ['game']),
+      invoke: (a) => c.tcg.sets(a as never),
+    },
+    {
+      name: 'tcg.set-prices',
+      description: 'All cards in a set with current market/low/mid/high prices (TCGplayer-derived). Pass game + set (groupId).',
+      inputSchema: s('set-prices', {
+        game: { type: 'string', description: 'Game categoryId or name.' },
+        set: { type: 'string', description: 'Set groupId.' },
+        limit: { type: 'integer', description: 'Max cards (default 100, max 500).' },
+      }, ['game', 'set']),
+      invoke: (a) => c.tcg.setPrices(a as never),
+    },
+    {
+      name: 'tcg.card',
+      description: 'A single trading card\'s current prices (all subtypes/printings). Pass game + set (groupId) + productId.',
+      inputSchema: s('card', {
+        game: { type: 'string', description: 'Game categoryId or name.' },
+        set: { type: 'string', description: 'Set groupId.' },
+        productId: { type: 'string', description: 'TCGplayer product id of the card.' },
+      }, ['game', 'set', 'productId']),
+      invoke: (a) => c.tcg.card(a as never),
+    },
+    {
+      name: 'crypto.kimchi-premium',
+      description: 'Korean-exchange crypto premium: Upbit KRW price vs global USD price (x USD/KRW), as a %. Pass symbol(s).',
+      inputSchema: s('kimchi-premium', {
+        symbol: { type: 'string', description: 'Coin symbol(s), comma-separated, default BTC (e.g. BTC,ETH,XRP).' },
+      }),
+      invoke: (a) => c.crypto.kimchiPremium(a as never),
+    },
   ]
   return t
 }

@@ -171,6 +171,7 @@ export class TwoS {
   public readonly queue: Endpoints['queue']
   public readonly schedule: Endpoints['schedule']
   public readonly class: Endpoints['class']
+  public readonly tcg: Endpoints['tcg']
   public readonly crypto: Endpoints['crypto']
   public readonly html: Endpoints['html']
   public readonly tls: Endpoints['tls']
@@ -311,6 +312,7 @@ export class TwoS {
     this.queue = this.endpoints.queue
     this.schedule = this.endpoints.schedule
     this.class = this.endpoints.class
+    this.tcg = this.endpoints.tcg
     this.crypto = this.endpoints.crypto
     this.time = this.endpoints.time
     this.html = this.endpoints.html

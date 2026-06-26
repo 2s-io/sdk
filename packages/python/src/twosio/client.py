@@ -752,7 +752,42 @@ class _Class(_Group):
 
 
 
+class _Tcg(_Group):
+    def games(self) -> CallResult:
+        """List all trading-card games/categories (Magic, Pokemon, Yu-Gi-Oh, Lorcana, etc.) with their ids."""
+        return self._c.request("GET", "/api/tcg/games", endpoint="tcg.games")
+
+    def sets(self, *, game: str, q: str | None = None, limit: int | None = None) -> CallResult:
+        """List sets for a trading-card game. Pass game (categoryId or name) + optional q name filter."""
+        query: dict = {"game": game}
+        if q is not None:
+            query["q"] = q
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/tcg/sets", endpoint="tcg.sets", query=query)
+
+    def set_prices(self, *, game: str, set: str, limit: int | None = None) -> CallResult:
+        """All cards in a set with current market/low/mid/high prices (TCGplayer-derived). Pass game + set (groupId)."""
+        query: dict = {"game": game, "set": set}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/tcg/set-prices", endpoint="tcg.set-prices", query=query)
+
+    def card(self, *, game: str, set: str, productId: str) -> CallResult:
+        """A single trading card's current prices (all subtypes/printings). Pass game + set (groupId) + productId."""
+        query: dict = {"game": game, "set": set, "productId": productId}
+        return self._c.request("GET", "/api/tcg/card", endpoint="tcg.card", query=query)
+
+
+
 class _Crypto(_Group):
+    def kimchi_premium(self, *, symbol: str | None = None) -> CallResult:
+        """Korean-exchange crypto premium: Upbit KRW price vs global USD price (x USD/KRW), as a %. Pass symbol(s)."""
+        query: dict = {}
+        if symbol is not None:
+            query["symbol"] = symbol
+        return self._c.request("GET", "/api/crypto/kimchi-premium", endpoint="crypto.kimchi-premium", query=query)
+
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
         query: dict = {"address": address}
@@ -6613,6 +6648,7 @@ class TwoS:
         self.queue = _Queue(self)
         self.schedule = _Schedule(self)
         self.class_ = _Class(self)
+        self.tcg = _Tcg(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)

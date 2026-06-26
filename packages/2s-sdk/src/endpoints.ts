@@ -29,6 +29,12 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  tcg: {
+    games(input?: Record<string, never>): R<Normalized>
+    sets(input: { game: string; q?: string; limit?: number }): R<Normalized>
+    setPrices(input: { game: string; set: string; limit?: number }): R<Normalized>
+    card(input: { game: string; set: string; productId: string }): R<Normalized>
+  }
   class: {
     industryResolve(input: { system: string; code: string }): R<Normalized>
   }
@@ -303,6 +309,7 @@ export interface Endpoints {
     }): R<Uint8Array>
   }
   crypto: {
+    kimchiPremium(input?: { symbol?: string }): R<Normalized>
     balances(input: { address: string; chain?: string; tokens?: string }): R<Normalized>
     btcAddress(input: { address: string }): R<Normalized>
     btcMempool(input?: { minBtc?: number }): R<Normalized>
@@ -1637,6 +1644,12 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    tcg: {
+      games: () => get('tcg.games', '/api/tcg/games'),
+      sets: (i) => get('tcg.sets', '/api/tcg/sets', i),
+      setPrices: (i) => get('tcg.set-prices', '/api/tcg/set-prices', i),
+      card: (i) => get('tcg.card', '/api/tcg/card', i),
+    },
     class: {
       industryResolve: (i) => get('class.industry-resolve', '/api/class/industry-resolve', i),
     },
@@ -1799,6 +1812,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       gif: (i) => get('countdown.gif', '/api/countdown/gif', i),
     },
     crypto: {
+      kimchiPremium: (i) => get('crypto.kimchi-premium', '/api/crypto/kimchi-premium', i ?? {}),
       balances: (i) => get('crypto.balances', '/api/crypto/balances', i),
       btcAddress: (i) => get('crypto.btc-address', '/api/crypto/btc-address', i),
       btcMempool: (i) => get('crypto.btc-mempool', '/api/crypto/btc-mempool', i ?? {}),
