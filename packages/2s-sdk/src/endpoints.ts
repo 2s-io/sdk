@@ -948,6 +948,7 @@ export interface Endpoints {
   }
   /** Vulnerability intelligence. */
   security: {
+    icsAdvisories(input?: { q?: string; limit?: number }): R<Normalized>
     /** Resolve a CVE across NVD (record + CVSS + CWE), CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit probability) in one call. */
     cve(input: { cve: string }): R<unknown>
     /** CVE change feed — CVEs modified within a window (NVD lastMod), each flagged if now CISA known-exploited. The pollable delta primitive. */
@@ -981,6 +982,7 @@ export interface Endpoints {
   }
   /** Stock market data (Massive / formerly Polygon.io). */
   stocks: {
+    screener(input: { concept: string; period: string; unit?: string; op?: string; value?: number; ratioConcept?: string; sort?: string; limit?: number }): R<Normalized>
     metrics(input: { ticker: string }): R<Normalized>
     peers(input: { ticker: string; grouping?: string }): R<Normalized>
     earningsSurprises(input: { ticker: string; limit?: number }): R<Normalized>
@@ -2294,6 +2296,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       web: (i) => get('search.web', '/api/search/web', i),
     },
     security: {
+      icsAdvisories: (i) => get('security.ics-advisories', '/api/security/ics-advisories', i ?? {}),
       cve: (i) => get('security.cve', '/api/security/cve', i),
       cveChanges: (i) => get('security.cve-changes', '/api/security/cve-changes', i),
       httpHeaders: (i) => get('security.http-headers', '/api/security/http-headers', i),
@@ -2316,6 +2319,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       status: (i) => get('flight.status', '/api/flight/status', i),
     },
     stocks: {
+      screener: (i) => get('stocks.screener', '/api/stocks/screener', i),
       metrics: (i) => get('stocks.metrics', '/api/stocks/metrics', i),
       peers: (i) => get('stocks.peers', '/api/stocks/peers', i),
       earningsSurprises: (i) => get('stocks.earnings-surprises', '/api/stocks/earnings-surprises', i),

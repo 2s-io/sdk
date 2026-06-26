@@ -2686,6 +2686,15 @@ class _Dev(_Group):
 
 
 class _Security(_Group):
+    def ics_advisories(self, *, q: str | None = None, limit: int | None = None) -> CallResult:
+        """Latest CISA ICS/OT security advisories (industrial control systems) — id, title, link, date, summary. Optional keyword filter."""
+        query: dict = {}
+        if q is not None:
+            query["q"] = q
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/security/ics-advisories", endpoint="security.ics-advisories", query=query)
+
     def cve(self, *, cve: str) -> CallResult:
         """Resolve a CVE (e.g. 'CVE-2021-44228') across NVD (record + CVSS + CWE),
         CISA KEV (actively-exploited + ransomware flag), and EPSS (exploit
@@ -3359,6 +3368,23 @@ class _Climate(_Group):
 
 
 class _Stocks(_Group):
+    def screener(self, *, concept: str, period: str, unit: str | None = None, op: str | None = None, value: float | None = None, ratioConcept: str | None = None, sort: str | None = None, limit: int | None = None) -> CallResult:
+        """Fundamental stock screener over SEC XBRL frames: filter/sort all filers by a concept (or a ratio of two concepts) for a period."""
+        query: dict = {"concept": concept, "period": period}
+        if unit is not None:
+            query["unit"] = unit
+        if op is not None:
+            query["op"] = op
+        if value is not None:
+            query["value"] = value
+        if ratioConcept is not None:
+            query["ratioConcept"] = ratioConcept
+        if sort is not None:
+            query["sort"] = sort
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/stocks/screener", endpoint="stocks.screener", query=query)
+
     def metrics(self, *, ticker: str) -> CallResult:
         """Key fundamental metrics and 52-week price statistics for a US-listed company. Pass ticker; returns headline valuation, margin, and per-share figures — P/E, P/B, P/S, PEG, EV/EBITDA, gross/operating/ne"""
         query: dict = {"ticker": ticker}

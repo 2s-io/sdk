@@ -5946,6 +5946,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.sports.nflGames(a as never),
     },
+    {
+      name: 'security.ics-advisories',
+      description: 'Latest CISA ICS/OT security advisories (industrial control systems) — id, title, link, date, summary. Optional keyword filter.',
+      inputSchema: s('ics-advisories', {
+        q: { type: 'string', description: 'Case-insensitive keyword filter (e.g. vendor like Siemens).' },
+        limit: { type: 'integer', description: 'Max advisories (default 25, max 100).' },
+      }),
+      invoke: (a) => c.security.icsAdvisories(a as never),
+    },
+    {
+      name: 'stocks.screener',
+      description: 'Fundamental stock screener over SEC XBRL frames: filter/sort all filers by a concept (or a ratio of two concepts) for a period.',
+      inputSchema: s('screener', {
+        concept: { type: 'string', description: 'XBRL us-gaap concept, e.g. Revenues, GrossProfit, Assets.' },
+        period: { type: 'string', description: 'e.g. CY2023 (annual) or CY2024Q1I (instant).' },
+        unit: { type: 'string', description: 'Unit, default USD.' },
+        op: { type: 'string', description: 'Filter op: gt | gte | lt | lte.' },
+        value: { type: 'number', description: 'Threshold for op (applies to ratio when ratioConcept set).' },
+        ratioConcept: { type: 'string', description: 'Second concept; computes concept/ratioConcept per company (e.g. GrossProfit/Revenues = gross margin).' },
+        sort: { type: 'string', description: 'asc | desc (default desc).' },
+        limit: { type: 'integer', description: 'Max results (default 25, max 100).' },
+      }, ['concept', 'period']),
+      invoke: (a) => c.stocks.screener(a as never),
+    },
   ]
   return t
 }
