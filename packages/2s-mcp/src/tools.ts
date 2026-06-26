@@ -5718,6 +5718,88 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['prompt']),
       invoke: (a) => c.ai.council(a as never),
     },
+    {
+      name: 'finance.security-resolve',
+      description: 'Universal security-identifier resolver: give one of ticker, isin, or lei → get ticker, CIK, FIGI, LEI, ISINs, and issuer name (SEC + OpenFIGI + GLEIF).',
+      inputSchema: s('security-resolve', {
+        ticker: { type: 'string', description: 'US stock ticker, e.g. AAPL.' },
+        isin: { type: 'string', description: 'ISIN, e.g. US0378331005.' },
+        lei: { type: 'string', description: '20-char LEI.' },
+      }),
+      invoke: (a) => c.finance.securityResolve(a as never),
+    },
+    {
+      name: 'finance.cik-ticker',
+      description: 'Resolve between SEC CIK and stock ticker(s), both directions, with all share classes + exchange (SEC company_tickers_exchange).',
+      inputSchema: s('cik-ticker', {
+        ticker: { type: 'string', description: 'Ticker → CIK (+ sibling classes).' },
+        cik: { type: 'string', description: 'CIK → ticker(s).' },
+      }),
+      invoke: (a) => c.finance.cikTicker(a as never),
+    },
+    {
+      name: 'finance.bank-id-resolve',
+      description: 'Bank/financial-institution identifier resolver: give one of bic, lei, or fdic_cert → bridge BIC↔LEI (GLEIF) + FDIC record.',
+      inputSchema: s('bank-id-resolve', {
+        bic: { type: 'string', description: 'SWIFT/BIC (8 or 11 char).' },
+        lei: { type: 'string', description: '20-char LEI → its BICs.' },
+        fdic_cert: { type: 'string', description: 'FDIC certificate number.' },
+      }),
+      invoke: (a) => c.finance.bankIdResolve(a as never),
+    },
+    {
+      name: 'business.id-resolve',
+      description: 'Company legal-entity resolver: give one of name, lei, cik, or ticker → LEI, CIK, ticker(s), jurisdiction, canonical name (SEC + GLEIF).',
+      inputSchema: s('id-resolve', {
+        name: { type: 'string', description: 'Company name → LEI.' },
+        lei: { type: 'string', description: '20-char LEI.' },
+        cik: { type: 'string', description: 'SEC CIK.' },
+        ticker: { type: 'string', description: 'US stock ticker.' },
+      }),
+      invoke: (a) => c.business.idResolve(a as never),
+    },
+    {
+      name: 'net.ip-resolve',
+      description: 'Resolve an IP to its ASN, holder org, RIR allocation block, ISP, and geo in one call.',
+      inputSchema: s('ip-resolve', {
+        ip: { type: 'string', description: 'IPv4 or IPv6 address.' },
+      }, ['ip']),
+      invoke: (a) => c.net.ipResolve(a as never),
+    },
+    {
+      name: 'medical.taxonomy-specialty',
+      description: 'Decode a NUCC provider-taxonomy code → grouping, classification, specialization, and display name.',
+      inputSchema: s('taxonomy-specialty', {
+        code: { type: 'string', description: 'NUCC taxonomy code, e.g. 207L00000X.' },
+      }, ['code']),
+      invoke: (a) => c.medical.taxonomySpecialty(a as never),
+    },
+    {
+      name: 'medical.provider-id-resolve',
+      description: 'Resolve an NPI to provider identity + every taxonomy decoded to specialty (NPPES + NUCC). CCN deferred.',
+      inputSchema: s('provider-id-resolve', {
+        npi: { type: 'string', description: '10-digit National Provider Identifier.' },
+      }, ['npi']),
+      invoke: (a) => c.medical.providerIdResolve(a as never),
+    },
+    {
+      name: 'class.industry-resolve',
+      description: 'Cross-walk an industry code across NAICS ↔ SIC ↔ ISIC Rev.4 ↔ NACE Rev.2 (Census + UN concordances).',
+      inputSchema: s('industry-resolve', {
+        system: { type: 'string', description: 'Input system: naics | sic | isic | nace.' },
+        code: { type: 'string', description: 'The classification code.' },
+      }, ['system', 'code']),
+      invoke: (a) => c.class.industryResolve(a as never),
+    },
+    {
+      name: 'trade.commodity-resolve',
+      description: 'Cross-walk a traded-good code across HS ↔ HTS ↔ Schedule B ↔ NAICS (+ SITC) via the shared HS6 (Census concordances).',
+      inputSchema: s('commodity-resolve', {
+        system: { type: 'string', description: 'Input system: hs | hts | scheduleb.' },
+        code: { type: 'string', description: 'The commodity code (dots optional).' },
+      }, ['system', 'code']),
+      invoke: (a) => c.trade.commodityResolve(a as never),
+    },
   ]
   return t
 }

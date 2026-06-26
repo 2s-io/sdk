@@ -29,6 +29,9 @@ export interface Normalized<T = Record<string, unknown>, M = Record<string, unkn
 }
 
 export interface Endpoints {
+  class: {
+    industryResolve(input: { system: string; code: string }): R<Normalized>
+  }
   schedule: {
     cancel(input: { scheduleId: string }): R<Normalized>
     create(input: { callbackUrl: string; at?: string; everySeconds?: number; payload?: unknown; maxFires?: number; expiresInSeconds?: number; label?: string }): R<Normalized>
@@ -515,6 +518,7 @@ export interface Endpoints {
   }
   /** Trade / customs reference data. */
   trade: {
+    commodityResolve(input: { system: string; code: string }): R<Normalized>
     /** US Harmonized Tariff Schedule: exact `code` lookup or free-text `query` → candidate HS codes + duty rates. */
     tariff(input: { code?: string; query?: string; limit?: number }): R<Normalized>
     /** UN/LOCODE: exact `locode` lookup (e.g. USNYC) or name `query` with optional country / function filters. */
@@ -573,6 +577,9 @@ export interface Endpoints {
     }): R<unknown>
   }
   finance: {
+    securityResolve(input?: { ticker?: string; isin?: string; lei?: string }): R<Normalized>
+    cikTicker(input?: { ticker?: string; cik?: string }): R<Normalized>
+    bankIdResolve(input?: { bic?: string; lei?: string; fdic_cert?: string }): R<Normalized>
     form144(input?: { q?: string; startDate?: string; endDate?: string; limit?: number }): R<Normalized>
     /** Loan/mortgage amortization schedule (deterministic). */
     amortize(input: { principal: number; annualRatePct: number; termMonths?: number; termYears?: number; extraMonthly?: number }): R<Normalized>
@@ -663,6 +670,7 @@ export interface Endpoints {
     certInfo(input: { host: string; port?: number }): R<unknown>
   }
   business: {
+    idResolve(input?: { name?: string; lei?: string; cik?: string; ticker?: string }): R<Normalized>
     fiCompanies(input: { name: string; limit?: number }): R<Normalized>
     frCompanies(input: { q: string; limit?: number }): R<Normalized>
     leiHierarchy(input: { lei: string; childLimit?: number }): R<Normalized>
@@ -1087,6 +1095,8 @@ export interface Endpoints {
     now(input: { lat: number; lon: number; radius_km?: number; hours?: number }): R<Normalized>
   }
   medical: {
+    taxonomySpecialty(input: { code: string }): R<Normalized>
+    providerIdResolve(input: { npi: string }): R<Normalized>
     /** Verify an ICD-10-CM diagnosis code or keyword-search the official US code set. */
     icd10(input: { code?: string; q?: string; billable_only?: boolean; limit?: number }): R<unknown>
     /** Normalize/verify drug names against RxNorm: term=… for candidates, rxcui=… for canonical concept + ingredients/brands/dose forms. */
@@ -1113,6 +1123,7 @@ export interface Endpoints {
     genetics(input: { term: string }): R<Normalized>
   }
   net: {
+    ipResolve(input: { ip: string }): R<Normalized>
     /** Autonomous System (BGP) intelligence by AS number: holder, allocation block, announced prefixes, routing visibility (RIPEstat). */
     asn(input: { asn: string }): R<unknown>
     /** Resolve a MAC address or OUI prefix to its IEEE-registered vendor + decoded address bits (multicast/local/randomized). Bundled IEEE registries. */
@@ -1621,6 +1632,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     client.request<T>({ method: 'POST', path, body, endpoint })
 
   return {
+    class: {
+      industryResolve: (i) => get('class.industry-resolve', '/api/class/industry-resolve', i),
+    },
     schedule: {
       cancel: (i) => post('schedule.cancel', '/api/schedule/cancel', i),
       create: (i) => post('schedule.create', '/api/schedule/create', i),
@@ -1906,6 +1920,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       subdivision: (i) => get('iso.subdivision', '/api/iso/subdivision', i),
     },
     trade: {
+      commodityResolve: (i) => get('trade.commodity-resolve', '/api/trade/commodity-resolve', i),
       tariff: (i) => get('trade.tariff', '/api/trade/tariff', i),
       locode: (i) => get('trade.locode', '/api/trade/locode', i),
       flows: (i) => get('trade.flows', '/api/trade/flows', i),
@@ -1931,6 +1946,9 @@ export function createEndpoints(client: TwoS): Endpoints {
       events: (i) => get('earth.events', '/api/earth/events', i ?? {}),
     },
     finance: {
+      securityResolve: (i) => get('finance.security-resolve', '/api/finance/security-resolve', i ?? {}),
+      cikTicker: (i) => get('finance.cik-ticker', '/api/finance/cik-ticker', i ?? {}),
+      bankIdResolve: (i) => get('finance.bank-id-resolve', '/api/finance/bank-id-resolve', i ?? {}),
       form144: (i) => get('finance.form-144', '/api/finance/form-144', i ?? {}),
       amortize: (i) => get('finance.amortize', '/api/finance/amortize', i),
       secFilings: (i) => get('finance.sec-filings', '/api/finance/sec-filings', i),
@@ -1969,6 +1987,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       bulk: (i) => post('ipinfo.bulk', '/api/ipinfo/bulk', i),
     },
     business: {
+      idResolve: (i) => get('business.id-resolve', '/api/business/id-resolve', i ?? {}),
       fiCompanies: (i) => get('business.fi-companies', '/api/business/fi-companies', i),
       frCompanies: (i) => get('business.fr-companies', '/api/business/fr-companies', i),
       leiHierarchy: (i) => get('business.lei-hierarchy', '/api/business/lei-hierarchy', i),
@@ -2034,6 +2053,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       now: (i) => get('tides.now', '/api/tides/now', i),
     },
     medical: {
+      taxonomySpecialty: (i) => get('medical.taxonomy-specialty', '/api/medical/taxonomy-specialty', i),
+      providerIdResolve: (i) => get('medical.provider-id-resolve', '/api/medical/provider-id-resolve', i),
       icd10: (i) => get('medical.icd10', '/api/medical/icd10', i),
       rxnorm: (i) => get('medical.rxnorm', '/api/medical/rxnorm', i),
       drugStatus: (i) => get('medical.drug-status', '/api/medical/drug-status', i),
@@ -2048,6 +2069,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       genetics: (i) => get('medical.genetics', '/api/medical/genetics', i),
     },
     net: {
+      ipResolve: (i) => get('net.ip-resolve', '/api/net/ip-resolve', i),
       asn: (i) => get('net.asn', '/api/net/asn', i),
       macVendor: (i) => get('net.mac-vendor', '/api/net/mac-vendor', i),
       rpkiValidity: (i) => get('net.rpki-validity', '/api/net/rpki-validity', i),

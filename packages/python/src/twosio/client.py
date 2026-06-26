@@ -744,6 +744,14 @@ class _Schedule(_Group):
 
 
 
+class _Class(_Group):
+    def industry_resolve(self, *, system: str, code: str) -> CallResult:
+        """Cross-walk an industry code across NAICS ↔ SIC ↔ ISIC Rev.4 ↔ NACE Rev.2 (Census + UN concordances)."""
+        query: dict = {"system": system, "code": code}
+        return self._c.request("GET", "/api/class/industry-resolve", endpoint="class.industry-resolve", query=query)
+
+
+
 class _Crypto(_Group):
     def balances(self, *, address: str, chain: str | None = None, tokens: str | None = None) -> CallResult:
         """Live native + ERC-20 token balances for an EVM address (Base, Ethereum, Polygon, Arbitrum, Optimism; keyless). Returns the native-coin balance and, for any ERC-20 contract addresses you pass, the symb"""
@@ -1598,6 +1606,37 @@ class _Law(_Group):
 
 
 class _Finance(_Group):
+    def security_resolve(self, *, ticker: str | None = None, isin: str | None = None, lei: str | None = None) -> CallResult:
+        """Universal security-identifier resolver: give one of ticker, isin, or lei → get ticker, CIK, FIGI, LEI, ISINs, and issuer name (SEC + OpenFIGI + GLEIF)."""
+        query: dict = {}
+        if ticker is not None:
+            query["ticker"] = ticker
+        if isin is not None:
+            query["isin"] = isin
+        if lei is not None:
+            query["lei"] = lei
+        return self._c.request("GET", "/api/finance/security-resolve", endpoint="finance.security-resolve", query=query)
+
+    def cik_ticker(self, *, ticker: str | None = None, cik: str | None = None) -> CallResult:
+        """Resolve between SEC CIK and stock ticker(s), both directions, with all share classes + exchange (SEC company_tickers_exchange)."""
+        query: dict = {}
+        if ticker is not None:
+            query["ticker"] = ticker
+        if cik is not None:
+            query["cik"] = cik
+        return self._c.request("GET", "/api/finance/cik-ticker", endpoint="finance.cik-ticker", query=query)
+
+    def bank_id_resolve(self, *, bic: str | None = None, lei: str | None = None, fdic_cert: str | None = None) -> CallResult:
+        """Bank/financial-institution identifier resolver: give one of bic, lei, or fdic_cert → bridge BIC↔LEI (GLEIF) + FDIC record."""
+        query: dict = {}
+        if bic is not None:
+            query["bic"] = bic
+        if lei is not None:
+            query["lei"] = lei
+        if fdic_cert is not None:
+            query["fdic_cert"] = fdic_cert
+        return self._c.request("GET", "/api/finance/bank-id-resolve", endpoint="finance.bank-id-resolve", query=query)
+
     def form_144(self, *, q: str | None = None, startDate: str | None = None, endDate: str | None = None, limit: int | None = None) -> CallResult:
         """SEC Form 144 filings — notices of PROPOSED insider stock sales (intent to sell restricted/control shares), newest first, via EDGAR full-text search. Market-wide by default, or filter by ticker/company"""
         query: dict = {}
@@ -2841,6 +2880,11 @@ class _Iso(_Group):
 
 
 class _Trade(_Group):
+    def commodity_resolve(self, *, system: str, code: str) -> CallResult:
+        """Cross-walk a traded-good code across HS ↔ HTS ↔ Schedule B ↔ NAICS (+ SITC) via the shared HS6 (Census concordances)."""
+        query: dict = {"system": system, "code": code}
+        return self._c.request("GET", "/api/trade/commodity-resolve", endpoint="trade.commodity-resolve", query=query)
+
     def tariff(self, *, code: Optional[str] = None, query: Optional[str] = None, limit: Optional[int] = None) -> CallResult:
         """US Harmonized Tariff Schedule: exact code lookup or free-text search → HS codes + duty rates."""
         if code is None and query is None:
@@ -2955,6 +2999,16 @@ class _Tides(_Group):
 
 
 class _Medical(_Group):
+    def taxonomy_specialty(self, *, code: str) -> CallResult:
+        """Decode a NUCC provider-taxonomy code → grouping, classification, specialization, and display name."""
+        query: dict = {"code": code}
+        return self._c.request("GET", "/api/medical/taxonomy-specialty", endpoint="medical.taxonomy-specialty", query=query)
+
+    def provider_id_resolve(self, *, npi: str) -> CallResult:
+        """Resolve an NPI to provider identity + every taxonomy decoded to specialty (NPPES + NUCC). CCN deferred."""
+        query: dict = {"npi": npi}
+        return self._c.request("GET", "/api/medical/provider-id-resolve", endpoint="medical.provider-id-resolve", query=query)
+
     def drug_price(
         self,
         *,
@@ -3987,6 +4041,19 @@ class _Tls(_Group):
 
 
 class _Business(_Group):
+    def id_resolve(self, *, name: str | None = None, lei: str | None = None, cik: str | None = None, ticker: str | None = None) -> CallResult:
+        """Company legal-entity resolver: give one of name, lei, cik, or ticker → LEI, CIK, ticker(s), jurisdiction, canonical name (SEC + GLEIF)."""
+        query: dict = {}
+        if name is not None:
+            query["name"] = name
+        if lei is not None:
+            query["lei"] = lei
+        if cik is not None:
+            query["cik"] = cik
+        if ticker is not None:
+            query["ticker"] = ticker
+        return self._c.request("GET", "/api/business/id-resolve", endpoint="business.id-resolve", query=query)
+
     def fi_companies(self, *, name: str, limit: int | None = None) -> CallResult:
         """Official Finnish company registry search (PRH/YTJ avoindata, Finnish Patent & Registration Office). Search by company name. Each result: Business ID (Y-tunnus), current name, company form, trade-regis"""
         query: dict = {"name": name}
@@ -4211,6 +4278,11 @@ class _Business(_Group):
 
 
 class _Net(_Group):
+    def ip_resolve(self, *, ip: str) -> CallResult:
+        """Resolve an IP to its ASN, holder org, RIR allocation block, ISP, and geo in one call."""
+        query: dict = {"ip": ip}
+        return self._c.request("GET", "/api/net/ip-resolve", endpoint="net.ip-resolve", query=query)
+
     def asn(self, *, asn: str) -> CallResult:
         """Autonomous System (BGP) intelligence by AS number (e.g. "AS3333").
 
@@ -6502,6 +6574,7 @@ class TwoS:
         self.pubsub = _Pubsub(self)
         self.queue = _Queue(self)
         self.schedule = _Schedule(self)
+        self.class_ = _Class(self)
         self.crypto = _Crypto(self)
         self.ai = _Ai(self)
         self.law = _Law(self)
