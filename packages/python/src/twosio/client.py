@@ -1606,6 +1606,17 @@ class _Law(_Group):
 
 
 class _Finance(_Group):
+    def mortgage_pulse(self) -> CallResult:
+        """US mortgage & housing-rate snapshot from FRED: 30yr/15yr mortgage, 10yr treasury, fed funds, median home price, housing starts — latest values in one call."""
+        return self._c.request("GET", "/api/finance/mortgage-pulse", endpoint="finance.mortgage-pulse")
+
+    def central_bank_rates(self, *, bank: str | None = None) -> CallResult:
+        """Current policy/benchmark rates across major central banks (US Fed, ECB, BoJ, BoE) in one normalized call, via FRED."""
+        query: dict = {}
+        if bank is not None:
+            query["bank"] = bank
+        return self._c.request("GET", "/api/finance/central-bank-rates", endpoint="finance.central-bank-rates", query=query)
+
     def security_resolve(self, *, ticker: str | None = None, isin: str | None = None, lei: str | None = None) -> CallResult:
         """Universal security-identifier resolver: give one of ticker, isin, or lei → get ticker, CIK, FIGI, LEI, ISINs, and issuer name (SEC + OpenFIGI + GLEIF)."""
         query: dict = {}

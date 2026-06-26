@@ -577,6 +577,8 @@ export interface Endpoints {
     }): R<unknown>
   }
   finance: {
+    mortgagePulse(input?: Record<string, never>): R<Normalized>
+    centralBankRates(input?: { bank?: string }): R<Normalized>
     securityResolve(input?: { ticker?: string; isin?: string; lei?: string }): R<Normalized>
     cikTicker(input?: { ticker?: string; cik?: string }): R<Normalized>
     bankIdResolve(input?: { bic?: string; lei?: string; fdic_cert?: string }): R<Normalized>
@@ -1949,6 +1951,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       events: (i) => get('earth.events', '/api/earth/events', i ?? {}),
     },
     finance: {
+      mortgagePulse: () => get('finance.mortgage-pulse', '/api/finance/mortgage-pulse'),
+      centralBankRates: (i) => get('finance.central-bank-rates', '/api/finance/central-bank-rates', i ?? {}),
       securityResolve: (i) => get('finance.security-resolve', '/api/finance/security-resolve', i ?? {}),
       cikTicker: (i) => get('finance.cik-ticker', '/api/finance/cik-ticker', i ?? {}),
       bankIdResolve: (i) => get('finance.bank-id-resolve', '/api/finance/bank-id-resolve', i ?? {}),

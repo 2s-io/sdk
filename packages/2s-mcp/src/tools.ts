@@ -5828,6 +5828,20 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.gov.incomeLimits(a as never),
     },
+    {
+      name: 'finance.mortgage-pulse',
+      description: 'US mortgage & housing-rate snapshot from FRED: 30yr/15yr mortgage, 10yr treasury, fed funds, median home price, housing starts — latest values in one call.',
+      inputSchema: s('mortgage-pulse', {}),
+      invoke: (a) => c.finance.mortgagePulse(a as never),
+    },
+    {
+      name: 'finance.central-bank-rates',
+      description: 'Current policy/benchmark rates across major central banks (US Fed, ECB, BoJ, BoE) in one normalized call, via FRED.',
+      inputSchema: s('central-bank-rates', {
+        bank: { type: 'string', description: 'Filter to one bank: fed | ecb | boj | boe.' },
+      }),
+      invoke: (a) => c.finance.centralBankRates(a as never),
+    },
   ]
   return t
 }
