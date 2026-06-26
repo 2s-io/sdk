@@ -6317,6 +6317,72 @@ class _Predict(_Group):
 
 
 class _Sports(_Group):
+    def nba_teams(self, *, id: int | None = None) -> CallResult:
+        """NBA teams (all 30, or one by id) — conference, division, city, abbreviation."""
+        query: dict = {}
+        if id is not None:
+            query["id"] = id
+        return self._c.request("GET", "/api/sports/nba-teams", endpoint="sports.nba-teams", query=query)
+
+    def nba_players(self, *, search: str | None = None, cursor: str | None = None, per_page: int | None = None) -> CallResult:
+        """Search NBA players by name → position, height, weight, jersey, team."""
+        query: dict = {}
+        if search is not None:
+            query["search"] = search
+        if cursor is not None:
+            query["cursor"] = cursor
+        if per_page is not None:
+            query["per_page"] = per_page
+        return self._c.request("GET", "/api/sports/nba-players", endpoint="sports.nba-players", query=query)
+
+    def nba_games(self, *, season: int | None = None, date: str | None = None, team_id: int | None = None, cursor: str | None = None, per_page: int | None = None) -> CallResult:
+        """NBA games (schedule + scores) by season, date, or team — status, scores, home/visitor teams."""
+        query: dict = {}
+        if season is not None:
+            query["season"] = season
+        if date is not None:
+            query["date"] = date
+        if team_id is not None:
+            query["team_id"] = team_id
+        if cursor is not None:
+            query["cursor"] = cursor
+        if per_page is not None:
+            query["per_page"] = per_page
+        return self._c.request("GET", "/api/sports/nba-games", endpoint="sports.nba-games", query=query)
+
+    def nfl_teams(self, *, id: int | None = None) -> CallResult:
+        """NFL teams (all 32, or one by id) — conference, division, location, abbreviation."""
+        query: dict = {}
+        if id is not None:
+            query["id"] = id
+        return self._c.request("GET", "/api/sports/nfl-teams", endpoint="sports.nfl-teams", query=query)
+
+    def nfl_players(self, *, search: str | None = None, cursor: str | None = None, per_page: int | None = None) -> CallResult:
+        """Search NFL players by name → position, team, experience."""
+        query: dict = {}
+        if search is not None:
+            query["search"] = search
+        if cursor is not None:
+            query["cursor"] = cursor
+        if per_page is not None:
+            query["per_page"] = per_page
+        return self._c.request("GET", "/api/sports/nfl-players", endpoint="sports.nfl-players", query=query)
+
+    def nfl_games(self, *, season: int | None = None, week: int | None = None, team_id: int | None = None, cursor: str | None = None, per_page: int | None = None) -> CallResult:
+        """NFL games (schedule + scores) by season, week, or team — status, scores, venue."""
+        query: dict = {}
+        if season is not None:
+            query["season"] = season
+        if week is not None:
+            query["week"] = week
+        if team_id is not None:
+            query["team_id"] = team_id
+        if cursor is not None:
+            query["cursor"] = cursor
+        if per_page is not None:
+            query["per_page"] = per_page
+        return self._c.request("GET", "/api/sports/nfl-games", endpoint="sports.nfl-games", query=query)
+
     def mlb_schedule(self, *, date: str | None = None, team_id: int | None = None) -> CallResult:
         """MLB schedule. date YYYY-MM-DD (default today); teamId filters to one club."""
         q: dict[str, Any] = {}

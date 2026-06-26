@@ -912,6 +912,12 @@ export interface Endpoints {
   }
   /** Sports schedules, scores, standings (official league APIs, keyless). */
   sports: {
+    nbaTeams(input?: { id?: number }): R<Normalized>
+    nbaPlayers(input?: { search?: string; cursor?: string; per_page?: number }): R<Normalized>
+    nbaGames(input?: { season?: number; date?: string; team_id?: number; cursor?: string; per_page?: number }): R<Normalized>
+    nflTeams(input?: { id?: number }): R<Normalized>
+    nflPlayers(input?: { search?: string; cursor?: string; per_page?: number }): R<Normalized>
+    nflGames(input?: { season?: number; week?: number; team_id?: number; cursor?: string; per_page?: number }): R<Normalized>
     /** MLB games for a date (+ optional team) — status, teams, score, venue. Defaults to today. */
     mlbSchedule(input?: { date?: string; teamId?: number }): R<Normalized>
     /** MLB regular-season standings for a season (wins/losses/pct/GB/rank/streak). */
@@ -2268,6 +2274,12 @@ export function createEndpoints(client: TwoS): Endpoints {
       whales: (i) => get('predict.whales', '/api/predict/whales', i ?? {}),
     },
     sports: {
+      nbaTeams: (i) => get('sports.nba-teams', '/api/sports/nba-teams', i ?? {}),
+      nbaPlayers: (i) => get('sports.nba-players', '/api/sports/nba-players', i ?? {}),
+      nbaGames: (i) => get('sports.nba-games', '/api/sports/nba-games', i ?? {}),
+      nflTeams: (i) => get('sports.nfl-teams', '/api/sports/nfl-teams', i ?? {}),
+      nflPlayers: (i) => get('sports.nfl-players', '/api/sports/nfl-players', i ?? {}),
+      nflGames: (i) => get('sports.nfl-games', '/api/sports/nfl-games', i ?? {}),
       mlbSchedule: (i) => get('sports.mlb-schedule', '/api/sports/mlb-schedule', i ?? {}),
       mlbStandings: (i) => get('sports.mlb-standings', '/api/sports/mlb-standings', i ?? {}),
       nhlSchedule: (i) => get('sports.nhl-schedule', '/api/sports/nhl-schedule', i ?? {}),

@@ -5886,6 +5886,66 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.crypto.kimchiPremium(a as never),
     },
+    {
+      name: 'sports.nba-teams',
+      description: 'NBA teams (all 30, or one by id) — conference, division, city, abbreviation.',
+      inputSchema: s('nba-teams', {
+        id: { type: 'integer', description: 'Team id for a single team.' },
+      }),
+      invoke: (a) => c.sports.nbaTeams(a as never),
+    },
+    {
+      name: 'sports.nba-players',
+      description: 'Search NBA players by name → position, height, weight, jersey, team.',
+      inputSchema: s('nba-players', {
+        search: { type: 'string', description: 'Player name to search.' },
+        cursor: { type: 'string', description: 'Pagination cursor.' },
+        per_page: { type: 'integer', description: 'Results per page (default 25, max 100).' },
+      }),
+      invoke: (a) => c.sports.nbaPlayers(a as never),
+    },
+    {
+      name: 'sports.nba-games',
+      description: 'NBA games (schedule + scores) by season, date, or team — status, scores, home/visitor teams.',
+      inputSchema: s('nba-games', {
+        season: { type: 'integer', description: 'Season start year, e.g. 2024.' },
+        date: { type: 'string', description: 'YYYY-MM-DD.' },
+        team_id: { type: 'integer', description: 'Filter to a team.' },
+        cursor: { type: 'string', description: 'Pagination cursor.' },
+        per_page: { type: 'integer', description: 'Results per page.' },
+      }),
+      invoke: (a) => c.sports.nbaGames(a as never),
+    },
+    {
+      name: 'sports.nfl-teams',
+      description: 'NFL teams (all 32, or one by id) — conference, division, location, abbreviation.',
+      inputSchema: s('nfl-teams', {
+        id: { type: 'integer', description: 'Team id for a single team.' },
+      }),
+      invoke: (a) => c.sports.nflTeams(a as never),
+    },
+    {
+      name: 'sports.nfl-players',
+      description: 'Search NFL players by name → position, team, experience.',
+      inputSchema: s('nfl-players', {
+        search: { type: 'string', description: 'Player name to search.' },
+        cursor: { type: 'string', description: 'Pagination cursor.' },
+        per_page: { type: 'integer', description: 'Results per page.' },
+      }),
+      invoke: (a) => c.sports.nflPlayers(a as never),
+    },
+    {
+      name: 'sports.nfl-games',
+      description: 'NFL games (schedule + scores) by season, week, or team — status, scores, venue.',
+      inputSchema: s('nfl-games', {
+        season: { type: 'integer', description: 'Season year, e.g. 2024.' },
+        week: { type: 'integer', description: 'Week number.' },
+        team_id: { type: 'integer', description: 'Filter to a team.' },
+        cursor: { type: 'string', description: 'Pagination cursor.' },
+        per_page: { type: 'integer', description: 'Results per page.' },
+      }),
+      invoke: (a) => c.sports.nflGames(a as never),
+    },
   ]
   return t
 }
