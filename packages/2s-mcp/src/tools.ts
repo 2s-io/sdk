@@ -5800,6 +5800,34 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['system', 'code']),
       invoke: (a) => c.trade.commodityResolve(a as never),
     },
+    {
+      name: 'geo.zip-resolve',
+      description: 'Resolve a US ZIP to its census tract(s), county, CBSA, and congressional district, each with HUD-USPS address-count allocation ratios.',
+      inputSchema: s('zip-resolve', {
+        zip: { type: 'string', description: '5-digit US ZIP code, e.g. 90210.' },
+      }, ['zip']),
+      invoke: (a) => c.geo.zipResolve(a as never),
+    },
+    {
+      name: 'gov.fair-market-rent',
+      description: 'HUD Fair Market Rents by area (Efficiency–4BR). Pass a 5-digit county FIPS or a 2-letter state, optional year.',
+      inputSchema: s('fair-market-rent', {
+        fips: { type: 'string', description: '5-digit county FIPS, e.g. 06037.' },
+        state: { type: 'string', description: '2-letter state code, e.g. CA.' },
+        year: { type: 'string', description: 'FMR year (default latest).' },
+      }),
+      invoke: (a) => c.gov.fairMarketRent(a as never),
+    },
+    {
+      name: 'gov.income-limits',
+      description: 'HUD income limits (median income + extremely-low/very-low/low thresholds by household size). Pass a 5-digit county FIPS or 2-letter state, optional year.',
+      inputSchema: s('income-limits', {
+        fips: { type: 'string', description: '5-digit county FIPS, e.g. 06037.' },
+        state: { type: 'string', description: '2-letter state code, e.g. CA.' },
+        year: { type: 'string', description: 'Income-limit year (default latest).' },
+      }),
+      invoke: (a) => c.gov.incomeLimits(a as never),
+    },
   ]
   return t
 }

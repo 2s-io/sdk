@@ -2137,6 +2137,11 @@ class _Papers(_Group):
 
 
 class _Geo(_Group):
+    def zip_resolve(self, *, zip: str) -> CallResult:
+        """Resolve a US ZIP to its census tract(s), county, CBSA, and congressional district, each with HUD-USPS address-count allocation ratios."""
+        query: dict = {"zip": zip}
+        return self._c.request("GET", "/api/geo/zip-resolve", endpoint="geo.zip-resolve", query=query)
+
     def ip(self, *, ip: str) -> CallResult:
         return self._c.request("GET", "/api/geo/ip", endpoint="geo.ip", query={"ip": ip})
 
@@ -4364,6 +4369,28 @@ class _Research(_Group):
 
 
 class _Gov(_Group):
+    def fair_market_rent(self, *, fips: str | None = None, state: str | None = None, year: str | None = None) -> CallResult:
+        """HUD Fair Market Rents by area (Efficiency–4BR). Pass a 5-digit county FIPS or a 2-letter state, optional year."""
+        query: dict = {}
+        if fips is not None:
+            query["fips"] = fips
+        if state is not None:
+            query["state"] = state
+        if year is not None:
+            query["year"] = year
+        return self._c.request("GET", "/api/gov/fair-market-rent", endpoint="gov.fair-market-rent", query=query)
+
+    def income_limits(self, *, fips: str | None = None, state: str | None = None, year: str | None = None) -> CallResult:
+        """HUD income limits (median income + extremely-low/very-low/low thresholds by household size). Pass a 5-digit county FIPS or 2-letter state, optional year."""
+        query: dict = {}
+        if fips is not None:
+            query["fips"] = fips
+        if state is not None:
+            query["state"] = state
+        if year is not None:
+            query["year"] = year
+        return self._c.request("GET", "/api/gov/income-limits", endpoint="gov.income-limits", query=query)
+
     def contract_opportunities(
         self,
         *,

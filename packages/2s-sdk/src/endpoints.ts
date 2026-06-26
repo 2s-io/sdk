@@ -621,6 +621,7 @@ export interface Endpoints {
     companyProfile(input: { ticker: string; formType?: string; limit?: number }): R<unknown>
   }
   geo: {
+    zipResolve(input: { zip: string }): R<Normalized>
     ip(input: { ip: string }): R<Normalized>
     /** Ground elevation (m + ft) for a coordinate, global. Pass lat + lon. */
     elevation(input: { lat: number; lon: number }): R<Normalized>
@@ -1440,6 +1441,8 @@ export interface Endpoints {
     screen(input: { q?: string; ein?: string; limit?: number }): R<unknown>
   }
   gov: {
+    fairMarketRent(input?: { fips?: string; state?: string; year?: string }): R<Normalized>
+    incomeLimits(input?: { fips?: string; state?: string; year?: string }): R<Normalized>
     /** Active US federal contract opportunities (SAM.gov). Requires postedFrom + postedTo (MM/DD/YYYY); filter by title/naics/state/setAside/ptype. */
     contractOpportunities(input: { postedFrom: string; postedTo: string; title?: string; naics?: string; state?: string; setAside?: string; ptype?: string; limit?: number; offset?: number }): R<Normalized>
     /** SAM.gov registered-entity lookup by UEI / CAGE / legal business name. */
@@ -1963,6 +1966,7 @@ export function createEndpoints(client: TwoS): Endpoints {
       companyProfile: (i) => get('finance.company-profile', '/api/finance/company-profile', i),
     },
     geo: {
+      zipResolve: (i) => get('geo.zip-resolve', '/api/geo/zip-resolve', i),
       ip: (i) => get('geo.ip', '/api/geo/ip', i),
       elevation: (i) => get('geo.elevation', '/api/geo/elevation', i),
       nearby: (i) => get('geo.nearby', '/api/geo/nearby', i),
@@ -2312,6 +2316,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       screen: (i) => get('nonprofit.screen', '/api/nonprofit/screen', i),
     },
     gov: {
+      fairMarketRent: (i) => get('gov.fair-market-rent', '/api/gov/fair-market-rent', i ?? {}),
+      incomeLimits: (i) => get('gov.income-limits', '/api/gov/income-limits', i ?? {}),
       contractOpportunities: (i) => get('gov.contract-opportunities', '/api/gov/contract-opportunities', i),
       entity: (i) => get('gov.entity', '/api/gov/entity', i),
       exclusions: (i) => get('gov.exclusions', '/api/gov/exclusions', i),
