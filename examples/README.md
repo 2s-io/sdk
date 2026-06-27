@@ -18,6 +18,8 @@ Install: `npm i @2sio/sdk`
 | [typed-extraction.ts](./typed-extraction.ts) | Pass a URL + JSON Schema, get back data that matches the schema exactly. |
 | [security-cve-triage.ts](./security-cve-triage.ts) | Vulnerability triage — enrich a scanner's CVE list with CISA KEV + EPSS + public-exploit signals and rank by real patch urgency. |
 | [company-kyb-dossier.ts](./company-kyb-dossier.ts) | KYB onboarding — fuzzy-resolve a free-text company name to a GLEIF LEI, then pull a one-call SAM/OFAC/GLEIF/SEC dossier. |
+| [durable-agent-worker.ts](./durable-agent-worker.ts) | Exactly-once work loop on the control plane — `lock` (single-leader lease) + `queue` (lease/ack with visibility timeout) + `store` (persist results) so stateless agent replicas coordinate without standing up their own infra. |
+| [identity-crosswalk.ts](./identity-crosswalk.ts) | Crosswalk one entity across identifier systems — ticker → SEC CIK, ISIN, LEI, then a unified identity bundle — so an agent gets stable join keys across feeds without maintaining crosswalk tables. |
 
 ## Python
 
