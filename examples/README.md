@@ -20,6 +20,7 @@ Install: `npm i @2sio/sdk`
 | [company-kyb-dossier.ts](./company-kyb-dossier.ts) | KYB onboarding — fuzzy-resolve a free-text company name to a GLEIF LEI, then pull a one-call SAM/OFAC/GLEIF/SEC dossier. |
 | [durable-agent-worker.ts](./durable-agent-worker.ts) | Exactly-once work loop on the control plane — `lock` (single-leader lease) + `queue` (lease/ack with visibility timeout) + `store` (persist results) so stateless agent replicas coordinate without standing up their own infra. |
 | [identity-crosswalk.ts](./identity-crosswalk.ts) | Crosswalk one entity across identifier systems — ticker → SEC CIK, ISIN, LEI, then a unified identity bundle — so an agent gets stable join keys across feeds without maintaining crosswalk tables. |
+| [ai-gateway-no-keys.ts](./ai-gateway-no-keys.ts) | Call frontier LLMs without any provider API key — discover models (free), run a chat completion against any one, then escalate a high-stakes question to a multi-model council that returns one synthesized answer + the dissent. Pay-per-token in USDC, no accounts. |
 
 ## Python
 
