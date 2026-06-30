@@ -8,7 +8,7 @@
 npx @2sio/mcp --signer 0x...
 ```
 
-No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (540+ endpoints across 110+ groups and counting).
+No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (560+ endpoints across 112+ groups and counting).
 
 ### Hosted (connect by URL, no install)
 
@@ -68,7 +68,7 @@ Add to `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claud
 }
 ```
 
-Restart Claude Desktop. The agent now has 540+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, structured webpage extraction, geocoding, weather, distributed locks/queues/schedules, wallet-keyed storage, and much more.
+Restart Claude Desktop. The agent now has 560+ new tools — patent search, court-case lookup, SEC filings, VIN decode, ICD-10 lookup, sanctions screening, structured webpage extraction, geocoding, weather, distributed locks/queues/schedules, wallet-keyed storage, multi-model consensus, ID crosswalks, and much more.
 
 ## AgentKit / programmatic use
 

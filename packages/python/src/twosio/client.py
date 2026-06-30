@@ -6178,6 +6178,82 @@ class _Github(_Group):
 
 
 class _Predict(_Group):
+    def search(self, *, q: str, limit: int | None = None, status: str | None = None) -> CallResult:
+        """Cross-venue prediction-market keyword search (Polymarket + Kalshi + Limitless) with a venue tag on each hit."""
+        query: dict = {"q": q}
+        if limit is not None:
+            query["limit"] = limit
+        if status is not None:
+            query["status"] = status
+        return self._c.request("GET", "/api/predict/search", endpoint="predict.search", query=query)
+
+    def events(self, *, q: str | None = None, limit: int | None = None, offset: int | None = None, closed: bool | None = None, order: str | None = None) -> CallResult:
+        """Polymarket events (containers grouping related markets) with prices and volume."""
+        query: dict = {}
+        if q is not None:
+            query["q"] = q
+        if limit is not None:
+            query["limit"] = limit
+        if offset is not None:
+            query["offset"] = offset
+        if closed is not None:
+            query["closed"] = closed
+        if order is not None:
+            query["order"] = order
+        return self._c.request("GET", "/api/predict/events", endpoint="predict.events", query=query)
+
+    def crypto_updown(self, *, limit: int | None = None) -> CallResult:
+        """Polymarket crypto up/down markets (BTC/ETH/SPX hourly-daily directional)."""
+        query: dict = {}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/crypto-updown", endpoint="predict.crypto-updown", query=query)
+
+    def leaderboard(self, *, rankBy: str | None = None, window: str | None = None, limit: int | None = None) -> CallResult:
+        """Polymarket smart-wallet leaderboard ranked by PnL or volume."""
+        query: dict = {}
+        if rankBy is not None:
+            query["rankBy"] = rankBy
+        if window is not None:
+            query["window"] = window
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/leaderboard", endpoint="predict.leaderboard", query=query)
+
+    def positions(self, *, address: str, limit: int | None = None) -> CallResult:
+        """A wallet's open Polymarket positions with value and PnL."""
+        query: dict = {"address": address}
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/positions", endpoint="predict.positions", query=query)
+
+    def activity(self, *, address: str, limit: int | None = None, type: str | None = None) -> CallResult:
+        """A wallet's Polymarket trade/merge/split/redeem activity."""
+        query: dict = {"address": address}
+        if limit is not None:
+            query["limit"] = limit
+        if type is not None:
+            query["type"] = type
+        return self._c.request("GET", "/api/predict/activity", endpoint="predict.activity", query=query)
+
+    def matched_pairs(self, *, limit: int | None = None, minScore: float | None = None) -> CallResult:
+        """Cross-venue equivalent market pairs (same question on Polymarket vs Kalshi) with price spread for arbitrage spotting (heuristic)."""
+        query: dict = {}
+        if limit is not None:
+            query["limit"] = limit
+        if minScore is not None:
+            query["minScore"] = minScore
+        return self._c.request("GET", "/api/predict/matched-pairs", endpoint="predict.matched-pairs", query=query)
+
+    def sports(self, *, category: str | None = None, limit: int | None = None) -> CallResult:
+        """Sports prediction markets (game outcomes) across Polymarket + Kalshi."""
+        query: dict = {}
+        if category is not None:
+            query["category"] = category
+        if limit is not None:
+            query["limit"] = limit
+        return self._c.request("GET", "/api/predict/sports", endpoint="predict.sports", query=query)
+
     def holders(self, *, market: str, limit: int | None = None) -> CallResult:
         """Top holders of a Polymarket market, grouped by outcome token (conditionId). Each holder: wallet, trader name, position size, outcome index, and verified flag. Reveals concentration and smart-money pos"""
         query: dict = {"market": market}

@@ -82,9 +82,9 @@ The SDK auto-detects 402 responses, signs the payment, retries, and returns type
 
 ## What's included
 
-An ever-expanding catalog of 540+ endpoints across 110+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
+An ever-expanding catalog of 560+ endpoints across 112+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
 
-- **AI** — summarize, translate, typed extraction, describe-image, transcription, screenshot
+- **AI** — summarize, translate, typed extraction, describe-image, transcription, screenshot, multi-model consensus (`ai.council`)
 - **Agent primitives** — persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
 - **Control plane** — wallet-scoped agent infrastructure: distributed locks/leases (`lock`), durable message queues (`queue`), cron-style scheduled callbacks (`schedule`), pub/sub topics with fan-out (`pubsub`)
 - **Storage** — pay-per-call wallet-keyed persistence: key-value, documents, vector / full-text search, and private blob upload (`store`)
@@ -97,6 +97,7 @@ An ever-expanding catalog of 540+ endpoints across 110+ groups (live count in th
 - **Vehicles & aviation** — VIN decode, recalls, complaints, investigations, manufacturers, models (NHTSA); aircraft registry, airport lookup/nearest, flight & aviation data
 - **Health & medical** — ICD-10 / HCPCS / RxNorm lookup, hospital quality, Medicare provider + open-payments, clinical-trial search, drug pricing, professional-license lookup
 - **Business & registries** — Secretary-of-State entity search, KYB screening, GLEIF LEI entity-match, IRS nonprofit search, npm/PyPI package lookup, bank routing
+- **Identity resolution** — crosswalk IDs across registries: ticker↔CIK, security, bank, provider, IP, taxonomy/specialty, industry & commodity-code resolution (`resolve`)
 - **Energy, agriculture & climate** — energy prices & production, USDA agriculture, soil surveys, climate stations, natural-event feeds
 - **Maritime & telecom** — vessel & port data, phone/number intelligence, telecom lookups
 - **Geo / weather / earth** — forward + reverse geocoding, US weather by ZIP, NOAA tides, sunrise/sunset, recent earthquakes, IP geolocation (single + bulk)

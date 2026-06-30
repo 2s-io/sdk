@@ -881,6 +881,14 @@ export interface Endpoints {
   }
   /** Prediction markets — Kalshi + Polymarket (read-only). */
   predict: {
+    search(input: { q: string; limit?: number; status?: string }): R<Normalized>
+    events(input?: { q?: string; limit?: number; offset?: number; closed?: boolean; order?: string }): R<Normalized>
+    cryptoUpdown(input?: { limit?: number }): R<Normalized>
+    leaderboard(input?: { rankBy?: string; window?: string; limit?: number }): R<Normalized>
+    positions(input: { address: string; limit?: number }): R<Normalized>
+    activity(input: { address: string; limit?: number; type?: string }): R<Normalized>
+    matchedPairs(input?: { limit?: number; minScore?: number }): R<Normalized>
+    sports(input?: { category?: string; limit?: number }): R<Normalized>
     holders(input: { market: string; limit?: number }): R<Normalized>
     limitlessMarkets(input?: { limit?: number }): R<Normalized>
     /** Browse Kalshi events. Filter status/seriesTicker; page with limit + cursor. */
@@ -2259,6 +2267,14 @@ export function createEndpoints(client: TwoS): Endpoints {
       readme: (i) => get('github.readme', '/api/github/readme', i),
     },
     predict: {
+      search: (i) => get('predict.search', '/api/predict/search', i),
+      events: (i) => get('predict.events', '/api/predict/events', i ?? {}),
+      cryptoUpdown: (i) => get('predict.crypto-updown', '/api/predict/crypto-updown', i ?? {}),
+      leaderboard: (i) => get('predict.leaderboard', '/api/predict/leaderboard', i ?? {}),
+      positions: (i) => get('predict.positions', '/api/predict/positions', i),
+      activity: (i) => get('predict.activity', '/api/predict/activity', i),
+      matchedPairs: (i) => get('predict.matched-pairs', '/api/predict/matched-pairs', i ?? {}),
+      sports: (i) => get('predict.sports', '/api/predict/sports', i ?? {}),
       holders: (i) => get('predict.holders', '/api/predict/holders', i),
       limitlessMarkets: (i) => get('predict.limitless-markets', '/api/predict/limitless-markets', i ?? {}),
       kalshiEvents: (i) => get('predict.kalshi-events', '/api/predict/kalshi-events', i ?? {}),

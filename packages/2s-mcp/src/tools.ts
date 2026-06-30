@@ -5970,6 +5970,83 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }, ['concept', 'period']),
       invoke: (a) => c.stocks.screener(a as never),
     },
+    {
+      name: 'predict.search',
+      description: 'Cross-venue prediction-market keyword search (Polymarket + Kalshi + Limitless) with a venue tag on each hit.',
+      inputSchema: s('search', {
+        q: { type: 'string', description: 'Keyword to search market titles.' },
+        limit: { type: 'integer', description: 'Max results.' },
+        status: { type: 'string', description: 'open | closed.' },
+      }, ['q']),
+      invoke: (a) => c.predict.search(a as never),
+    },
+    {
+      name: 'predict.events',
+      description: 'Polymarket events (containers grouping related markets) with prices and volume.',
+      inputSchema: s('events', {
+        q: { type: 'string', description: 'Keyword filter.' },
+        limit: { type: 'integer', description: 'Max events.' },
+        offset: { type: 'integer', description: 'Pagination offset.' },
+        closed: { type: 'boolean', description: 'Include closed events.' },
+        order: { type: 'string', description: 'Sort order.' },
+      }),
+      invoke: (a) => c.predict.events(a as never),
+    },
+    {
+      name: 'predict.crypto-updown',
+      description: 'Polymarket crypto up/down markets (BTC/ETH/SPX hourly-daily directional).',
+      inputSchema: s('crypto-updown', {
+        limit: { type: 'integer', description: 'Max markets.' },
+      }),
+      invoke: (a) => c.predict.cryptoUpdown(a as never),
+    },
+    {
+      name: 'predict.leaderboard',
+      description: 'Polymarket smart-wallet leaderboard ranked by PnL or volume.',
+      inputSchema: s('leaderboard', {
+        rankBy: { type: 'string', description: 'pnl | volume.' },
+        window: { type: 'string', description: 'Time window.' },
+        limit: { type: 'integer', description: 'Max traders.' },
+      }),
+      invoke: (a) => c.predict.leaderboard(a as never),
+    },
+    {
+      name: 'predict.positions',
+      description: 'A wallet\'s open Polymarket positions with value and PnL.',
+      inputSchema: s('positions', {
+        address: { type: 'string', description: 'Wallet address.' },
+        limit: { type: 'integer', description: 'Max positions.' },
+      }, ['address']),
+      invoke: (a) => c.predict.positions(a as never),
+    },
+    {
+      name: 'predict.activity',
+      description: 'A wallet\'s Polymarket trade/merge/split/redeem activity.',
+      inputSchema: s('activity', {
+        address: { type: 'string', description: 'Wallet address.' },
+        limit: { type: 'integer', description: 'Max records.' },
+        type: { type: 'string', description: 'Activity type filter.' },
+      }, ['address']),
+      invoke: (a) => c.predict.activity(a as never),
+    },
+    {
+      name: 'predict.matched-pairs',
+      description: 'Cross-venue equivalent market pairs (same question on Polymarket vs Kalshi) with price spread for arbitrage spotting (heuristic).',
+      inputSchema: s('matched-pairs', {
+        limit: { type: 'integer', description: 'Max pairs.' },
+        minScore: { type: 'number', description: 'Min match score 0-1.' },
+      }),
+      invoke: (a) => c.predict.matchedPairs(a as never),
+    },
+    {
+      name: 'predict.sports',
+      description: 'Sports prediction markets (game outcomes) across Polymarket + Kalshi.',
+      inputSchema: s('sports', {
+        category: { type: 'string', description: 'League/category filter.' },
+        limit: { type: 'integer', description: 'Max markets.' },
+      }),
+      invoke: (a) => c.predict.sports(a as never),
+    },
   ]
   return t
 }

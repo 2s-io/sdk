@@ -59,7 +59,7 @@ client = TwoS(signer=signer)
 
 ## What's included
 
-An ever-expanding catalog of 540+ endpoints across 110+ groups (live count in the [directory](https://2s.io/api/directory)), namespaced by group — spanning AI, agent primitives, control plane (distributed locks, durable queues, scheduled callbacks, pub/sub), storage (key-value / documents / vectors / private blobs), watchers (signed push callbacks), security (CVE / KEV / EPSS, IOC, exploits), patents & trademarks, law & sanctions, government & public records, finance & treasury, vehicles & aviation, health & medical, business & GLEIF/KYB, energy & agriculture, maritime & telecom, geo / weather / earth, space, science & papers, property & licenses, internet, crypto, music & news, and data validators / utilities:
+An ever-expanding catalog of 560+ endpoints across 112+ groups (live count in the [directory](https://2s.io/api/directory)), namespaced by group — spanning AI (incl. multi-model consensus), agent primitives, control plane (distributed locks, durable queues, scheduled callbacks, pub/sub), storage (key-value / documents / vectors / private blobs), watchers (signed push callbacks), security (CVE / KEV / EPSS, IOC, exploits), identity resolution (ID crosswalks), patents & trademarks, law & sanctions, government & public records, finance & treasury, vehicles & aviation, health & medical, business & GLEIF/KYB, energy & agriculture, maritime & telecom, geo / weather / earth, space, science & papers, property & licenses, internet, crypto, music & news, and data validators / utilities:
 
 ```python
 client.patents.search(q="...")
