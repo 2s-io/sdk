@@ -6047,6 +6047,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       }),
       invoke: (a) => c.predict.sports(a as never),
     },
+    {
+      name: 'ai.chat',
+      description: 'OpenAI-compatible chat completions across every frontier model on one endpoint — GPT-5, Claude, Gemini, Grok, DeepSeek, Llama, Mistral and ~290 more. POST { model, messages, max_tokens?, temperature?, top_p?, stop? } and get back a standard chat.completion (choices[].message + usage). Pay per call in USDC via x402 — no accounts, no provider keys, no subscriptions. Price scales with the model and max_tokens and is quoted in the 402. List selectable models at GET /api/ai/models.',
+      inputSchema: s('chat', {
+        model: { type: 'string', description: 'Gateway model id, e.g. openai/gpt-5, anthropic/claude-opus-4.8, google/gemini-3-pro-preview. Full list: GET /api/ai/models.' },
+        messages: { type: 'object', description: 'OpenAI-style message list.' },
+        max_tokens: { type: 'integer', description: 'Max output tokens (default 1024).' },
+        temperature: { type: 'number', description: '' },
+        top_p: { type: 'number', description: '' },
+        stop: { type: 'string', description: '' },
+      }, ['model', 'messages']),
+      invoke: (a) => c.ai.chat(a as never),
+    },
+    {
+      name: 'ai.image',
+      description: 'Generate images from a text prompt across the gateway’s image models (gpt-image, Gemini image, FLUX, Grok Imagine, …) on one endpoint. POST { model, prompt, n?, size? } → OpenAI-style { created, data: [{ b64_json }] }. Pay per call in USDC via x402 — no accounts or provider keys. Flat $0.08/image. List models at GET /api/ai/models.',
+      inputSchema: s('image', {
+        model: { type: 'string', description: 'Gateway image model id, e.g. openai/gpt-image-1, google/gemini-3-pro-image, black-forest-labs/flux-1.1-pro.' },
+        prompt: { type: 'string', description: 'Text prompt.' },
+        n: { type: 'integer', description: 'Number of images (1-4, default 1).' },
+        size: { type: 'string', description: 'Optional WxH, e.g. 1024x1024.' },
+      }, ['model', 'prompt']),
+      invoke: (a) => c.ai.image(a as never),
+    },
   ]
   return t
 }

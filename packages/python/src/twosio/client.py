@@ -1193,6 +1193,28 @@ class _Crypto(_Group):
 
 
 class _Ai(_Group):
+    def chat(self, *, model: str, messages: Any, max_tokens: int | None = None, temperature: float | None = None, top_p: float | None = None, stop: str | None = None) -> CallResult:
+        """OpenAI-compatible chat completions across every frontier model on one endpoint — GPT-5, Claude, Gemini, Grok, DeepSeek, Llama, Mistral and ~290 more. POST { model, messages, max_tokens?, temperature?,"""
+        body: dict = {"model": model, "messages": messages}
+        if max_tokens is not None:
+            body["max_tokens"] = max_tokens
+        if temperature is not None:
+            body["temperature"] = temperature
+        if top_p is not None:
+            body["top_p"] = top_p
+        if stop is not None:
+            body["stop"] = stop
+        return self._c.request("POST", "/api/ai/chat", endpoint="ai.chat", body=body)
+
+    def image(self, *, model: str, prompt: str, n: int | None = None, size: str | None = None) -> CallResult:
+        """Generate images from a text prompt across the gateway’s image models (gpt-image, Gemini image, FLUX, Grok Imagine, …) on one endpoint. POST { model, prompt, n?, size? } → OpenAI-style { created, data:"""
+        body: dict = {"model": model, "prompt": prompt}
+        if n is not None:
+            body["n"] = n
+        if size is not None:
+            body["size"] = size
+        return self._c.request("POST", "/api/ai/image", endpoint="ai.image", body=body)
+
     def council(self, *, prompt: str, mode: str | None = None, models: Any | None = None, maxTokens: int | None = None) -> CallResult:
         """Ask several frontier models the same question and get one synthesized consensus answer with a confidence score and points of dissent. Preset councils (fast/balanced/deep) or a custom set of models. Dy"""
         body: dict = {"prompt": prompt}
