@@ -1,7 +1,7 @@
 [project]
 name = "2sio"
-version = "1.79.27"
-description = "Python client for 2s — the (most) everything API. Pay-per-call AI-agent data APIs, settled in USDC on Base or Solana via x402."
+version = "1.80.0"
+description = "Python client for 2s.io — 575+ pay-per-call tools for AI agents: ground-truth data, AI gateway, agent infra (storage, locks, queues, watchers). x402 USDC on Base/Solana, no API keys, upto usage billing, free trials."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
