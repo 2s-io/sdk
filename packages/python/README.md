@@ -2,7 +2,7 @@
 
 **Python client for [2s.io](https://2s.io) — 575+ pay-per-call tools for AI agents: more ground-truth data than any other x402 API, a full AI gateway (chat, image, multi-model consensus), and agent infrastructure (wallet-scoped storage, locks, queues, schedules, watchers). USDC on Base or Solana via x402.**
 
-**upto billing (new on 2s):** AI endpoints also accept the x402 `upto` scheme — authorize the quoted max, get settled for your **actual usage** (a real on-chain example settled at 1/42nd of the quote). Exact-scheme calls work unchanged.
+**upto billing (2s exclusive):** AI endpoints also accept the x402 `upto` scheme — authorize the quoted max, get settled for your **actual usage** (a real on-chain example settled at 1/42nd of the quote). Exact-scheme calls work unchanged.
 
 
 ```bash
