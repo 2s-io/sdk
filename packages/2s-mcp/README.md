@@ -2,7 +2,7 @@
 
 **MCP server for [2s.io](https://2s.io) — gives any MCP-aware agent 575+ pay-per-call tools: more ground-truth data than any other x402 API, a full AI gateway (chat, image, multi-model consensus), and agent infrastructure (storage, locks, queues, schedules, watchers).**
 
-**upto billing (2s exclusive):** AI endpoints also accept the x402 `upto` scheme — authorize the quoted max, get settled for your **actual usage** (a real on-chain example settled at 1/42nd of the quote). Exact-scheme calls work unchanged.
+**upto billing (new on 2s):** AI endpoints also accept the x402 `upto` scheme — authorize the quoted max, get settled for your **actual usage** (a real on-chain example settled at 1/42nd of the quote). Exact-scheme calls work unchanged.
 
 
 [Model Context Protocol](https://modelcontextprotocol.io) is the standard for AI agents to discover and use tools. This package runs a local MCP server that exposes every 2s.io endpoint as a callable tool. Plug it into Claude Desktop, AgentKit, Cline, Continue, or any other MCP host.
