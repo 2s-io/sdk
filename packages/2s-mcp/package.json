@@ -1,8 +1,8 @@
 {
   "name": "@2sio/mcp",
-  "version": "1.80.0",
+  "version": "1.80.2",
   "mcpName": "io.github.2s-io/mcp",
-  "description": "MCP server for 2s.io \u2014 575+ pay-per-call tools for AI agents \u2014 ground-truth data, AI gateway, and agent infra (storage, locks, queues, watchers). x402 USDC on Base/Solana, no API keys, upto usage billing, free trials.",
+  "description": "MCP server for 2s.io — 575+ pay-per-call tools for AI agents — ground-truth data, AI gateway, and agent infra (storage, locks, queues, watchers). x402 USDC on Base/Solana, no API keys, upto usage billing, free trials.",
   "license": "MIT",
   "homepage": "https://2s.io",
   "repository": {

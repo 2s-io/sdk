@@ -1,7 +1,7 @@
 {
   "name": "@2sio/sdk",
-  "version": "1.80.0",
-  "description": "Typed TypeScript client for 2s.io \u2014 575+ pay-per-call tools for AI agents \u2014 ground-truth data, AI gateway, and agent infra (storage, locks, queues, watchers). x402 USDC on Base/Solana, no API keys, upto usage billing, free trials.",
+  "version": "1.80.2",
+  "description": "Typed TypeScript client for 2s.io — 575+ pay-per-call tools for AI agents — ground-truth data, AI gateway, and agent infra (storage, locks, queues, watchers). x402 USDC on Base/Solana, no API keys, upto usage billing, free trials.",
   "license": "MIT",
   "homepage": "https://2s.io",
   "repository": {

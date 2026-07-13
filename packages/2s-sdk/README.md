@@ -85,7 +85,7 @@ The SDK auto-detects 402 responses, signs the payment, retries, and returns type
 
 ## What's included
 
-An ever-expanding catalog of 560+ endpoints across 112+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
+An ever-expanding catalog of 570+ endpoints across 112+ groups (live count in the [directory](https://2s.io/api/directory)), currently spanning:
 
 - **AI** — summarize, translate, typed extraction, describe-image, transcription, screenshot, multi-model consensus (`ai.council`)
 - **Agent primitives** — persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
