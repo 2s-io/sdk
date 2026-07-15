@@ -567,12 +567,18 @@ class _Store(_Group):
         body: dict = {"ns": ns, "id": id}
         return self._c.request("POST", "/api/store/doc-get", endpoint="store.doc-get", body=body)
 
-    def doc_put(self, *, ns: str, id: str, body: str, meta: str | None = None) -> CallResult:
-        """STORE: index a text document for full-text keyword search..."""
-        body: dict = {"ns": ns, "id": id, "body": body}
+    def doc_put(self, *, ns: str, id: str, body: str, meta: str | None = None, redact: bool | None = None) -> CallResult:
+        """STORE: index a text document for full-text keyword search.
+
+        Pass redact=True to strip secrets (keys/tokens/JWTs/private keys, see
+        text.redact) from body before it is stored.
+        """
+        payload: dict = {"ns": ns, "id": id, "body": body}
         if meta is not None:
-            body["meta"] = meta
-        return self._c.request("POST", "/api/store/doc-put", endpoint="store.doc-put", body=body)
+            payload["meta"] = meta
+        if redact is not None:
+            payload["redact"] = redact
+        return self._c.request("POST", "/api/store/doc-put", endpoint="store.doc-put", body=payload)
 
     def doc_search(self, *, ns: str, query: str, limit: int | None = None) -> CallResult:
         """STORE: full-text keyword search over documents you stored..."""
@@ -3944,6 +3950,14 @@ class _Phone(_Group):
         return self._c.request("GET", "/api/phone/normalize", endpoint="phone.normalize", query=q)
 
 
+class _Text(_Group):
+    def redact(self, *, text: str) -> CallResult:
+        """Deterministically redact secrets (keys, tokens, JWTs, private keys,
+        URL credentials, api_key/password assignments) from text → in-place
+        [redacted:<kind>] markers + per-kind counts. Pure compute, nothing
+        stored. Pairs with store.doc_put(redact=True)."""
+        return self._c.request("POST", "/api/text/redact", endpoint="text.redact", body={"text": text})
+
 
 class _Bio(_Group):
     def species(self, *, name: str) -> CallResult:
@@ -6958,6 +6972,7 @@ class TwoS:
         self.countdown = _Countdown(self)
         self.image = _Image(self)
         self.phone = _Phone(self)
+        self.text = _Text(self)
         self.bio = _Bio(self)
         self.space = _Space(self)
         self.vehicle = _Vehicle(self)

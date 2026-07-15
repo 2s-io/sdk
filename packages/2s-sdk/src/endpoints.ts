@@ -67,7 +67,7 @@ export interface Endpoints {
     blobPut(input: { ns: string; key: string; data: string; contentType?: string }): R<Normalized>
     docDelete(input: { ns: string; id: string }): R<Normalized>
     docGet(input: { ns: string; id: string }): R<Normalized>
-    docPut(input: { ns: string; id: string; body: string; meta?: string }): R<Normalized>
+    docPut(input: { ns: string; id: string; body: string; meta?: string; redact?: boolean }): R<Normalized>
     docSearch(input: { ns: string; query: string; limit?: number }): R<Normalized>
     kvDelete(input: { ns: string; key: string }): R<Normalized>
     kvGet(input: { ns: string; key: string }): R<Normalized>
@@ -1260,6 +1260,10 @@ export interface Endpoints {
     /** E.164-normalize + classify (mobile/fixed/voip/etc.) using libphonenumber. */
     normalize(input: { phone: string; defaultRegion?: string }): R<unknown>
   }
+  text: {
+    /** Deterministically redact secrets (keys, tokens, JWTs, private keys) from text → [redacted:<kind>] + per-kind counts. Pure compute, nothing stored. */
+    redact(input: { text: string }): R<Normalized>
+  }
   space: {
     /** Current NOAA space-weather Kp/solar-flux/aurora snapshot. */
     weather(input?: Record<string, never>): R<unknown>
@@ -2164,6 +2168,9 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     phone: {
       normalize: (i) => get('phone.normalize', '/api/phone/normalize', i),
+    },
+    text: {
+      redact: (i) => post('text.redact', '/api/text/redact', i),
     },
     space: {
       weather: (i) => get('space.weather', '/api/space/weather', i),

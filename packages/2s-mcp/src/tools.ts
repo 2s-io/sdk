@@ -2672,6 +2672,15 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.phone.normalize(a as never),
     },
     {
+      name: 'text.redact',
+      description:
+        'Deterministically redact secrets from text before logging, storing, or sharing. Keyless pure compute — nothing is stored. Each credential is replaced in-place with a [redacted:<kind>] marker (surrounding text preserved) and you get per-kind counts. Detects PEM private keys, JWTs, AWS access-key ids, GitHub/Stripe/OpenAI/npm/Slack/Google tokens, HTTP Bearer tokens, scheme://user:password@host URLs, and generic api_key/secret/token/password assignments. Idempotent. Pairs with store.doc-put redact=true.',
+      inputSchema: s('Redact secrets', {
+        text: { type: 'string', description: 'Text to scrub (up to 256 KB).' },
+      }, ['text']),
+      invoke: (a) => c.text.redact(a as never),
+    },
+    {
       name: 'space.weather',
       description:
         'Current NOAA space-weather snapshot: planetary Kp index, solar flux, geomagnetic storm scale, aurora viewing forecast.',
@@ -5523,6 +5532,7 @@ export function buildToolList(c: TwoS): ToolDef[] {
         id: { type: 'string', description: 'Document id within the namespace, up to 256 chars.' },
         body: { type: 'string', description: 'The text to index, up to 1 MB.' },
         meta: { type: 'string', description: 'Optional JSON metadata returned with search hits (not indexed). e.g. {"title":"notes","tags":["x"]}.' },
+        redact: { type: 'boolean', description: 'Strip secrets from body before storing (see text.redact). Default false.' },
       }, ['ns', 'id', 'body']),
       invoke: (a) => c.store.docPut(a as never),
     },

@@ -222,6 +222,7 @@ export class TwoS {
   public readonly wikipedia: Endpoints['wikipedia']
   public readonly poi: Endpoints['poi']
   public readonly phone: Endpoints['phone']
+  public readonly text: Endpoints['text']
   public readonly space: Endpoints['space']
   public readonly bio: Endpoints['bio']
   public readonly vehicle: Endpoints['vehicle']
@@ -363,6 +364,7 @@ export class TwoS {
     this.wikipedia = this.endpoints.wikipedia
     this.poi = this.endpoints.poi
     this.phone = this.endpoints.phone
+    this.text = this.endpoints.text
     this.space = this.endpoints.space
     this.bio = this.endpoints.bio
     this.vehicle = this.endpoints.vehicle

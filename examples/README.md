@@ -21,6 +21,7 @@ Install: `npm i @2sio/sdk`
 | [durable-agent-worker.ts](./durable-agent-worker.ts) | Exactly-once work loop on the control plane — `lock` (single-leader lease) + `queue` (lease/ack with visibility timeout) + `store` (persist results) so stateless agent replicas coordinate without standing up their own infra. |
 | [identity-crosswalk.ts](./identity-crosswalk.ts) | Crosswalk one entity across identifier systems — ticker → SEC CIK, ISIN, LEI, then a unified identity bundle — so an agent gets stable join keys across feeds without maintaining crosswalk tables. |
 | [ai-gateway-no-keys.ts](./ai-gateway-no-keys.ts) | Call frontier LLMs without any provider API key — discover models (free), run a chat completion against any one, then escalate a high-stakes question to a multi-model council that returns one synthesized answer + the dissent. Pay-per-token in USDC, no accounts. |
+| [knowledge-delta-catchup.ts](./knowledge-delta-catchup.ts) | Catch up on a fast-moving domain since your LLM training cutoff in one call — a deduplicated, significance-ranked feed of real events from US federal regulations, House + Senate votes, academic papers, and court opinions, each with a citation, ready to inject as grounding context. |
 
 ## Python
 
