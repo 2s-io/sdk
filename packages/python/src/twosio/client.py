@@ -2032,6 +2032,39 @@ class _Weather(_Group):
         """Historical daily weather (ERA5) for a coordinate + date range (start, end YYYY-MM-DD, <=366d)."""
         return self._c.request("GET", "/api/weather/history", endpoint="weather.history", query={"lat": lat, "lon": lon, "start": start, "end": end})
 
+    def current(self, *, lat: float, lon: float, units: Optional[str] = None) -> CallResult:
+        """Current weather conditions for any coordinate worldwide (Open-Meteo; global, not just US).
+
+        Optional units='metric' (default) or 'imperial'.
+        """
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if units is not None:
+            q["units"] = units
+        return self._c.request("GET", "/api/weather/current", endpoint="weather.current", query=q)
+
+    def forecast_global(
+        self,
+        *,
+        lat: float,
+        lon: float,
+        days: Optional[int] = None,
+        hourly: Optional[bool] = None,
+        units: Optional[str] = None,
+    ) -> CallResult:
+        """Global weather forecast up to 16 days for any coordinate (Open-Meteo).
+
+        Optional days (1-16, default 7), hourly=True for hour-by-hour,
+        units='metric' (default) or 'imperial'.
+        """
+        q: dict[str, Any] = {"lat": lat, "lon": lon}
+        if days is not None:
+            q["days"] = days
+        if hourly is not None:
+            q["hourly"] = hourly
+        if units is not None:
+            q["units"] = units
+        return self._c.request("GET", "/api/weather/forecast-global", endpoint="weather.forecast-global", query=q)
+
 
 class _Dns(_Group):
     def lookup(
@@ -2202,6 +2235,33 @@ class _Papers(_Group):
         if sources is not None:
             query["sources"] = sources
         return self._c.request("GET", "/api/papers/search", endpoint="papers.search", query=query)
+
+    def citations(
+        self,
+        *,
+        id: str,
+        view: Optional[str] = None,
+        page: Optional[int] = None,
+        limit: Optional[int] = None,
+        sort: Optional[str] = None,
+    ) -> CallResult:
+        """Citation graph for a scholarly work via OpenAlex.
+
+        `id` = DOI (10.xxxx/..., doi.org URL) or OpenAlex work id (W...).
+        view='citing' (default; works that cite it) or 'referenced' (works it
+        references); page (1-200), limit (1-50, default 10), sort='recent'
+        (default) or 'citations'.
+        """
+        query: dict[str, Any] = {"id": id}
+        if view is not None:
+            query["view"] = view
+        if page is not None:
+            query["page"] = page
+        if limit is not None:
+            query["limit"] = limit
+        if sort is not None:
+            query["sort"] = sort
+        return self._c.request("GET", "/api/papers/citations", endpoint="papers.citations", query=query)
 
 
 class _Geo(_Group):

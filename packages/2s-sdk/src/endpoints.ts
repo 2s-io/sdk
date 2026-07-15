@@ -798,6 +798,14 @@ export interface Endpoints {
       since?: string
       sources?: string
     }): R<Normalized>
+    /** Citation graph for a work (OpenAlex): works citing it, or works it references. `id` = DOI or OpenAlex work id. */
+    citations(input: {
+      id: string
+      view?: 'citing' | 'referenced'
+      page?: number
+      limit?: number
+      sort?: 'recent' | 'citations'
+    }): R<Normalized>
   }
   paper: {
     /** Crossref DOI bibliographic metadata lookup. */
@@ -1230,6 +1238,10 @@ export interface Endpoints {
     marine(input: { lat: number; lon: number }): R<Normalized>
     /** Historical daily weather (ERA5) for a coordinate + date range. */
     history(input: { lat: number; lon: number; start: string; end: string }): R<Normalized>
+    /** Current conditions for any coordinate worldwide (Open-Meteo; global, not just US). */
+    current(input: { lat: number; lon: number; units?: 'metric' | 'imperial' }): R<Normalized>
+    /** Global forecast up to 16 days (daily, or hourly=true) for any coordinate (Open-Meteo). */
+    forecastGlobal(input: { lat: number; lon: number; days?: number; hourly?: boolean; units?: 'metric' | 'imperial' }): R<Normalized>
   }
   wikipedia: {
     summary(input: { title: string; lang?: string }): R<Normalized>
@@ -2075,6 +2087,7 @@ export function createEndpoints(client: TwoS): Endpoints {
     },
     papers: {
       search: (i) => get('papers.search', '/api/papers/search', i),
+      citations: (i) => get('papers.citations', '/api/papers/citations', i),
     },
     patents: {
       epoBiblio: (i) => get('patents.epo-biblio', '/api/patents/epo-biblio', i),
@@ -2140,6 +2153,8 @@ export function createEndpoints(client: TwoS): Endpoints {
       airQuality: (i) => get('weather.air-quality', '/api/weather/air-quality', i),
       marine: (i) => get('weather.marine', '/api/weather/marine', i),
       history: (i) => get('weather.history', '/api/weather/history', i),
+      current: (i) => get('weather.current', '/api/weather/current', i),
+      forecastGlobal: (i) => get('weather.forecast-global', '/api/weather/forecast-global', i),
     },
     wikipedia: {
       summary: (i) => get('wikipedia.summary', '/api/wikipedia/summary', i),

@@ -1922,6 +1922,30 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.weather.history(a as never),
     },
     {
+      name: 'weather.current',
+      description:
+        'Current weather conditions for any coordinate worldwide (global — not just US): temperature, feels-like, humidity, precipitation (rain/snow), cloud cover, pressure, wind speed/direction/gusts, day/night flag, and human-readable conditions, with local time + timezone. Optional units=metric|imperial (default metric). Source: Open-Meteo (keyless). For official US-only NWS data see weather.zip / weather.forecast.',
+      inputSchema: s('Current weather (global)', {
+        lat: { type: 'number', description: 'Latitude (-90..90).' },
+        lon: { type: 'number', description: 'Longitude (-180..180).' },
+        units: { type: 'string', enum: ['metric', 'imperial'], description: 'metric (°C, km/h, mm — default) or imperial (°F, mph, inch).' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.weather.current(a as never),
+    },
+    {
+      name: 'weather.forecast-global',
+      description:
+        'Weather forecast for any coordinate worldwide, up to 16 days out (global — not just US). Daily items: max/min temperature, feels-like max, precipitation total + max probability, max wind + gusts, sunrise/sunset, conditions; hourly=true for hour-by-hour instead. Optional days (1-16, default 7) and units=metric|imperial. Source: Open-Meteo (keyless). For the official US-only NWS forecast see weather.forecast.',
+      inputSchema: s('Global weather forecast', {
+        lat: { type: 'number', description: 'Latitude (-90..90).' },
+        lon: { type: 'number', description: 'Longitude (-180..180).' },
+        days: { type: 'integer', minimum: 1, maximum: 16, description: 'Forecast horizon in days (default 7).' },
+        hourly: { type: 'boolean', description: 'Hour-by-hour instead of daily.' },
+        units: { type: 'string', enum: ['metric', 'imperial'], description: 'metric (default) or imperial.' },
+      }, ['lat', 'lon']),
+      invoke: (a) => c.weather.forecastGlobal(a as never),
+    },
+    {
       name: 'climate.station-near',
       description:
         'Find NOAA GHCN-Daily climate stations near a coordinate. Useful for long-term climate-history lookups.',
@@ -2520,6 +2544,19 @@ export function buildToolList(c: TwoS): ToolDef[] {
         sources: { type: 'string', description: 'Comma-separated subset of arxiv,pubmed,semanticscholar.' },
       }, ['q']),
       invoke: (a) => c.papers.search(a as never),
+    },
+    {
+      name: 'papers.citations',
+      description:
+        "Citation graph for a scholarly work via OpenAlex. Pass id as a DOI (10.xxxx/…, doi.org URL) or an OpenAlex work id (W…). Returns the work's total citation + reference counts and a paginated list of either the works that CITE it (view=citing, default) or the works it REFERENCES (view=referenced); each with DOI, title, year, venue, authors, and its own citation count. Fresh citation data lands after any training cutoff. Complements papers.search with graph traversal.",
+      inputSchema: s('Paper citations', {
+        id: { type: 'string', description: 'DOI or OpenAlex work id (e.g. W3177828909).' },
+        view: { type: 'string', enum: ['citing', 'referenced'], description: 'citing (default) or referenced.' },
+        page: { type: 'integer', minimum: 1, maximum: 200, description: 'Page (default 1).' },
+        limit: { type: 'integer', minimum: 1, maximum: 50, description: 'Per page (default 10).' },
+        sort: { type: 'string', enum: ['recent', 'citations'], description: 'recent (default) or citations (most-cited first).' },
+      }, ['id']),
+      invoke: (a) => c.papers.citations(a as never),
     },
     {
       name: 'census.zipcode',
