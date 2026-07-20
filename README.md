@@ -112,7 +112,7 @@ Restart Claude. The model can now call patents.search, law.sanctions-check, ai.s
 
 ## What's behind the API
 
-570+ endpoints across 112+ groups (live count in the [directory](https://2s.io/api/directory)) across:
+575+ endpoints across 113+ groups (live count in the [directory](https://2s.io/api/directory)) across:
 
 - **AI:** webpage summarization, translation, typed extraction, image description, transcription, screenshots
 - **Agent primitives:** persistent key-value memory, agent-to-agent marketplace (register / discover / review), knowledge-delta ("what changed in X since date Y"), atomic batch settlement
