@@ -22,6 +22,7 @@ Install: `npm i @2sio/sdk`
 | [identity-crosswalk.ts](./identity-crosswalk.ts) | Crosswalk one entity across identifier systems — ticker → SEC CIK, ISIN, LEI, then a unified identity bundle — so an agent gets stable join keys across feeds without maintaining crosswalk tables. |
 | [ai-gateway-no-keys.ts](./ai-gateway-no-keys.ts) | Call frontier LLMs without any provider API key — discover models (free), run a chat completion against any one, then escalate a high-stakes question to a multi-model council that returns one synthesized answer + the dissent. Pay-per-token in USDC, no accounts. |
 | [knowledge-delta-catchup.ts](./knowledge-delta-catchup.ts) | Catch up on a fast-moving domain since your LLM training cutoff in one call — a deduplicated, significance-ranked feed of real events from US federal regulations, House + Senate votes, academic papers, and court opinions, each with a citation, ready to inject as grounding context. |
+| [equity-research-dossier.ts](./equity-research-dossier.ts) | Equity-research brief for a stock ticker — resolve ticker → SEC CIK, pull a one-call "company 360" (recent filings + curated XBRL fundamentals + insider activity), then drill into parsed Form 4 transactions for a net insider buy/sell signal. All public-domain SEC data, cited. |
 
 ## Python
 
