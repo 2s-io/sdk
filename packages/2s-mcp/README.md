@@ -11,7 +11,7 @@
 npx @2sio/mcp --signer 0x...
 ```
 
-No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.001/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (575+ endpoints across 113+ groups and counting).
+No accounts to create. The server signs for whichever chain you configured a key on — Base USDC (EIP-3009) or Solana SPL-USDC. Settles in ~2 seconds. Prices start at $0.0025/call. 2s is an open-ended experiment in maximally-comprehensive agent infrastructure — the toolset grows continually (575+ endpoints across 113+ groups and counting).
 
 ### Hosted (connect by URL, no install)
 

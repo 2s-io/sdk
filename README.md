@@ -17,7 +17,7 @@ This repo ships SDKs for every major agent-development language plus an MCP serv
 | **Go** | [`github.com/2s-io/sdk/packages/go`](./packages/go) | `go get github.com/2s-io/sdk/packages/go` | 🚧 x402 wire-up pending |
 | **Rust** | [`twosio`](./packages/rust) | `cargo add twosio` | 🚧 x402 wire-up pending |
 
-No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization (Base) or an SPL USDC transfer (Solana) on-the-fly, the facilitator verifies + settles in ~2 seconds on mainnet, and the API returns typed data. Prices start at $0.001/call.
+No accounts. No API keys. No credit cards. Buyers sign an EIP-3009 USDC authorization (Base) or an SPL USDC transfer (Solana) on-the-fly, the facilitator verifies + settles in ~2 seconds on mainnet, and the API returns typed data. Prices start at $0.0025/call.
 
 ## 🎁 Try before you buy — free, no wallet
 

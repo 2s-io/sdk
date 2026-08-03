@@ -50,7 +50,7 @@ print(r.data["hits"][0]["title"])
 print("paid:", r.cost_usd, "USDC, tx:", r.settlement["tx_hash"])
 ```
 
-Settles on Base mainnet in ~2 seconds. Prices start at $0.001/call.
+Settles on Base mainnet in ~2 seconds. Prices start at $0.0025/call.
 
 If you'd rather construct the signer yourself (e.g. for a custodial KMS-backed wallet), pass it directly:
 
