@@ -1152,16 +1152,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.bio.protein(a as never),
     },
     {
-      name: 'aircraft.profile',
-      description: 'Identify a US-registered aircraft by tail (N-number) or icao24, AND screen its owner + operator against OFAC sanctions in one call. Returns the aircraft record + per-name sanctions screen with confidence + flagged. OSINT / asset-tracing / sanctions-evasion. Name-based screening is probabilistic.',
-      inputSchema: s('Aircraft profile', {
-        tail: { type: 'string', description: 'Tail / N-number.' },
-        icao24: { type: 'string', description: '24-bit Mode-S hex.' },
-        threshold: { type: 'number', minimum: 0.1, maximum: 1, default: 0.5 },
-      }),
-      invoke: (a) => c.aircraft.profile(a as never),
-    },
-    {
       name: 'business.entity-screen',
       description: 'KYC in one call: look up a business in a US state registry (NY/CO/CT) AND screen it + its registered agent against OFAC sanctions. Returns matched entities each with a sanctions screen (confidence + flagged). Counterparty due-diligence, AML. Probabilistic name match.',
       inputSchema: s('Entity screen', {
@@ -1551,22 +1541,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
       invoke: (a) => c.law.trademarkStatus(a as never),
     },
     {
-      name: 'law.trademark-search',
-      description:
-        'Search US trademarks by wordmark text, owner, or goods/services — the text search the USPTO offers no public API for. Pass query for full-text (best-match ranked), or serial / registrationNumber for an exact record. Filter by field (mark|owner|all), status (live=registered+pending, default; all includes dead), and intlClass (Nice class). Returns wordmark, serial, registration number, status (+ live flag), dates, owner, classes, and goods/services. Use law.trademark-status for live USPTO prosecution detail on a known serial.',
-      inputSchema: s('Trademark search', {
-        query: { type: 'string', description: 'Free-text search over wordmark (default), owner, or goods/services.' },
-        serial: { type: 'string', description: 'Exact USPTO serial number (digits).' },
-        registrationNumber: { type: 'string', description: 'Exact USPTO registration number.' },
-        field: { type: 'string', enum: ['mark', 'owner', 'all'], description: 'Which text to search. Default mark.' },
-        status: { type: 'string', enum: ['live', 'all'], description: 'live (default) = registered+pending; all includes dead.' },
-        intlClass: { type: 'string', description: 'Nice international class filter, e.g. 9 or 009.' },
-        limit: { type: 'integer', description: '1-100, default 20.' },
-        offset: { type: 'integer', description: 'Pagination offset, default 0.' },
-      }),
-      invoke: (a) => c.law.trademarkSearch(a as never),
-    },
-    {
       name: 'nutrition.food',
       description:
         'USDA FoodData Central nutrition lookup (~400k foods). Search by name (query=cheddar cheese) for matching foods with fdcId, or fetch one food (fdcId=328637) for its full analyzed nutrient profile — energy, protein, fats, carbs, vitamins, minerals with amounts and units, plus ingredients for branded foods. Real analyzed values instead of model-estimated nutrition facts.',
@@ -1840,15 +1814,6 @@ export function buildToolList(c: TwoS): ToolDef[] {
     },
 
     // ── Airports / weather / geo ─────────────────────────────────────
-    {
-      name: 'aircraft.lookup',
-      description: 'Look up a US-registered aircraft by tail number (N-number, e.g. N757F) or icao24 Mode-S hex (e.g. aa3487). Pass exactly one. Returns make/model/owner/operator + the icao24 that links to live ADS-B flight-tracking. ~307k US airframes (OpenSky, CC-BY-SA).',
-      inputSchema: s('Aircraft lookup', {
-        tail: { type: 'string', description: 'Tail / N-number (e.g. N757F).' },
-        icao24: { type: 'string', description: '24-bit Mode-S hex (e.g. aa3487).' },
-      }, []),
-      invoke: (a) => c.aircraft.lookup(a as never),
-    },
     {
       name: 'airport.lookup',
       description: 'Look up an airport by IATA (3-letter) or ICAO (4-letter) code. ~85k airports (CC0 — OurAirports).',

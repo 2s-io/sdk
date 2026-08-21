@@ -1571,37 +1571,6 @@ class _Law(_Group):
         if registration_number is not None: q["registrationNumber"] = registration_number
         return self._c.request("GET", "/api/law/trademark-status", endpoint="law.trademark-status", query=q)
 
-    def trademark_search(
-        self,
-        *,
-        query: Optional[str] = None,
-        serial: Optional[str] = None,
-        registration_number: Optional[str] = None,
-        field: Optional[str] = None,
-        status: Optional[str] = None,
-        intl_class: Optional[str] = None,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
-    ) -> CallResult:
-        """Full-text search of US trademarks (USPTO bulk corpus).
-
-        Pass query for wordmark/owner/goods search, or serial /
-        registration_number for an exact record. field=mark|owner|all,
-        status=live|all (default live), intl_class=Nice class.
-        """
-        if query is None and serial is None and registration_number is None:
-            raise ValueError("trademark_search() requires one of query, serial, or registration_number.")
-        q: dict[str, Any] = {}
-        if query is not None: q["query"] = query
-        if serial is not None: q["serial"] = serial
-        if registration_number is not None: q["registrationNumber"] = registration_number
-        if field is not None: q["field"] = field
-        if status is not None: q["status"] = status
-        if intl_class is not None: q["intlClass"] = intl_class
-        if limit is not None: q["limit"] = limit
-        if offset is not None: q["offset"] = offset
-        return self._c.request("GET", "/api/law/trademark-search", endpoint="law.trademark-search", query=q)
-
     def opinion(
         self,
         *,
@@ -1915,33 +1884,6 @@ class _Geocode(_Group):
 
     def reverse(self, *, lat: float, lon: float) -> CallResult:
         return self._c.request("GET", "/api/geocode/reverse", endpoint="geocode.reverse", query={"lat": lat, "lon": lon})
-
-
-class _Aircraft(_Group):
-
-    def profile(
-        self, *, tail: Optional[str] = None, icao24: Optional[str] = None, threshold: Optional[float] = None,
-    ) -> CallResult:
-        """Aircraft identity + OFAC sanctions screen of owner/operator. Params: tail, icao24, threshold."""
-        q: dict[str, Any] = {}
-        if tail is not None: q["tail"] = tail
-        if icao24 is not None: q["icao24"] = icao24
-        if threshold is not None: q["threshold"] = threshold
-        return self._c.request("GET", "/api/aircraft/profile", endpoint="aircraft.profile", query=q)
-
-    def lookup(self, *, tail: Optional[str] = None, icao24: Optional[str] = None) -> CallResult:
-        """US-registered aircraft by tail (N-number) or icao24 Mode-S hex.
-
-        Pass exactly one of tail / icao24. Returns make/model/owner/operator
-        + the icao24 that links to live ADS-B flight-tracking. ~307k airframes
-        (OpenSky Network, CC-BY-SA).
-        """
-        q: dict[str, Any] = {}
-        if tail is not None:
-            q["tail"] = tail
-        if icao24 is not None:
-            q["icao24"] = icao24
-        return self._c.request("GET", "/api/aircraft/lookup", endpoint="aircraft.lookup", query=q)
 
 
 class _Airport(_Group):
@@ -6918,7 +6860,6 @@ class TwoS:
         self.law = _Law(self)
         self.finance = _Finance(self)
         self.geocode = _Geocode(self)
-        self.aircraft = _Aircraft(self)
         self.airport = _Airport(self)
         self.weather = _Weather(self)
         self.dns = _Dns(self)

@@ -243,12 +243,6 @@ export interface Endpoints {
     /** Sentiment analysis — polarity (positive/negative/neutral/mixed), -1..1 score, confidence + rationale. POST { text }. */
     sentiment(input: { text: string }): R<Normalized>
   }
-  aircraft: {
-    /** US aircraft by tail (N-number) or icao24 Mode-S hex. Pass exactly one. */
-    lookup(input: { tail?: string; icao24?: string }): R<unknown>
-    /** Aircraft identity + OFAC sanctions screen of owner/operator in one call. */
-    profile(input: { tail?: string; icao24?: string; threshold?: number }): R<unknown>
-  }
   airport: {
     /** Look up by IATA (3-letter) or ICAO (4-letter) code. */
     lookup(input: { code: string }): R<Normalized>
@@ -758,17 +752,6 @@ export interface Endpoints {
     uscSection(input: { title: number; section: string; includeNotes?: boolean }): R<unknown>
     /** US trademark status by 8-digit serial number OR registration number (exactly one). */
     trademarkStatus(input: { serialNumber: string } | { registrationNumber: string }): R<unknown>
-    /** Full-text search of US trademarks by wordmark / owner / goods (or exact serial / registration number). */
-    trademarkSearch(input: {
-      query?: string
-      serial?: string
-      registrationNumber?: string
-      field?: 'mark' | 'owner' | 'all'
-      status?: 'live' | 'all'
-      intlClass?: string
-      limit?: number
-      offset?: number
-    }): R<unknown>
   }
   /** USDA FoodData Central nutrition data. */
   nutrition: {
@@ -1819,10 +1802,6 @@ export function createEndpoints(client: TwoS): Endpoints {
       pii: (i) => post('ai.pii', '/api/ai/pii', i),
       sentiment: (i) => post('ai.sentiment', '/api/ai/sentiment', i),
     },
-    aircraft: {
-      lookup: (i) => get('aircraft.lookup', '/api/aircraft/lookup', i),
-      profile: (i) => get('aircraft.profile', '/api/aircraft/profile', i),
-    },
     airport: {
       lookup: (i) => get('airport.lookup', '/api/airport/lookup', i),
       near: (i) => get('airport.near', '/api/airport/near', i),
@@ -2081,7 +2060,6 @@ export function createEndpoints(client: TwoS): Endpoints {
       judgeLookup: (i) => get('law.judge-lookup', '/api/law/judge-lookup', i),
       uscSection: (i) => get('law.usc-section', '/api/law/usc-section', i),
       trademarkStatus: (i) => get('law.trademark-status', '/api/law/trademark-status', i),
-      trademarkSearch: (i) => get('law.trademark-search', '/api/law/trademark-search', i),
     },
     nutrition: {
       food: (i) => get('nutrition.food', '/api/nutrition/food', i),
