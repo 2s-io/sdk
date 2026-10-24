@@ -1,7 +1,8 @@
 # 2s.io SDK
 
-[![smithery badge](https://smithery.ai/badge/twosio/mcp)](https://smithery.ai/servers/twosio/mcp)
+[![Smithery](https://img.shields.io/badge/Smithery-twosio%2Fmcp-FF5A1F)](https://smithery.ai/servers/twosio/mcp)
 [![2s-io/sdk MCP server](https://glama.ai/mcp/servers/2s-io/sdk/badges/score.svg)](https://glama.ai/mcp/servers/2s-io/sdk)
+[![LightNow capabilities](https://lightnow.ai/badge/io.github.2s-io/mcp)](https://lightnow.ai/servers/io.github.2s-io/mcp)
 
 **Client SDK + MCP server for [2s.io](https://2s.io) — the (most) everything API. One pay-per-call API giving AI agents ground-truth data across hundreds of endpoints, paid per call in USDC on Base or Solana via [x402](https://x402.org).**
 
